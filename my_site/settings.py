@@ -35,8 +35,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-a-changer")
 
-DEBUG = os.environ.get("DJANGO_DEBUG", "") == "True"
-
+# DEBUG = os.environ.get("DJANGO_DEBUG", "") == "True"
+DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
