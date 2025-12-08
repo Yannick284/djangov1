@@ -171,7 +171,8 @@ AWS_S3_REGION_NAME = "eu-west-3"  # si tu as choisi Paris
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 
 AWS_S3_FILE_OVERWRITE = False
-AWS_DEFAULT_ACL = None
+# AWS_DEFAULT_ACL = None
+AWS_DEFAULT_ACL = "public-read"
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
