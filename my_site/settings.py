@@ -178,6 +178,8 @@ AWS_S3_OBJECT_PARAMETERS = {
 
 # Tous les fichiers uploadés vont sur S3
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+if not AWS_ACCESS_KEY_ID or not AWS_SECRET_ACCESS_KEY:
+    raise ValueError("AWS credentials manquants : vérifie les variables d'environnement Render.")
 
 MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/"
 # MEDIA_ROOT ne sert plus vraiment, mais tu peux le laisser défini, ce n'est pas gênant.
