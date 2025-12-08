@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
+from storages.backends.s3boto3 import S3Boto3Storage
 
 # Create your models here.
 
@@ -26,7 +27,9 @@ class Author(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=150)
     excerpt = models.CharField(max_length=200)
-    image = models.ImageField(upload_to="posts", null=True)
+    s3_storage = S3Boto3Storage()
+
+    image = models.ImageField(storage=s3_storage, upload_to="posts", null=True)
     date = models.DateField(auto_now=True)
     slug = models.SlugField(unique=True, db_index=True)
     content = models.TextField(validators=[MinLengthValidator(10)])

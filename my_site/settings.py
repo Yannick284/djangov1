@@ -17,6 +17,8 @@ from pathlib import Path
 
 import dj_database_url
 
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -164,6 +166,7 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 import os
 
+
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = "django-media-yannicks3"
@@ -172,7 +175,7 @@ AWS_S3_SIGNATURE_VERSION = "s3v4"
 
 AWS_S3_FILE_OVERWRITE = False
 # AWS_DEFAULT_ACL = None
-AWS_DEFAULT_ACL = "public-read"
+# AWS_DEFAULT_ACL = "public-read"
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
@@ -184,3 +187,5 @@ if not AWS_ACCESS_KEY_ID or not AWS_SECRET_ACCESS_KEY:
 
 MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/"
 # MEDIA_ROOT ne sert plus vraiment, mais tu peux le laisser défini, ce n'est pas gênant.
+
+
