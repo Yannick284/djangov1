@@ -50,6 +50,8 @@ body {
   transition: background-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
 }
 
+
+
 #stored-posts a:hover,
 #stored-posts a:active {
   background-color: #EEF2FF;
