@@ -7,45 +7,87 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
+/* Mobile-first summary header */
+
 #summary {
-  margin: 8rem auto 3rem auto;
-  padding: 2rem;
-  width: 90%;
-  max-width: 90rem;
+  margin: 6rem auto 2rem auto;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 60rem;
   border-radius: 16px;
   background-color: #5706c0;
   position: relative;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  height: 22rem;
+  color: white;
 }
 
 #summary h2 {
   color: white;
-  font-size: 4.5rem;
-  margin-bottom: 0.25rem;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
-#summary article {
-  position: absolute;
-  top: 2rem;
-  right: 3rem;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  text-align: right;
+#summary > div {
+  margin-bottom: 0.75rem;
+}
+
+/* Tags */
+
+.tag {
+  display: inline-block;
+  background-color: white;
+  color: #390281;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  margin-right: 0.4rem;
+}
+
+/* Read later button */
+
+#read-later {
+  margin: 1.5rem 0 1rem 0;
+}
+
+#read-later button {
+  background-color: transparent;
+  border: 1px solid white;
+  padding: 0.5rem 2rem;
+  font: inherit;
   color: white;
+  cursor: pointer;
+  border-radius: 999px;
+}
+
+#read-later button:hover,
+#read-later button:active {
+  background-color: white;
+  color: #390281;
+}
+
+/* Summary article (image + meta) */
+
+#summary article {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
+  text-align: left;
 }
 
 #summary article img {
-  width: 12rem;
-  height: 12rem;
-  border-radius: 12px;
-  transform: rotateZ(5deg);
-  border: 5px solid white;
-  margin-bottom: 1rem;
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    border-radius: 0;        /* plus de courbe */
+    border: none;            /* plus de cadre blanc */
+    object-fit: cover;
+    margin-bottom: 1rem;
 }
 
 #summary address {
   font-weight: bold;
+  display: block;
+  margin-bottom: 0.25rem;
 }
 
 #summary a {
@@ -57,50 +99,28 @@ body {
   font-weight: bold;
 }
 
-#read-later {
-  margin: 2rem 0;
-}
-
-#read-later button {
-  background-color: transparent;
-  border: 1px solid white;
-  padding: 0.5rem 2rem;
-  font: inherit;
-  color: white;
-  cursor: pointer;
-}
-
-#read-later button:hover,
-#read-later button:active {
-  background-color: white;
-  color: #390281;
-}
+/* Main content */
 
 main {
-  width: 90%;
-  max-width: 90rem;
-  margin: 3rem auto;
+  width: 100%;
+  max-width: 60rem;
+  margin: 2rem auto;
   background-color: white;
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-.tag {
-  background-color: white;
-  color: #390281;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-}
+/* Comment form */
 
 #comment-form {
   margin: 3rem auto;
-  width: 90%;
+  width: 100%;
   max-width: 40rem;
   border-radius: 12px;
   background-color: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  padding: 1rem;
+  padding: 1.25rem;
 }
 
 #comment-form button {
@@ -139,6 +159,8 @@ main {
   border: 1px solid #ccc;
 }
 
+/* Errors */
+
 .errorlist {
   list-style: none;
   margin: 0.5rem 0;
@@ -156,12 +178,14 @@ main {
   background-color: #ffe6e7;
 }
 
+/* Alert */
+
 #alert {
-  margin: 8rem auto 3rem auto;
+  margin: 6rem auto 2rem auto;
   border: 1px solid #d6000b;
   background-color: #ffe6e7;
   padding: 1rem;
-  width: 90%;
+  width: 100%;
   max-width: 40rem;
 }
 
@@ -174,14 +198,16 @@ main {
   border-radius: 6px;
 }
 
+/* Comments list */
+
 #comments {
   margin: 3rem auto;
-  width: 90%;
+  width: 100%;
   max-width: 60rem;
   border-radius: 12px;
   background-color: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  padding: 1rem 2rem;
+  padding: 1.25rem 1.75rem;
 }
 
 #comments ul {
@@ -193,6 +219,7 @@ main {
 #comments li {
   margin-bottom: 1rem;
   border-bottom: 2px solid #ccc;
+  padding-bottom: 0.75rem;
 }
 
 #comments li:last-of-type {
@@ -201,4 +228,46 @@ main {
 
 #comments h2 {
   color: #464646;
+}
+
+/* Desktop layout: put image/meta on the right */
+
+@media (min-width: 900px) {
+  #summary {
+    margin: 8rem auto 3rem auto;
+    padding: 2rem 2.5rem;
+    max-width: 90rem;
+  }
+
+  #summary {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    column-gap: 2rem;
+    align-items: flex-start;
+  }
+
+  #summary article {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    text-align: right;
+  }
+
+  #summary h2 {
+    font-size: 3rem;
+  }
+
+  #summary article img {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    border-radius: 0;
+    border: none;
+    object-fit: cover;
+  }
+
+  main {
+    max-width: 90rem;
+    padding: 2rem;
+  }
 }
