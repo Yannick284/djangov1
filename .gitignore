@@ -3,7 +3,7 @@ venv/
 *.pyc
 __pycache__/
 db.sqlite3
-
+# staticfiles/
 uploads/
 .DS_Store
 .idea/
