@@ -7,27 +7,48 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
+/* Container */
+
 #all-posts {
-  margin: 7rem auto;
-  width: 90%;
+  margin: 6rem auto 3rem auto;
+  width: 100%;
   max-width: 60rem;
+  padding: 0 1.5rem;
 }
 
 #all-posts h2 {
   text-align: center;
   font-size: 2rem;
   color: #2e2e2e;
-  margin: 3rem 0;
+  margin: 2rem 0;
 }
 
-ul {
+/* Grid of posts – mobile first */
+
+#all-posts ul {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
 }
+
+/* On larger screens, multiple columns */
+
+@media (min-width: 600px) {
+  #all-posts ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  #all-posts ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Post cards */
 
 .post img {
   width: 7rem;
@@ -35,9 +56,11 @@ ul {
 }
 
 .post a {
-  height: 22rem;
+  display: block;
+  min-height: 16rem;
   transform-origin: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   border-radius: 12px;
   background-color: white;
+  padding: 1rem;
 }
