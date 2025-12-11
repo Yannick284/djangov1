@@ -39,7 +39,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-a-changer")
 
 # DEBUG = os.environ.get("DJANGO_DEBUG", "") == "True"
 DEBUG = True
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1","yannickwahl.fr",
+    "www.yannickwahl.fr",
+    "djangov1-tvq7.onrender.com"]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
