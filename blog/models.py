@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
-# from storages.backends.s3boto3 import S3Boto3Storage
+from storages.backends.s3boto3 import S3Boto3Storage
 from django.conf import settings
 from django.utils.text import slugify
 # Create your models here.
