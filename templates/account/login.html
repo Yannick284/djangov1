@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css_files %}
+<link rel="stylesheet" href="{% static 'auth.css' %}">
+{% endblock %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<section class="auth">
+  <h2>Login</h2>
+
+  <form method="post" action="{% url 'account_login' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Login</button>
+  </form>
+
+  <p>
+    <a href="{% url 'account_reset_password' %}">Forgot your password?</a>
+  </p>
+  <p>
+    <a href="{% url 'account_signup' %}">Create account</a>
+  </p>
+</section>
+{% endblock %}

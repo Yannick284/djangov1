@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css_files %}
+<link rel="stylesheet" href="{% static 'post-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="post-form-page">
+  <div class="post-form-card">
+    <h1>Créer un post</h1>
+
+    <form method="POST" enctype="multipart/form-data" class="post-form">
+      {% csrf_token %}
+
+      {% for field in form %}
+        <div class="form-group">
+          <label>{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <p class="field-error">{{ field.errors }}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button type="submit" class="btn-primary">Publier</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

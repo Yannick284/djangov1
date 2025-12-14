@@ -6,20 +6,22 @@ My page
 {% endblock %} 
 
 {% block css_files %}
-  <link rel="stylesheet" href="{% static "blog/post.css" %}" />
-  <link rel="stylesheet" href="{% static "blog/index.css" %}" />
+  <link rel="stylesheet" href="{% static "post.css" %}" />
+  <link rel="stylesheet" href="{% static "index.css" %}" />
 {% endblock %}
 
 {% block content %}
 <section id="welcome">
   <header>
-    <img src="{% static "blog/images/me.png" %}" alt="Yannick - premier déploiement" />
-    <h2>Yannick Wahl</h2>
+    <img src="{% static "images/me.png" %}" alt="Yannick - premier déploiement" />
+<h1>Notes & Projects</h1>
+<p class="subtitle">whatever I’m building.</p>
   </header>
-  <p>Test</p>
+  <p>V0.0</p>
 </section>
 
-<section id="latest-posts">
+  
+  <section id="latest-posts">
   <h2>My Latest posts</h2>
 
   <ul>
@@ -28,6 +30,8 @@ My page
     {% endfor %}
   </ul>
 </section>
+
+
 
 <section id="about">
   <h2>About</h2>
@@ -39,3 +43,13 @@ My page
   </p>
 </section>
 {% endblock %}
+
+
+
+{% comment %} {% if user.is_authenticated %}
+  <a href="{% url 'account_logout' %}">Logout</a>
+  <a href="/dashboard/">Dashboard</a>
+{% else %}
+  <a href="{% url 'account_login' %}">Login</a>
+  <a href="{% url 'account_signup' %}">Signup</a>
+{% endif %} {% endcomment %}

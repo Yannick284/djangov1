@@ -11,11 +11,19 @@
 </head>
 <body>
   <header id="main-navigation">
-    <h1><a href="{% url "starting-page" %}">Yannick Wahl</a></h1>
-    <nav>
-      <a href="{% url "read-later" %}">Stored Posts</a>
-      <a href="{% url "posts-page" %}">All Posts</a>
-    </nav>
+    <h1><a href="{% url "starting-page" %}">YW</a></h1>
+<nav>
+  <a href="{% url 'read-later' %}">Stored Posts</a>
+  <a href="{% url 'posts-page' %}">All Posts</a>
+
+  {% if user.is_authenticated %}
+    <a href="{% url 'post-create' %}">New post</a>
+    <a href="{% url 'account_logout' %}">Logout</a>
+  {% else %}
+    <a href="{% url 'account_login' %}">Login</a>
+    <a href="{% url 'account_signup' %}">Signup</a>
+  {% endif %}
+</nav>
   </header>
 
   {% block content %}

@@ -61,7 +61,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'storages',
+    # 'storages',
+        # Required by allauth
+    "django.contrib.sites",
+
+    # Allauth
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",  # même si pas de Google tout de suite
 ]
 
 MIDDLEWARE = [
@@ -73,8 +80,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
     
 ]
+LOGIN_URL = "/accounts/login/"
 
 ROOT_URLCONF = 'my_site.urls'
 
@@ -95,6 +104,54 @@ TEMPLATES = [
         },
     },
 ]
+
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+# Option 3 (email login)
+
+# ACCOUNT_AUTHENTICATION_METHOD = "email"
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USERNAME_REQUIRED = False
+
+ACCOUNT_FORMS = {
+    "signup": "blog.forms.CustomSignupForm",   # adapte le chemin si tu l'as mis ailleurs
+}
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = "username"   # champ username du User Django standard
+
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "noreply@yannickwahl.fr"
+
+ACCOUNT_LOGOUT_ON_GET = True
+
+
+# --- django-allauth (nouvelle config) ---
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = "username"   # champ username du User Django standard
+ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
+
+ACCOUNT_SIGNUP_FIELDS = ["username*", "email*", "password1*", "password2*"]
+
+# login possible avec username OU email
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
+
+ACCOUNT_UNIQUE_EMAIL = True
+# Au début (pour ne pas te bloquer en prod si SMTP pas prêt)
+ACCOUNT_EMAIL_VERIFICATION = "optional"   # plus tard -> "mandatory"
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = "/accounts/login/"
+SITE_ID = 1
+
+
+
 
 WSGI_APPLICATION = 'my_site.wsgi.application'
 
@@ -159,8 +216,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
 
-MEDIA_ROOT = BASE_DIR / "uploads"
-MEDIA_URL = "/files/"
+
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
@@ -173,7 +229,9 @@ AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = "django-media-yannicks3"
 AWS_S3_REGION_NAME = "eu-west-3"  # si tu as choisi Paris
-AWS_S3_SIGNATURE_VERSION = "s3v4"
+
+ENV = os.getenv("ENV", "local")  # local / prod
+USE_S3 = ENV == "prod"
 
 AWS_S3_FILE_OVERWRITE = False
 # AWS_DEFAULT_ACL = None
@@ -182,12 +240,43 @@ AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
 
-# Tous les fichiers uploadés vont sur S3
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-if not AWS_ACCESS_KEY_ID or not AWS_SECRET_ACCESS_KEY:
-    raise ValueError("AWS credentials manquants : vérifie les variables d'environnement Render.")
 
-MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/"
+ENV = os.getenv("ENV", "local")  # local / prod
+
+if USE_S3:
+    INSTALLED_APPS += ["storages"]
+
+    AWS_S3_SIGNATURE_VERSION = "s3v4"
+    AWS_QUERYSTRING_AUTH = False
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+
 # MEDIA_ROOT ne sert plus vraiment, mais tu peux le laisser défini, ce n'est pas gênant.
+
+
+
+    # Django 4.2+ style (ok même si tu n'utilises que default)
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {"location": "media"},
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+else:
+    # En local on ne bloque jamais
+    if ENV == "prod":
+        raise ValueError("AWS credentials manquants en prod (Render).")
+
+    MEDIA_URL = "/files/"
+    MEDIA_ROOT = BASE_DIR / "uploads"
+
+
+
 
 

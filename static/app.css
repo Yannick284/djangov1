@@ -10,40 +10,82 @@ html {
 
 body {
   margin: 0;
+  background-color: #F3F4F6;
+  color: #111827;
 }
+
+/* Titres */
 
 h1,
 h2,
 h3 {
   font-family: 'Lato', sans-serif;
   font-weight: bold;
+  color: #111827;
 }
+
+/* ===== NAVBAR GLOBALE ===== */
 
 #main-navigation {
   width: 100%;
-  height: 5rem;
+  height: 4.2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 10%;
-  position: absolute;
+  padding: 1rem 2rem;
+  position: fixed;              /* toujours visible en haut */
   top: 0;
   left: 0;
+  z-index: 50;
+  background-color: rgba(17, 24, 39, 0.98); /* #111827 quasi opaque */
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.4);
+  
+}
+
+#main-navigation h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+#main-navigation nav {
+  display: flex;
+  align-items: center;
 }
 
 #main-navigation a {
   text-decoration: none;
-  color: white;
-  font-weight: bold;
+  color: #F9FAFB;
+  font-weight: 600;
   margin-left: 1rem;
+  font-size: 0.95rem;
+  transition: color 0.15s ease;
 }
 
 #main-navigation a:hover,
 #main-navigation a:active {
-  color: #cf79f1;
+  color: #A5B4FC; /* violet clair */
 }
 
 #main-navigation h1 a:hover,
 #main-navigation h1 a:active {
-  color: white;
+  color: #F9FAFB; /* le logo/titre ne change pas de couleur */
+}
+
+/* ===== NAVBAR - RESPONSIVE ===== */
+
+@media (max-width: 640px) {
+  #main-navigation {
+    padding: 0 1.25rem;
+    height: 3.8rem;
+  }
+
+  #main-navigation h1 {
+    font-size: 1.1rem;
+  }
+
+  #main-navigation a {
+    font-size: 0.85rem;
+    margin-left: 0.7rem;
+  }
 }
