@@ -7,13 +7,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{% endblock %}</title>
   <link rel="stylesheet" href="{% static "app.css" %}">
+  <script src="{% static 'app.js' %}"></script>
   {% block css_files %}{% endblock %}
 </head>
 <body>
   <header id="main-navigation">
     <h1><a href="{% url "starting-page" %}">YW</a></h1>
-<nav>
+    <!-- Menu desktop -->
+  <nav class="nav-desktop" aria-label="Navigation principale">
   <a href="{% url 'read-later' %}">Stored Posts</a>
+  <a href="{% url 'posts-page' %}">All Posts</a>
+
+  {% if user.is_authenticated %}
+    <a href="{% url 'post-create' %}">New post</a>
+    <a href="{% url 'account_logout' %}">Logout</a>
+  {% else %}
+    <a href="{% url 'account_login' %}">Login</a>
+    <a href="{% url 'account_signup' %}">Signup</a>
+  {% endif %}
+</nav>
+  </header>
+
+  <!-- Overlay -->
+<div class="nav-overlay" hidden></div>
+
+<!-- Drawer mobile -->
+<nav id="mobile-drawer" class="nav-drawer" aria-label="Navigation mobile" hidden>
+    <a href="{% url 'read-later' %}">Stored Posts</a>
   <a href="{% url 'posts-page' %}">All Posts</a>
 
   {% if user.is_authenticated %}
