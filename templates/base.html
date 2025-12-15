@@ -1,52 +1,59 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{% endblock %}</title>
-  <link rel="stylesheet" href="{% static "app.css" %}">
-  <script src="{% static 'app.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'app.css' %}">
   {% block css_files %}{% endblock %}
 </head>
+
 <body>
   <header id="main-navigation">
-    <h1><a href="{% url "starting-page" %}">YW</a></h1>
-    <!-- Menu desktop -->
-  <nav class="nav-desktop" aria-label="Navigation principale">
-  <a href="{% url 'read-later' %}">Stored Posts</a>
-  <a href="{% url 'posts-page' %}">All Posts</a>
+    <h1><a href="{% url 'starting-page' %}">YW</a></h1>
 
-  {% if user.is_authenticated %}
-    <a href="{% url 'post-create' %}">New post</a>
-    <a href="{% url 'account_logout' %}">Logout</a>
-  {% else %}
-    <a href="{% url 'account_login' %}">Login</a>
-    <a href="{% url 'account_signup' %}">Signup</a>
-  {% endif %}
-</nav>
+    <!-- Bouton mobile -->
+    <button class="nav-toggle" aria-controls="mobile-drawer" aria-expanded="false">
+      <span class="sr-only">Open menu</span>
+      <span class="burger"></span>
+    </button>
+
+    <!-- Menu desktop -->
+    <nav class="nav-desktop">
+      <a href="{% url 'read-later' %}">Stored Posts</a>
+      <a href="{% url 'posts-page' %}">All Posts</a>
+
+      {% if user.is_authenticated %}
+        <a href="{% url 'post-create' %}">New post</a>
+        <a href="{% url 'account_logout' %}">Logout</a>
+      {% else %}
+        <a href="{% url 'account_login' %}">Login</a>
+        <a href="{% url 'account_signup' %}">Signup</a>
+      {% endif %}
+    </nav>
   </header>
 
   <!-- Overlay -->
-<div class="nav-overlay" hidden></div>
+  <div class="nav-overlay" hidden></div>
 
-<!-- Drawer mobile -->
-<nav id="mobile-drawer" class="nav-drawer" aria-label="Navigation mobile" hidden>
+  <!-- Drawer mobile -->
+  <nav id="mobile-drawer" class="nav-drawer" hidden>
     <a href="{% url 'read-later' %}">Stored Posts</a>
-  <a href="{% url 'posts-page' %}">All Posts</a>
+    <a href="{% url 'posts-page' %}">All Posts</a>
 
-  {% if user.is_authenticated %}
-    <a href="{% url 'post-create' %}">New post</a>
-    <a href="{% url 'account_logout' %}">Logout</a>
-  {% else %}
-    <a href="{% url 'account_login' %}">Login</a>
-    <a href="{% url 'account_signup' %}">Signup</a>
-  {% endif %}
-</nav>
-  </header>
+    {% if user.is_authenticated %}
+      <a href="{% url 'post-create' %}">New post</a>
+      <a href="{% url 'account_logout' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'account_login' %}">Login</a>
+      <a href="{% url 'account_signup' %}">Signup</a>
+    {% endif %}
+  </nav>
 
-  {% block content %}
-  {% endblock %}
+  {% block content %}{% endblock %}
+
+  <!-- JS en bas -->
+  <script src="{% static 'app.js' %}"></script>
 </body>
 </html>
