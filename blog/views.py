@@ -3,6 +3,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import ListView
 from django.views import View
+from django.views.generic import TemplateView
+
 
 from .models import Post
 from .forms import CommentForm
@@ -154,3 +156,16 @@ class CreatePostView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super().form_valid(form)
+    
+
+
+class CVView(TemplateView):
+    template_name = "cv/cv.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cv_url"] = (
+            "https://django-media-yannicks3.s3.amazonaws.com/"
+            "CV_Yannick_Wahl_2025.pdf"
+        )
+        return context
