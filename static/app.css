@@ -224,3 +224,14 @@ body[data-nav-open="true"] .nav-drawer {
     display: none;
   }
 }
+
+
+.nav-cv {
+  font-weight: 600;
+}
+
+.nav-cv::after {
+  content: "↗";
+  font-size: 0.8em;
+  margin-left: 0.2em;
+}
