@@ -313,3 +313,42 @@ main p {
     font-size: 2.7rem;
   }
 }
+
+/* ===== Desktop fix: layout moins vide, tout aligné en haut ===== */
+@media (min-width: 900px) {
+  #summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    column-gap: 3.5rem;
+    align-items: start;          /* IMPORTANT: plus de centrage vertical */
+    row-gap: 0.75rem;
+    padding-top: 1.25rem;
+  }
+
+  /* Tout le texte + tags + bouton restent dans la colonne de gauche */
+  #summary h2,
+  #summary address,
+  #summary time,
+  #summary > div,
+  #read-later {
+    grid-column: 1;
+  }
+
+  /* L’image prend la colonne de droite et remonte en haut */
+  #summary article {
+    grid-column: 2;
+    grid-row: 1 / span 10;       /* force l'image à s'aligner avec le haut */
+    margin-top: 0;
+    justify-self: end;
+  }
+
+  #summary article img {
+    max-width: 560px;            /* évite l'image trop massive */
+    margin: 0;                   /* plus de centrage qui crée du vide */
+  }
+
+  /* Le contenu (main) ne doit pas sembler "trop bas" */
+  main {
+    padding-top: 1.25rem;
+  }
+}
