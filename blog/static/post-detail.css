@@ -29,17 +29,21 @@ body {
 }
 
 /* =========================================================
-   Article header
+   Header éditorial (une seule colonne, stable)
    ========================================================= */
 
 #summary {
   max-width: 48rem;
   margin: 6.5rem auto 0 auto;
   padding: 0 1.5rem;
+
+  /* reset au cas où un autre CSS “card” s’applique */
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
 }
 
 /* Title */
-
 #summary h2 {
   font-size: 2.4rem;
   line-height: 1.15;
@@ -48,10 +52,17 @@ body {
   color: #020617;
 }
 
-/* Meta */
+/* Meta sous le titre (PAS à droite) */
+#summary address,
+#summary time {
+  display: block !important;
+  float: none !important;
+
+  font-style: normal;
+  margin: 0;
+}
 
 #summary address {
-  font-style: normal;
   font-size: 0.9rem;
   color: #475569;
   margin-bottom: 0.15rem;
@@ -63,7 +74,6 @@ body {
 }
 
 /* Tags */
-
 #summary > div {
   margin-top: 0.6rem;
 }
@@ -81,7 +91,6 @@ body {
 }
 
 /* Read later */
-
 #read-later {
   margin-top: 1rem;
 }
@@ -104,23 +113,45 @@ body {
 }
 
 /* =========================================================
-   Image (centrée, jamais crop)
+   Image (pas crop, taille maîtrisée, pas de “carte vide”)
    ========================================================= */
 
+/* IMPORTANT : on neutralise le layout parasite */
 #summary article {
   margin-top: 1.75rem;
+
+  display: block !important;
+  width: 100% !important;
+  max-width: 48rem !important;
+
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
 }
 
+/*
+  On affiche l’image dans un cadre de hauteur fixe,
+  avec object-fit: contain -> JAMAIS crop.
+  (Oui, il peut y avoir des bandes si portrait, c’est normal.)
+*/
 #summary article img {
-  width: 100%;
-  max-width: 48rem;
-  height: auto;
+  display: block !important;
+  width: 100% !important;
 
-  display: block;
-  margin: 0 auto;
-
-  object-fit: contain;      /* PAS DE CROP */
+  height: 340px;              /* mobile/tablette */
+  object-fit: contain;        /* PAS DE CROP */
+  background-color: #FFFFFF;  /* bandes propres */
   border-radius: 18px;
+
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+}
+
+/* Si ta méta (By/Date) est DANS l’article, on la force sous l’image */
+#summary article address,
+#summary article time {
+  display: block !important;
+  margin-top: 0.6rem !important;
 }
 
 /* =========================================================
@@ -147,7 +178,7 @@ main p {
   font-size: 1.05rem;
   line-height: 1.85;
   color: #334155;
-  margin-bottom: 1.4rem;
+  margin: 0 0 1.4rem 0;
 }
 
 /* =========================================================
@@ -162,10 +193,6 @@ main p {
   background-color: #FFFFFF;
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
-}
-
-#comment-form h2 {
-  margin-bottom: 1rem;
 }
 
 /* =========================================================
@@ -202,5 +229,10 @@ main p {
 
   main {
     padding: 2rem 0 0 0;
+  }
+
+  /* image plus basse sur desktop, sinon ça envahit */
+  #summary article img {
+    height: 420px;
   }
 }
