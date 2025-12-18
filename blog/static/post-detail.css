@@ -48,33 +48,29 @@ body {
 }
 
 /* =========================================================
-   Article header (title + meta + image)
+   Summary (title + meta + tags + button + image)
+   Mobile-first, éditorial
    ========================================================= */
 
 #summary {
   margin: 6rem auto 0 auto;
   max-width: 72rem;
-  padding: 0 1.75rem;
+  padding: 0 1.5rem;
 }
 
-/* Title */
-
 #summary h2 {
-  font-size: 2.4rem;
-  line-height: 1.15;
+  font-size: 2.2rem;
+  line-height: 1.12;
   margin: 0 0 0.75rem 0;
-
   letter-spacing: -0.035em;
   color: #020617;
 }
-
-/* Meta */
 
 #summary address {
   font-style: normal;
   font-size: 0.9rem;
   color: #475569;
-  margin-bottom: 0.15rem;
+  margin: 0 0 0.15rem 0;
 }
 
 #summary time {
@@ -82,8 +78,7 @@ body {
   color: #64748B;
 }
 
-/* Tags */
-
+/* tags container (si présent) */
 #summary > div {
   margin-top: 0.6rem;
 }
@@ -92,16 +87,13 @@ body {
   display: inline-block;
   margin-right: 0.4rem;
   margin-bottom: 0.25rem;
-
   padding: 0.3rem 0.75rem;
-  font-size: 0.75rem;
-
   border-radius: 999px;
+
   background-color: #F1F5F9;
   color: #475569;
+  font-size: 0.75rem;
 }
-
-/* Read later */
 
 #read-later {
   margin-top: 1rem;
@@ -119,18 +111,18 @@ body {
   font-weight: 600;
   cursor: pointer;
 
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
 }
 
 #read-later button:hover {
   background-color: #F1F5F9;
   border-color: #94A3B8;
+  transform: translateY(-1px);
 }
 
-/* Image */
-
+/* image block */
 #summary article {
-  margin-top: 1.75rem;
+  margin-top: 1.5rem;
 }
 
 #summary article img {
@@ -146,13 +138,13 @@ body {
 }
 
 /* =========================================================
-   Main content
+   Main content (colonne de lecture)
    ========================================================= */
 
 main {
-  max-width: 720px;
+  max-width: 48rem; /* ~768px */
   margin: 0 auto 3.5rem auto;
-  padding: 2rem 1.75rem 0 1.75rem;
+  padding: 2rem 1.5rem 0 1.5rem;
   background-color: transparent;
 }
 
@@ -170,7 +162,7 @@ main p {
   font-size: 1.05rem;
   line-height: 1.85;
   color: #334155;
-  margin-bottom: 1.4rem;
+  margin: 0 0 1.4rem 0;
 }
 
 /* =========================================================
@@ -294,61 +286,42 @@ main p {
 }
 
 /* =========================================================
-   Desktop adjustments
+   Desktop (hero plein largeur + colonne texte)
    ========================================================= */
 
 @media (min-width: 900px) {
   #summary {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-    column-gap: 3rem;
-    align-items: center;
-  }
-
-  #summary article {
-    margin-top: 0;
+    padding: 0 2.5rem;
+    margin-top: 6.5rem;
   }
 
   #summary h2 {
-    font-size: 2.7rem;
-  }
-}
-
-/* ===== Desktop fix: layout moins vide, tout aligné en haut ===== */
-@media (min-width: 900px) {
-  #summary {
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    column-gap: 3.5rem;
-    align-items: start;          /* IMPORTANT: plus de centrage vertical */
-    row-gap: 0.75rem;
-    padding-top: 1.25rem;
+    max-width: 48rem;
+    font-size: 3rem;
+    margin-bottom: 0.85rem;
   }
 
-  /* Tout le texte + tags + bouton restent dans la colonne de gauche */
-  #summary h2,
   #summary address,
   #summary time,
   #summary > div,
   #read-later {
-    grid-column: 1;
+    max-width: 48rem;
   }
 
-  /* L’image prend la colonne de droite et remonte en haut */
   #summary article {
-    grid-column: 2;
-    grid-row: 1 / span 10;       /* force l'image à s'aligner avec le haut */
-    margin-top: 0;
-    justify-self: end;
+    margin-top: 1.75rem;
   }
 
   #summary article img {
-    max-width: 560px;            /* évite l'image trop massive */
-    margin: 0;                   /* plus de centrage qui crée du vide */
+    max-width: 72rem;
+    width: 100%;
+    margin: 0 auto;
+
+    max-height: 520px;
+    object-fit: cover;
   }
 
-  /* Le contenu (main) ne doit pas sembler "trop bas" */
   main {
-    padding-top: 1.25rem;
+    padding: 2rem 2.5rem 0 2.5rem;
   }
 }
