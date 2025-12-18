@@ -236,3 +236,106 @@ main p {
     height: 420px;
   }
 }
+
+
+/* =========================
+   Comment form (restyle)
+   ========================= */
+
+#comment-form {
+  max-width: 42rem;
+  margin: 3rem auto;
+  padding: 2rem;
+
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
+}
+
+#comment-form h2 {
+  margin: 0 0 1rem 0;
+  color: #020617;
+}
+
+/* Layout des champs */
+.form-control {
+  margin-bottom: 1rem;
+}
+
+.form-control label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+/* Inputs */
+.form-control input,
+.form-control textarea {
+  display: block;
+  width: 100%;
+  font: inherit;
+
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+
+  border: 1px solid #D1D5DB;
+  background-color: #F9FAFB;
+  color: #0F172A;
+
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.form-control textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.form-control input:focus,
+.form-control textarea:focus {
+  outline: none;
+  border-color: #94A3B8;
+  box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.25);
+  background-color: #FFFFFF;
+}
+
+/* Bouton */
+#comment-form button {
+  margin-top: 0.5rem;
+
+  background-color: #4F46E5;
+  color: #FFFFFF;
+
+  padding: 0.55rem 1.6rem;
+  border-radius: 999px;
+  border: none;
+
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: background-color 0.15s ease, transform 0.12s ease;
+}
+
+#comment-form button:hover {
+  background-color: #4338CA;
+  transform: translateY(-1px);
+}
+
+/* Erreurs */
+.errorlist {
+  list-style: none;
+  margin: 0.35rem 0 0 0;
+  padding: 0;
+  color: #B91C1C;
+  font-size: 0.85rem;
+}
+
+.invalid label {
+  color: #B91C1C;
+}
+
+.invalid input,
+.invalid textarea {
+  border-color: #FB7185;
+  background-color: #FEF2F2;
+}
