@@ -310,17 +310,22 @@ main p {
 
   #summary article {
     margin-top: 1.75rem;
+    display: flex;
+    justify-content: center;
   }
 
-#summary article img {
-  max-width: 72rem;
-  width: 100%;
-  margin: 0 auto;
+  #summary article img {
+    width: 100%;
+    max-width: 900px;      /* limite largeur */
+    max-height: 420px;     /* limite hauteur */
+    height: auto;
 
-  max-height: none;     /* IMPORTANT */
-  height: auto;         /* IMPORTANT */
-  object-fit: contain;  /* IMPORTANT: pas de crop */
-}
+    object-fit: contain;  /* PAS de crop */
+    border-radius: 18px;
+
+    background-color: #F1F5F9; /* discret si letterbox */
+  }
+  
   main {
     padding: 2rem 2.5rem 0 2.5rem;
   }
