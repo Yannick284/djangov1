@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import CVView
+from django.views.generic import TemplateView
 
 
 from . import views
@@ -13,4 +14,5 @@ urlpatterns = [
     # blog/urls.py
     path("posts/new/", views.CreatePostView.as_view(), name="post-create"),
     path("cv/", CVView.as_view(), name="cv"),
+    path("legal/", TemplateView.as_view(template_name="legal.html"), name="legal"),
 ]
