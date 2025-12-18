@@ -312,15 +312,15 @@ main p {
     margin-top: 1.75rem;
   }
 
-  #summary article img {
-    max-width: 72rem;
-    width: 100%;
-    margin: 0 auto;
+#summary article img {
+  max-width: 72rem;
+  width: 100%;
+  margin: 0 auto;
 
-    max-height: 520px;
-    object-fit: cover;
-  }
-
+  max-height: none;     /* IMPORTANT */
+  height: auto;         /* IMPORTANT */
+  object-fit: contain;  /* IMPORTANT: pas de crop */
+}
   main {
     padding: 2rem 2.5rem 0 2.5rem;
   }
