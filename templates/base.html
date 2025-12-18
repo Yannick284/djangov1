@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'app.css' %}">
   {% block css_files %}{% endblock %}
@@ -13,13 +13,11 @@
   <header id="main-navigation">
     <h1><a href="{% url 'starting-page' %}">YW</a></h1>
 
-    <!-- Bouton mobile -->
     <button class="nav-toggle" aria-controls="mobile-drawer" aria-expanded="false">
       <span class="sr-only">Open menu</span>
       <span class="burger"></span>
     </button>
 
-    <!-- Menu desktop -->
     <nav class="nav-desktop">
       <a href="{% url 'read-later' %}">Stored Posts</a>
       <a href="{% url 'posts-page' %}">All Posts</a>
@@ -35,10 +33,8 @@
     </nav>
   </header>
 
-  <!-- Overlay -->
   <div class="nav-overlay" hidden></div>
 
-  <!-- Drawer mobile -->
   <nav id="mobile-drawer" class="nav-drawer" hidden>
     <a href="{% url 'read-later' %}">Stored Posts</a>
     <a href="{% url 'posts-page' %}">All Posts</a>
@@ -55,22 +51,11 @@
 
   {% block content %}{% endblock %}
 
-  <!-- JS en bas -->
   <script src="{% static 'app.js' %}"></script>
 
   <footer style="text-align:center; padding: 2rem 0; font-size: 0.85rem;">
-    <h2>About</h2>
-  <p>
-    V0.2
-  </p>
-
-  
-</section>
-  <a href="{% url 'legal' %}">Mentions légales</a>
-</footer>
-
-</section>
-{% endblock %}
-
+    <p>V0.2</p>
+    <a href="{% url 'legal' %}">Mentions légales</a>
+  </footer>
 </body>
 </html>
