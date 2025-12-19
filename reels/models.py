@@ -10,7 +10,7 @@ User = settings.AUTH_USER_MODEL
 class Category(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reel_categories")
     name = models.CharField(max_length=60)
-    color = models.CharField(max_length=7, default="#cccccc")  
+    # color = models.CharField(max_length=7, default="#cccccc")  
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
