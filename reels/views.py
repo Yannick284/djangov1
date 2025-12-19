@@ -9,7 +9,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 
 from django.forms import modelform_factory
 
-from .models import Reel
+from .models import Reel, Category
 
 
 def is_admin_user(user) -> bool:
@@ -45,7 +45,7 @@ ReelForm = modelform_factory(
 
 CategoryForm = modelform_factory(
     Category,
-    fields=["name", "color"],
+    fields=["name"],
 )
 
 
