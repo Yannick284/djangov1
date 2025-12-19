@@ -9,7 +9,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 
 from django.forms import modelform_factory
 
-from .models import Reel, Category
+from .models import Reel
 
 
 def is_admin_user(user) -> bool:
