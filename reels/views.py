@@ -104,7 +104,13 @@ class ReelCreateView(LoginRequiredMixin, CreateView):
         obj.save()
         form.save_m2m()
         return HttpResponseRedirect(reverse_lazy("reels:detail", kwargs={"pk": obj.pk}))
-
+    
+    def get_initial(self):
+            initial = super().get_initial()
+            category_id = self.request.GET.get("category")
+            if category_id:
+                initial["category"] = category_id
+            return initial
 
 class ReelUpdateView(ReelAccessMixin, UpdateView):
     model = Reel
@@ -141,7 +147,7 @@ class ReelSetStatusView(ReelAccessMixin, View):
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView
 
-
+from django.urls import reverse
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category
     fields = ["name"]   # ou ton ModelForm
@@ -150,4 +156,8 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        category = form.save()
+
+        # 🔴 retour vers le formulaire Reel avec catégorie pré-remplie
+        url = reverse("reels:create")
+        return HttpResponseRedirect(f"{url}?category={category.pk}")
