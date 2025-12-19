@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from .utils import normalize_url
+from storages.backends.s3boto3 import S3Boto3Storage
 
 User = settings.AUTH_USER_MODEL
 
@@ -44,7 +45,9 @@ class Reel(models.Model):
     # Métadonnées Instagram (oEmbed plus tard)
     title = models.CharField(max_length=255, blank=True)
     author_name = models.CharField(max_length=255, blank=True)
-    thumbnail = models.ImageField(upload_to="reels_thumbs/", blank=True, null=True)
+    s3_storage = S3Boto3Storage()
+    thumbnail = models.ImageField(storage=s3_storage, upload_to="reels", null=True)
+    # thumbnail = models.ImageField(upload_to="reels_thumbs/", blank=True, null=True)
     thumbnail_url = models.URLField(blank=True)
     embed_html = models.TextField(blank=True)
     fetch_error = models.CharField(max_length=255, blank=True)

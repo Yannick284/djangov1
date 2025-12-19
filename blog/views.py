@@ -169,3 +169,4 @@ class CVView(TemplateView):
             "CV_Yannick_Wahl_2025.pdf"
         )
         return context
+    
