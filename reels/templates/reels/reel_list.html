@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'reels/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="reels-page">
+  <div class="reels-header">
+    <h1>Mes Reels</h1>
+    <a class="btn-link" href="{% url 'reels:create' %}">+ Ajouter</a>
+  </div>
+<form method="get" class="reels-filters">
+  <div class="filters-row">
+    <div class="field">
+      <label for="id_category">Catégorie</label>
+      <select id="id_category" name="category">
+        <option value="">Toutes</option>
+        {% for c in categories %}
+          <option value="{{ c.id }}" {% if selected_category|add:'' == c.id|add:'' %}selected{% endif %}>
+            {{ c.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="id_status">Statut</label>
+      <select id="id_status" name="status">
+        <option value="">Tous</option>
+        {% for key,label in status_choices %}
+          <option value="{{ key }}" {% if selected_status == key %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="id_ordering">Trier</label>
+      <select id="id_ordering" name="ordering">
+        <option value="">Dernière modif (desc)</option>
+        <option value="updated_asc"  {% if selected_ordering == "updated_asc" %}selected{% endif %}>Dernière modif (asc)</option>
+        <option value="rating_desc"  {% if selected_ordering == "rating_desc" %}selected{% endif %}>Note (desc)</option>
+        <option value="rating_asc"   {% if selected_ordering == "rating_asc" %}selected{% endif %}>Note (asc)</option>
+        <option value="status_asc"   {% if selected_ordering == "status_asc" %}selected{% endif %}>Statut (asc)</option>
+        <option value="status_desc"  {% if selected_ordering == "status_desc" %}selected{% endif %}>Statut (desc)</option>
+      </select>
+    </div>
+
+    <div class="filters-actions">
+      <button class="btn" type="submit">Appliquer</button>
+      <a class="btn btn-ghost" href="{% url 'reels:list' %}">Reset</a>
+    </div>
+  </div>
+</form>
+  <div class="reels-grid">
+    {% for r in reels %}
+      <article class="reel-card">
+
+        {% if r.thumbnail %}
+          <a class="thumb-link" href="{{ r.url }}" target="_blank" rel="noopener">
+            <img class="reel-thumb" src="{{ r.thumbnail.url }}" alt="">
+          </a>
+        {% else %}
+          <a class="thumb-link" href="{{ r.url }}" target="_blank" rel="noopener">
+            <div class="reel-thumb placeholder">
+              <span>Pas d’image</span>
+            </div>
+          </a>
+        {% endif %}
+
+        <div class="reel-body">
+          <div class="reel-title">
+            <span class="reel-title-text">{{ r.title|default:"Reel" }}</span>
+            <span class="badge {{ r.status }}">{{ r.get_status_display }}</span>
+          </div>
+
+          <div class="reel-meta">
+            {% if r.category %}{{ r.category.name }}{% else %}Sans catégorie{% endif %}
+            {% if r.rating %} • {{ r.rating }}/10{% endif %}
+          </div>
+
+          <div class="reel-actions">
+            <div class="reel-links">
+              <a class="btn-link" href="{% url 'reels:detail' r.pk %}">Voir</a>
+              <span class="dot">·</span>
+              <a class="btn-link" href="{{ r.url }}" target="_blank" rel="noopener">Instagram</a>
+            </div>
+
+            <div class="status-actions">
+              <form method="post" action="{% url 'reels:set-status' r.pk 'to_test' %}">
+                {% csrf_token %}
+                <button class="btn {% if r.status == 'to_test' %}is-active{% endif %}" type="submit">À tester</button>
+              </form>
+
+              <form method="post" action="{% url 'reels:set-status' r.pk 'tested' %}">
+                {% csrf_token %}
+                <button class="btn {% if r.status == 'tested' %}is-active{% endif %}" type="submit">Testé</button>
+              </form>
+
+              <form method="post" action="{% url 'reels:set-status' r.pk 'approved' %}">
+                {% csrf_token %}
+                <button class="btn {% if r.status == 'approved' %}is-active{% endif %}" type="submit">Validé</button>
+              </form>
+
+              <form method="post" action="{% url 'reels:set-status' r.pk 'rejected' %}">
+                {% csrf_token %}
+                <button class="btn {% if r.status == 'rejected' %}is-active{% endif %}" type="submit">Rejeté</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </article>
+    {% empty %}
+      <p>Aucun reel.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

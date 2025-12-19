@@ -33,7 +33,7 @@ class Post(models.Model):
     
     s3_storage = S3Boto3Storage()
     image = models.ImageField(storage=s3_storage, upload_to="posts", null=True)
-    # image = models.ImageField(upload_to="posts", null=True, blank=True)
+    #image = models.ImageField(upload_to="posts", null=True, blank=True)
     
     date = models.DateField(auto_now=True)
     slug = models.SlugField(unique=True, db_index=True)

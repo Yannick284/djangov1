@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'reels/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="reels-page">
+  <div class="form-card">
+    <h1>Supprimer ce reel ?</h1>
+    <p class="muted">Cette action est définitive.</p>
+
+    <p><strong>{{ object.title|default:"Reel" }}</strong></p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-actions">
+        <button class="btn danger" type="submit">Supprimer</button>
+        <a class="btn" href="{% url 'reels:edit' object.pk %}">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

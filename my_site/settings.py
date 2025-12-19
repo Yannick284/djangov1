@@ -55,6 +55,7 @@ if RENDER_EXTERNAL_HOSTNAME:
 
 INSTALLED_APPS = [
     'blog',
+    'reels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -219,6 +220,8 @@ STATICFILES_DIRS = [
 
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# STATICFILES_DIRS = [BASE_DIR / "static"]
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 

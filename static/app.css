@@ -41,6 +41,12 @@ h3 {
   backdrop-filter: blur(8px);
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.4);
 }
+/* Masquer la navbar sur mobile */
+@media (max-width: 768px) {
+  #main-navigation {
+    display: none;
+  }
+}
 
 #main-navigation h1 {
   margin: 0;
@@ -104,9 +110,11 @@ body {
   padding-top: 4.2rem;
 }
 
-@media (max-width: 640px) {
-  body { padding-top: 3.8rem; }
-}
+@media (max-width: 768px) {
+  body {
+    padding-top: 0;
+  }
+  }
 
 /* Desktop vs mobile */
 .nav-desktop {
@@ -234,4 +242,19 @@ body[data-nav-open="true"] .nav-drawer {
   content: "↗";
   font-size: 0.8em;
   margin-left: 0.2em;
+}
+
+/* Séparateurs dans le drawer mobile */
+.nav-drawer .drawer-link {
+  position: relative;
+}
+
+.nav-drawer .drawer-link:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 0.9rem;
+  right: 0.9rem;
+  bottom: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
 }
