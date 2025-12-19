@@ -140,7 +140,7 @@ class ReelSetStatusView(ReelAccessMixin, View):
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView
-from .models import ReelsCategory
+
 
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = ReelsCategory
