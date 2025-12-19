@@ -138,8 +138,16 @@ class ReelSetStatusView(ReelAccessMixin, View):
         return HttpResponseRedirect(request.META.get("HTTP_REFERER", reverse_lazy("reels:list")))
 
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import CreateView
+from .models import ReelsCategory
+
 class CategoryCreateView(LoginRequiredMixin, CreateView):
-    model = Category
-    form_class = CategoryForm
+    model = ReelsCategory
+    fields = ["name"]   # ou ton ModelForm
     template_name = "reels/category_form.html"
-    success_url = reverse_lazy("reels:list")
+    success_url = "/reels/"
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
