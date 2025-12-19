@@ -115,31 +115,14 @@ def set_status(request: HttpRequest, pk: int, status: str) -> HttpResponse:
     return redirect("reels:list")
 
 
+
+    
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category
     form_class = CategoryForm
     template_name = "reels/category_form.html"
     success_url = reverse_lazy("reels:list")
-    
-    
 
-
-class ReelForm(forms.ModelForm):
-    class Meta:
-        model = Reel
-        fields = [
-            "url",
-            "category",
-            "status",
-            "rating",
-            "comment",
-            "tags",
-            "thumbnail",
-            "thumbnail_url",
-        ]
-
-
-class CategoryForm(forms.ModelForm):
-    class Meta:
-        model = Category
-        fields = ["name", "color"]
+    def form_valid(self, form):
+        form.instance.user = self.request.user   # ✅ clé du fix
+        return super().form_valid(form)

@@ -112,7 +112,7 @@ body {
 
 @media (max-width: 768px) {
   body {
-    padding-top: 0;
+    padding-top: 3.8rem;
   }
   }
 
@@ -227,11 +227,21 @@ body[data-nav-open="true"] .nav-drawer {
 }
 
 /* Mobile */
+ /* Mobile: on cache seulement la nav desktop, on garde le bouton burger */
 @media (max-width: 768px) {
-  .cv-viewer iframe {
+  .nav-desktop {
     display: none;
   }
 }
+
+/* Desktop: on cache le bouton burger + le drawer */
+@media (min-width: 769px) {
+  .nav-toggle,
+  #mobile-drawer {
+    display: none !important;
+  }
+}
+
 
 
 .nav-cv {
