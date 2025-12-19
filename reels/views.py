@@ -1,35 +1,52 @@
 from __future__ import annotations
 
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404, HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.views.decorators.http import require_POST
-from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from django.views import View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
-from .forms import CategoryForm, ReelForm
-from .models import Category, Reel
-from django import forms
+from django.forms import modelform_factory
+
 from .models import Reel, Category
 
 
-def can_see_all_reels(user) -> bool:
-    """Override: 'yannick' (ou staff/superuser) peut voir tous les reels."""
-    if not user or not user.is_authenticated:
-        return False
-    return (
-        user.is_superuser
-        or user.is_staff
-        or (getattr(user, "username", "") or "").lower() == "yannick"
-    )
+def is_admin_user(user) -> bool:
+    # "yannick" peut tout voir (comme demandé)
+    return user.is_authenticated and user.username == "yannick"
 
 
-def reels_queryset_for_user(request: HttpRequest):
-    qs = Reel.objects.select_related("category", "user").order_by("-id")
-    if can_see_all_reels(request.user):
-        return qs
-    return qs.filter(user=request.user)
+class ReelAccessMixin(LoginRequiredMixin):
+    """Filtre par user, sauf admin."""
+
+    def get_queryset(self):
+        qs = Reel.objects.select_related("category", "user")
+        if is_admin_user(self.request.user):
+            return qs
+        return qs.filter(user=self.request.user)
+
+
+# Forms sans dépendre de reels/forms.py (ça évite ton ImportError CategoryForm)
+ReelForm = modelform_factory(
+    Reel,
+    fields=[
+        "title",
+        "url",
+        "category",
+        "status",
+        "rating",
+        "comment",
+        "tags",
+        "thumbnail",
+        "thumbnail_url",
+    ],
+)
+
+CategoryForm = modelform_factory(
+    Category,
+    fields=["name", "color"],
+)
 
 
 class ReelListView(LoginRequiredMixin, ListView):
@@ -39,90 +56,90 @@ class ReelListView(LoginRequiredMixin, ListView):
     paginate_by = 60
 
     def get_queryset(self):
-        qs = reels_queryset_for_user(self.request)
+        qs = Reel.objects.select_related("category", "user")
 
-        # Filtre catégorie: /reels/?category=3
-        category_id = self.request.GET.get("category")
+        if not is_admin_user(self.request.user):
+            qs = qs.filter(user=self.request.user)
+
+        category_id = self.request.GET.get("category") or ""
+        status = self.request.GET.get("status") or ""
+        order = self.request.GET.get("order") or "-updated_at"
+
         if category_id:
             qs = qs.filter(category_id=category_id)
+        if status:
+            qs = qs.filter(status=status)
 
-        # Filtre status: /reels/?status=to_test
-        status_val = self.request.GET.get("status")
-        if status_val:
-            qs = qs.filter(status=status_val)
+        allowed_orders = {"-updated_at", "rating", "-rating", "title"}
+        if order not in allowed_orders:
+            order = "-updated_at"
 
-        return qs
+        return qs.order_by(order)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["categories"] = Category.objects.order_by("name")
+        ctx["status_choices"] = Reel.Status.choices  # <= FIX
         ctx["selected_category"] = self.request.GET.get("category", "")
-        ctx["statuses"] = Reel.Status.choices  # <-- FIX: pas Reel.STATUS_CHOICES
         ctx["selected_status"] = self.request.GET.get("status", "")
-        ctx["can_see_all"] = can_see_all_reels(self.request.user)
+        ctx["selected_order"] = self.request.GET.get("order", "-updated_at")
+        ctx["is_admin"] = is_admin_user(self.request.user)
         return ctx
 
 
-class ReelDetailView(LoginRequiredMixin, DetailView):
+class ReelDetailView(ReelAccessMixin, DetailView):
     model = Reel
     template_name = "reels/reel_detail.html"
     context_object_name = "reel"
-
-    def get_queryset(self):
-        return reels_queryset_for_user(self.request)
 
 
 class ReelCreateView(LoginRequiredMixin, CreateView):
     model = Reel
     form_class = ReelForm
     template_name = "reels/reel_form.html"
-    success_url = reverse_lazy("reels:list")
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
+        obj = form.save(commit=False)
+        obj.user = self.request.user
+        obj.save()
+        form.save_m2m()
+        return HttpResponseRedirect(reverse_lazy("reels:detail", kwargs={"pk": obj.pk}))
 
 
-class ReelUpdateView(LoginRequiredMixin, UpdateView):
+class ReelUpdateView(ReelAccessMixin, UpdateView):
     model = Reel
     form_class = ReelForm
     template_name = "reels/reel_form.html"
-    success_url = reverse_lazy("reels:list")
 
-    def get_queryset(self):
-        return reels_queryset_for_user(self.request)
+    def form_valid(self, form):
+        obj = form.save()
+        return HttpResponseRedirect(reverse_lazy("reels:detail", kwargs={"pk": obj.pk}))
 
 
-class ReelDeleteView(LoginRequiredMixin, DeleteView):
+class ReelDeleteView(ReelAccessMixin, DeleteView):
     model = Reel
     template_name = "reels/reel_confirm_delete.html"
     success_url = reverse_lazy("reels:list")
 
-    def get_queryset(self):
-        return reels_queryset_for_user(self.request)
+
+class ReelSetStatusView(ReelAccessMixin, View):
+    """POST-only pour changer le statut depuis la liste."""
+
+    def post(self, request, pk: int, status: str):
+        reel = get_object_or_404(self.get_queryset(), pk=pk)
+
+        valid_statuses = {choice[0] for choice in Reel.Status.choices}
+        if status not in valid_statuses:
+            raise Http404("Invalid status")
+
+        reel.status = status
+        reel.save(update_fields=["status"])
+
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER", reverse_lazy("reels:list")))
 
 
-@login_required
-@require_POST
-def set_status(request: HttpRequest, pk: int, status: str) -> HttpResponse:
-    valid_statuses = {c[0] for c in Reel.Status.choices}
-    if status not in valid_statuses:
-        raise Http404("Invalid status")
-
-    reel = get_object_or_404(reels_queryset_for_user(request), pk=pk)
-    reel.status = status
-    reel.save(update_fields=["status"])
-    return redirect("reels:list")
-
-
-
-    
 class CategoryCreateView(LoginRequiredMixin, CreateView):
     model = Category
     form_class = CategoryForm
     template_name = "reels/category_form.html"
     success_url = reverse_lazy("reels:list")
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user   # ✅ clé du fix
-        return super().form_valid(form)
