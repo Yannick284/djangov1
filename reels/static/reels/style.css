@@ -338,3 +338,50 @@
   .reel-body{ padding: 9px; }
   .chip{ padding: 6px 7px; font-size: 10px; }
 }
+
+@media (max-width: 768px) {
+
+  .reel-grid {
+    display: block; /* tu tues la grille */
+  }
+
+  .reel-row {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+  }
+
+  .reel-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f1f5f9;
+    flex-shrink: 0;
+  }
+
+  .reel-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .reel-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .reel-meta {
+    font-size: 13px;
+    color: #64748b;
+  }
+
+  .reel-actions a {
+    font-size: 14px;
+    margin-right: 12px;
+  }
+}
