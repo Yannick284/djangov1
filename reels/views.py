@@ -143,7 +143,7 @@ from django.views.generic import CreateView
 
 
 class CategoryCreateView(LoginRequiredMixin, CreateView):
-    model = ReelsCategory
+    model = Category
     fields = ["name"]   # ou ton ModelForm
     template_name = "reels/category_form.html"
     success_url = "/reels/"
