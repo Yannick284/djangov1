@@ -30,7 +30,7 @@
       <!-- RIGHT: actions -->
       <nav class="topbar-actions" aria-label="Actions">
         <a class="icon-btn" href="{% url 'cv' %}" aria-label="CV">
-          <span class="icon">↗</span>
+          <span class="icon">CV</span>
         </a>
 
         <a class="icon-btn" href="{% url 'reels:list' %}" aria-label="Reels">
@@ -60,11 +60,15 @@
     <a href="{% url 'cv' %}" class="nav-cv">CV</a>
 
     <!-- tu peux garder ces liens si tu veux, mais c’est “admin-ish” -->
-    <a href="{% url 'read-later' %}">Stored Posts</a>
+    {% comment %} <a href="{% url 'read-later' %}">Stored Posts</a> {% endcomment %}
     <a href="{% url 'posts-page' %}">All Posts</a>
 
     {% if user.is_authenticated %}
+
+    {% if user.is_superuser %}
       <a href="{% url 'post-create' %}">New post</a>
+{% endif %}
+
       <a href="{% url 'account_logout' %}">Logout</a>
     {% else %}
       <a href="{% url 'account_login' %}">Login</a>
