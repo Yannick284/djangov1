@@ -10,23 +10,23 @@ from .models import Post
 from .forms import CommentForm, PostForm
 
 
-def user_is_admin(user) -> bool:
-    """Users allowed to read 'admin-only' posts.
-
-    - Django superusers are always allowed
-    - Any user in the 'Admin' group is allowed (you can manage this in /admin)
-    """
-    return (
-        user.is_authenticated
-        and (user.is_superuser or user.groups.filter(name="Admin").exists())
-    )
-
-
 def post_is_accessible(post: Post, user) -> bool:
+    """Access rules:
+
+    - Public post -> accessible by anyone
+    - Superuser-only post -> only authenticated superusers
+    - Non-public post -> authenticated users
+    """
     if post.is_public:
+        # Even if someone accidentally marks a post public + superuser-only,
+        # we still treat it as restricted.
+        if getattr(post, "is_superuser_only", False):
+            return user.is_authenticated and user.is_superuser
         return True
-    if getattr(post, "is_admin_only", False):
-        return user_is_admin(user)
+
+    if getattr(post, "is_superuser_only", False):
+        return user.is_authenticated and user.is_superuser
+
     return user.is_authenticated
 
 
@@ -40,13 +40,19 @@ class StartingPageView(ListView):
         user = self.request.user
 
         if not user.is_authenticated:
-            return qs.filter(is_public=True)[:3]
+            # Public only, and never show superuser-only
+            return qs.filter(is_public=True, is_superuser_only=False)[:3]
 
-        if user_is_admin(user):
+        if user.is_superuser:
             return qs[:3]
 
-        # Connected but not admin: public + non-public (excluding admin-only)
-        return qs.filter(Q(is_public=True) | Q(is_public=False, is_admin_only=False))[:3]
+        # Authenticated but not superuser:
+        # - public (excluding superuser-only)
+        # - non-public (excluding superuser-only)
+        return qs.filter(
+            Q(is_public=True, is_superuser_only=False)
+            | Q(is_public=False, is_superuser_only=False)
+        )[:3]
 
 
 class AllPostsView(ListView):
@@ -60,12 +66,12 @@ class AllPostsView(ListView):
         user = self.request.user
 
         if not user.is_authenticated:
-            return qs.filter(is_public=True)
+            return qs.filter(is_public=True, is_superuser_only=False)
 
-        if user_is_admin(user):
+        if user.is_superuser:
             return qs
 
-        return qs.filter(Q(is_public=True) | Q(is_public=False, is_admin_only=False))
+        return qs.filter(is_superuser_only=False)
 
 
 class SinglePostView(View):
@@ -123,12 +129,12 @@ class ReadLaterView(View):
             )
 
         qs = Post.objects.filter(id__in=stored_posts)
-
         user = request.user
+
         if not user.is_authenticated:
-            qs = qs.filter(is_public=True)
-        elif not user_is_admin(user):
-            qs = qs.filter(Q(is_public=True) | Q(is_public=False, is_admin_only=False))
+            qs = qs.filter(is_public=True, is_superuser_only=False)
+        elif not user.is_superuser:
+            qs = qs.filter(is_superuser_only=False)
 
         posts = qs.order_by("-date")
 
