@@ -1,94 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Open+Sans:wght@400;700&display=swap');
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html {
-  font-family: 'Open Sans', 'Lato', sans-serif;
-}
+html { font-family: 'Open Sans', 'Lato', sans-serif; }
 
 body {
   margin: 0;
   background-color: #F3F4F6;
   color: #111827;
+  padding-top: 56px; /* compense la topbar sticky */
+}
+
+@media (max-width: 640px) {
+  body { padding-top: 56px; }
 }
 
 /* Titres */
-
-h1,
-h2,
-h3 {
+h1, h2, h3 {
   font-family: 'Lato', sans-serif;
   font-weight: bold;
   color: #111827;
 }
-
-/* ===== NAVBAR GLOBALE ===== */
-
-#main-navigation {
-  width: 100%;
-  height: 4.2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10%;
-  position: fixed;              /* toujours visible en haut */
-  top: 0;
-  left: 0;
-  z-index: 50;
-  background-color: rgba(17, 24, 39, 0.98); /* #111827 quasi opaque */
-  backdrop-filter: blur(8px);
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.4);
-}
-
-#main-navigation h1 {
-  margin: 0;
-  font-size: 1.3rem;
-}
-
-#main-navigation nav {
-  display: flex;
-  align-items: center;
-}
-
-#main-navigation a {
-  text-decoration: none;
-  color: #F9FAFB;
-  font-weight: 600;
-  margin-left: 1rem;
-  font-size: 0.95rem;
-  transition: color 0.15s ease;
-}
-
-#main-navigation a:hover,
-#main-navigation a:active {
-  color: #A5B4FC; /* violet clair */
-}
-
-#main-navigation h1 a:hover,
-#main-navigation h1 a:active {
-  color: #F9FAFB; /* le logo/titre ne change pas de couleur */
-}
-
-/* ===== NAVBAR - RESPONSIVE ===== */
-
-@media (max-width: 640px) {
-  #main-navigation {
-    padding: 0 1.25rem;
-    height: 3.8rem;
-  }
-
-  #main-navigation h1 {
-    font-size: 1.1rem;
-  }
-
-  #main-navigation a {
-    font-size: 0.85rem;
-    margin-left: 0.7rem;
-  }
-}
-
 
 /* Accessibilité */
 .sr-only {
@@ -99,42 +31,57 @@ h3 {
   white-space: nowrap; border: 0;
 }
 
-/* Décalage du contenu pour compenser le header fixed */
-body {
-  padding-top: 4.2rem;
+/* =========================
+   TOPBAR (style e-commerce)
+   ========================= */
+
+#main-navigation.topbar,
+.topbar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 
-@media (max-width: 640px) {
-  body { padding-top: 3.8rem; }
-}
-
-/* Desktop vs mobile */
-.nav-desktop {
-  display: flex;
+/* conteneur interne en grid : gauche / centre / droite */
+.topbar-inner {
+  height: 56px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
+  padding: 0 14px;
 }
 
+/* LEFT : bouton menu */
+.menu-btn,
 .nav-toggle {
-  display: none;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   border: 0;
   background: transparent;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 0.75rem;
+  padding: 10px 6px;
+  border-radius: 12px;
 }
 
+.menu-btn:focus-visible,
 .nav-toggle:focus-visible {
-  outline: 2px solid rgba(165, 180, 252, 0.9);
+  outline: 2px solid rgba(17, 24, 39, 0.55);
   outline-offset: 2px;
 }
 
-/* Icône burger simple */
+/* burger noir (remplace ton burger blanc) */
 .burger {
-  display: block;
   width: 22px;
   height: 2px;
-  background: #F9FAFB;
+  background: #111827;
   position: relative;
+  display: inline-block;
   border-radius: 999px;
 }
 .burger::before,
@@ -144,13 +91,96 @@ body {
   left: 0;
   width: 22px;
   height: 2px;
-  background: #F9FAFB;
+  background: #111827;
   border-radius: 999px;
 }
 .burger::before { top: -7px; }
 .burger::after  { top: 7px; }
 
-/* Overlay */
+.menu-text {
+  font-size: 12px;
+  letter-spacing: .08em;
+  font-weight: 800;
+  color: #111827;
+  text-transform: uppercase;
+}
+
+/* CENTER : brand */
+.brand {
+  justify-self: center;
+  text-decoration: none;
+  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-text {
+  font-weight: 900;
+  letter-spacing: .06em;
+  font-size: 16px;
+}
+
+/* RIGHT : actions */
+.topbar-actions {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #111827;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(17, 24, 39, 0.06);
+}
+
+.icon-btn:active {
+  transform: scale(.98);
+}
+
+.icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* sur très petits écrans : on peut cacher "MENU" */
+@media (max-width: 380px) {
+  .menu-text { display: none; }
+  .topbar-inner { padding: 0 10px; }
+  .topbar-actions { gap: 4px; }
+  .icon-btn { width: 38px; height: 38px; }
+}
+
+/* =========================
+   NAV DESKTOP (si tu en as encore)
+   => On le laisse, mais on conseille de le virer du template.
+   ========================= */
+
+.nav-desktop {
+  display: flex;
+  align-items: center;
+}
+
+/* Mobile : tu caches la nav desktop, le burger reste visible */
+@media (max-width: 640px) {
+  .nav-desktop { display: none; }
+}
+
+/* =========================
+   OVERLAY + DRAWER (conservés)
+   ========================= */
+
 .nav-overlay {
   position: fixed;
   inset: 0;
@@ -170,10 +200,12 @@ body {
   backdrop-filter: blur(10px);
   box-shadow: -12px 0 30px rgba(15, 23, 42, 0.45);
   z-index: 45;
-  padding: 5rem 1.25rem 1.25rem; /* laisse respirer sous la navbar */
+
+  padding: 72px 1.25rem 1.25rem; /* laisse respirer sous la topbar */
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+
   transform: translateX(100%);
   transition: transform 180ms ease;
 }
@@ -191,13 +223,47 @@ body {
   background: rgba(165, 180, 252, 0.14);
 }
 
+/* séparateurs ajoutés par JS */
+.drawer-sep {
+  height: 1px;
+  background: rgba(255,255,255,0.10);
+  margin: 0.1rem 0.6rem;
+  border-radius: 999px;
+}
+
 /* État ouvert piloté par data-attribute */
 body[data-nav-open="true"] .nav-drawer {
   transform: translateX(0);
 }
 
-/* Mobile : on cache les liens desktop, on montre le bouton */
-@media (max-width: 640px) {
-  .nav-desktop { display: none; }
-  .nav-toggle { display: inline-flex; align-items: center; justify-content: center; }
+/* =========================
+   CV
+   ========================= */
+
+.cv-section {
+  max-width: 1100px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+
+.cv-actions {
+  margin-bottom: 1.5rem;
+}
+
+.cv-viewer iframe {
+  width: 100%;
+  min-height: 90vh;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .cv-viewer iframe { display: none; }
+}
+
+.nav-cv { font-weight: 600; }
+
+.nav-cv::after {
+  content: "↗";
+  font-size: 0.8em;
+  margin-left: 0.2em;
 }

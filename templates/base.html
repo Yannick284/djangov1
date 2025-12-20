@@ -10,40 +10,61 @@
 </head>
 
 <body>
-  <header id="main-navigation">
-    <h1><a href="{% url 'starting-page' %}">YW</a></h1>
 
-    <button class="nav-toggle" aria-controls="mobile-drawer" aria-expanded="false">
-      <span class="sr-only">Open menu</span>
-      <span class="burger"></span>
-    </button>
+  <!-- TOPBAR (style e-commerce) -->
+  <header class="topbar" id="main-navigation">
+    <div class="topbar-inner">
 
-    <nav class="nav-desktop">
-      <a href="{% url 'read-later' %}">Stored Posts</a>
-      <a href="{% url 'posts-page' %}">All Posts</a>
-      <a href="{% url 'cv' %}" class="nav-cv">CV</a>
+      <!-- LEFT: burger + MENU -->
+      <button class="nav-toggle menu-btn" aria-controls="mobile-drawer" aria-expanded="false">
+        <span class="sr-only">Open menu</span>
+        <span class="burger" aria-hidden="true"></span>
+        <span class="menu-text">MENU</span>
+      </button>
 
-      {% if user.is_authenticated %}
-        <a href="{% url 'post-create' %}">New post</a>
-<a class="drawer-link" href="{% url 'reels:list' %}">Reels</a>
-        <a href="{% url 'account_logout' %}">Logout</a>
-      {% else %}
-        <a href="{% url 'account_login' %}">Login</a>
-        <a href="{% url 'account_signup' %}">Signup</a>
-      {% endif %}
-    </nav>
+      <!-- CENTER: brand -->
+      <a class="brand" href="{% url 'starting-page' %}">
+        <span class="brand-text">YW</span>
+      </a>
+
+      <!-- RIGHT: actions -->
+      <nav class="topbar-actions" aria-label="Actions">
+        <a class="icon-btn" href="{% url 'cv' %}" aria-label="CV">
+          <span class="icon">↗</span>
+        </a>
+
+        <a class="icon-btn" href="{% url 'reels:list' %}" aria-label="Reels">
+          <span class="icon">▦</span>
+        </a>
+
+        {% if user.is_authenticated %}
+          <a class="icon-btn" href="{% url 'account_logout' %}" aria-label="Logout">
+            <span class="icon">⎋</span>
+          </a>
+        {% else %}
+          <a class="icon-btn" href="{% url 'account_login' %}" aria-label="Login">
+            <span class="icon">👤</span>
+          </a>
+        {% endif %}
+      </nav>
+
+    </div>
   </header>
 
+  <!-- OVERLAY + DRAWER -->
   <div class="nav-overlay" hidden></div>
 
   <nav id="mobile-drawer" class="nav-drawer" hidden>
+    <a href="{% url 'starting-page' %}">Accueil</a>
+    <a href="{% url 'reels:list' %}">Reels</a>
+    <a href="{% url 'cv' %}" class="nav-cv">CV</a>
+
+    <!-- tu peux garder ces liens si tu veux, mais c’est “admin-ish” -->
     <a href="{% url 'read-later' %}">Stored Posts</a>
     <a href="{% url 'posts-page' %}">All Posts</a>
-    <a href="{% url 'cv' %}" class="nav-cv">CV</a>
 
     {% if user.is_authenticated %}
       <a href="{% url 'post-create' %}">New post</a>
-<a class="drawer-link" href="{% url 'reels:list' %}">Reels</a>
       <a href="{% url 'account_logout' %}">Logout</a>
     {% else %}
       <a href="{% url 'account_login' %}">Login</a>

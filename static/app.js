@@ -1,4 +1,4 @@
-const btn = document.querySelector(".nav-toggle");
+const btn = document.querySelector(".menu-btn") || document.querySelector(".nav-toggle");
 const drawer = document.querySelector("#mobile-drawer");
 const overlay = document.querySelector(".nav-overlay");
 
@@ -27,8 +27,11 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeNav();
 });
 
-/* Séparateurs dans le drawer (demandé) */
+/* Séparateurs dans le drawer */
 if (drawer) {
+  // évite de dupliquer si le JS est chargé plusieurs fois
+  drawer.querySelectorAll(".drawer-sep").forEach((el) => el.remove());
+
   const links = Array.from(drawer.querySelectorAll("a"));
   links.forEach((a, i) => {
     if (i === links.length - 1) return;
