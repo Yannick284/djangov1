@@ -2,14 +2,20 @@
   <article class="post">
     <a href="{% url "post-detail-page" post.slug %}">
       {% if post.image %}
-      <img src="{{ post.image.url }}" alt="{{ post.title }}"
+        <img src="{{ post.image.url }}" alt="{{ post.title }}" />
       {% endif %}
-      />
+
       <div class="post__content">
+        <div class="post__meta">
+          {% if post.is_admin_only %}
+            <span class="badge badge--admin">Admin</span>
+          {% elif not post.is_public %}
+            <span class="badge badge--private">Privé</span>
+          {% endif %}
+        </div>
+
         <h3>{{ post.title }}</h3>
-        <p>
-          {{ post.excerpt }}
-        </p>
+        <p>{{ post.excerpt }}</p>
       </div>
     </a>
   </article>

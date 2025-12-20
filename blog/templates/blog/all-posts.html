@@ -16,9 +16,6 @@ All My Posts
 
   <ul>
     {% for post in all_posts %}
-      {% if post.owner == user and not post.is_public %}
-      <span class="badge">Privé</span>
-      {% endif %}
       {% include "blog/includes/post.html" %}
     {% endfor %}
   </ul>

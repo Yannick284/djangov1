@@ -6,8 +6,8 @@ from .models import Post, Author, Tag, Comment
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_filter = ("author", "tags", "date",)
-    list_display = ("title", "date", "author",)
+    list_filter = ("author", "tags", "date","is_public", "is_admin_only")
+    list_display = ("title", "date", "author","is_public", "is_admin_only")
     prepopulated_fields = {"slug": ("title",)}
 
 
@@ -19,3 +19,8 @@ admin.site.register(Post, PostAdmin)
 admin.site.register(Author)
 admin.site.register(Tag)
 admin.site.register(Comment, CommentAdmin)
+
+
+class PostAdmin(admin.ModelAdmin):
+    list_display = ("title", "is_public", "is_admin_only", "date")
+    list_filter = ("is_public", "is_admin_only")
