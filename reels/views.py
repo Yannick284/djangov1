@@ -14,7 +14,7 @@ from .models import Reel, Category
 
 def is_admin_user(user) -> bool:
     # "yannick" peut tout voir (comme demandé)
-    return user.is_authenticated and user.username == "yannick"
+    return user.is_authenticated and user.is_superuser
 
 
 class ReelAccessMixin(LoginRequiredMixin):

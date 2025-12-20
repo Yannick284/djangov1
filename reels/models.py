@@ -46,7 +46,7 @@ class Reel(models.Model):
     title = models.CharField(max_length=255, blank=True)
     author_name = models.CharField(max_length=255, blank=True)
     s3_storage = S3Boto3Storage()
-    thumbnail = models.ImageField(storage=s3_storage, upload_to="reels", null=True)
+    thumbnail = models.ImageField(storage=s3_storage, upload_to="reels", null=True, blank=True)
     # thumbnail = models.ImageField(upload_to="reels_thumbs/", blank=True, null=True)
     thumbnail_url = models.URLField(blank=True)
     embed_html = models.TextField(blank=True)
