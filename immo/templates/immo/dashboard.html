@@ -1,0 +1,291 @@
+{% load static humanize %}
+{% load static %}
+{% load humanize %}
+<link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
+<!doctype html>
+<html lang="fr">
+<head>
+  <link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IMMO — {{ prop.name }}</title>
+  <link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>{{ prop.name }}</h1>
+        <div class="sub">Date: <b>{{ end_date }}</b> · Hypothèse marché: <b>{{ growth }}%</b>/an</div>
+      </div>
+      <div class="controls">
+        <div class="pill">API summary: <code>/immo/properties/{{ prop.id }}/summary/</code></div>
+        <div class="pill">API scenarios: <code>/immo/properties/{{ prop.id }}/scenarios/</code></div>
+        <div class="pill">API breakeven: <code>/immo/properties/{{ prop.id }}/breakeven/</code></div>
+      </div>
+    </header>
+
+    <!-- KPIs -->
+    <div class="grid">
+      <div class="card span-3">
+        <h2>Valeur marché (est.)</h2>
+        <p class="kpi">
+          {% if summary.market_value_est %}{{ summary.market_value_est|floatformat:0|intcomma }}{% else %}—{% endif %}
+          <small>€</small>
+        </p>
+        <div class="kpi-sub">
+          {% if summary.market_price_point_date %}
+            <span>Source</span>
+            <code>{{ summary.market_price_point_date }}</code>
+            <code>{{ summary.market_price_per_sqm_last|floatformat:0|intcomma }} €/m²</code>
+            <span>+</span>
+            <code>{{ summary.goodwill_eur_per_sqm|default:"0"|floatformat:0|intcomma }} €/m²</code>
+            <span>=</span>
+            <code>{{ summary.market_price_per_sqm_adjusted|floatformat:0|intcomma }} €/m²</code>
+          {% else %}
+            <span class="muted">—</span>
+          {% endif %}
+        </div>
+        <div class="row"><span>Frais vente</span><b>{{ summary.selling_fees_rate|floatformat:2 }}%</b></div>
+      </div>
+
+      <div class="card span-3">
+        <h2>Net vendeur estimé</h2>
+        <p class="kpi">
+          {% if summary.net_vendeur %}{{ summary.net_vendeur|floatformat:0|intcomma }}{% else %}—{% endif %}
+          <small>€</small>
+        </p>
+        <div class="row">
+          <span>Frais vente (est.)</span>
+          <b>{% if summary.selling_fees_est %}{{ summary.selling_fees_est|floatformat:0|intcomma }} €{% else %}—{% endif %}</b>
+        </div>
+      </div>
+
+      <div class="card span-3">
+        <h2>Cash investi réel</h2>
+        <p class="kpi">
+          {% if summary.cash_invested_real %}{{ summary.cash_invested_real|floatformat:0|intcomma }}{% else %}—{% endif %}
+          <small>€</small>
+        </p>
+        <div class="row">
+          <span>Cashflow réel</span>
+          <b>{% if summary.cashflow_real %}{{ summary.cashflow_real|floatformat:0|intcomma }} €{% else %}—{% endif %}</b>
+        </div>
+      </div>
+
+      <div class="card span-3">
+        <h2>Gain / Perte si vente</h2>
+        {% if summary.gain_loss_if_sold %}
+          {% if summary.gain_loss_if_sold|slice:":1" == "-" %}
+            <p class="kpi bad">{{ summary.gain_loss_if_sold|floatformat:0|intcomma }} <small>€</small></p>
+            <div class="badge"><span class="dot bad"></span>Vendre = perte</div>
+          {% else %}
+            <p class="kpi good">{{ summary.gain_loss_if_sold|floatformat:0|intcomma }} <small>€</small></p>
+            <div class="badge"><span class="dot good"></span>Vendre = gain</div>
+          {% endif %}
+        {% else %}
+          <p class="kpi">—</p>
+          <div class="badge"><span class="dot"></span>Données manquantes</div>
+        {% endif %}
+
+        <div class="sep"></div>
+        <div class="row">
+          <span>CRD</span>
+          <b>{% if summary.crd_est %}{{ summary.crd_est|floatformat:0|intcomma }} €{% else %}—{% endif %}</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- Cash / Loan -->
+    <div class="grid">
+      <div class="card span-6">
+        <h2>Résumé cash</h2>
+        <div class="row"><span>Loyers encaissés</span><b>{{ summary.rent_total|floatformat:2|intcomma }} €</b></div>
+        <div class="row"><span>Charges récupérées</span><b>{{ summary.charges_total|floatformat:2|intcomma }} €</b></div>
+        <div class="row"><span>Dépenses</span><b>{{ summary.expenses_total|floatformat:2|intcomma }} €</b></div>
+        <div class="row"><span>Mensualités payées</span><b>{{ summary.loan_payments_total|floatformat:2|intcomma }} €</b></div>
+        <div class="row"><span>Assurance payée</span><b>{{ summary.insurance_total|floatformat:2|intcomma }} €</b></div>
+        <div class="sep"></div>
+        <div class="row"><span>Cashflow réel cumulé</span><b>{{ summary.cashflow_real|floatformat:2|intcomma }} €</b></div>
+        <div class="row"><span>Cashflow économique</span><b>{{ summary.cashflow_economic|floatformat:2|intcomma }} €</b></div>
+        <div class="note">Cashflow économique = cashflow réel + capital remboursé.</div>
+      </div>
+
+      <div class="card span-6">
+        <h2>Prêt</h2>
+        <div class="row">
+          <span>Mensualité (hors assurance)</span>
+          <b>{% if summary.monthly_payment_est %}{{ summary.monthly_payment_est|floatformat:2|intcomma }} €{% else %}—{% endif %}</b>
+        </div>
+        <div class="sep"></div>
+        <div class="row"><span>Capital remboursé</span><b>{{ summary.capital_paid_est|floatformat:2|intcomma }} €</b></div>
+        <div class="row"><span>Intérêts payés</span><b>{{ summary.interest_paid_est|floatformat:2|intcomma }} €</b></div>
+        <div class="row">
+          <span>CRD restant</span>
+          <b>{% if summary.crd_est %}{{ summary.crd_est|floatformat:0|intcomma }} €{% else %}—{% endif %}</b>
+        </div>
+
+        <div class="sep"></div>
+        <h2>Break-even</h2>
+        {% if breakeven %}
+          <div class="row"><span>Date</span><b>{{ breakeven.date }}</b></div>
+          <div class="row"><span>Dans</span><b>{{ breakeven.months_ahead }} mois</b></div>
+          <div class="row"><span>Gain/Perte</span>
+            {% if breakeven.gain_loss|slice:":1" == "-" %}
+              <b class="bad">{{ breakeven.gain_loss|floatformat:0|intcomma }} €</b>
+            {% else %}
+              <b class="good">{{ breakeven.gain_loss|floatformat:0|intcomma }} €</b>
+            {% endif %}
+          </div>
+          <div class="note">Hypothèse: valeur marché évolue de {{ growth }}%/an.</div>
+        {% else %}
+          <div class="badge"><span class="dot"></span>Break-even non dispo</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- Multipliers scenarios -->
+    <div class="card">
+      <h2>Scénarios de vente (sensibilité valeur marché)</h2>
+      {% if scenarios and scenarios.rows %}
+        <table>
+          <thead>
+            <tr>
+              <th>Scénario</th>
+              <th>Valeur marché</th>
+              <th>Frais vente</th>
+              <th>Net vendeur</th>
+              <th>Gain / Perte</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in scenarios.rows %}
+              <tr>
+                <td class="muted">{{ r.multiplier }}x</td>
+                <td>{{ r.market_value|floatformat:0|intcomma }} €</td>
+                <td>{{ r.selling_fees|floatformat:0|intcomma }} €</td>
+                <td>{{ r.net_vendeur|floatformat:0|intcomma }} €</td>
+                <td>
+                  {% if r.gain_loss|slice:":1" == "-" %}
+                    <span class="bad">{{ r.gain_loss|floatformat:0|intcomma }} €</span>
+                  {% else %}
+                    <span class="good">{{ r.gain_loss|floatformat:0|intcomma }} €</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="note">Multiplicateurs appliqués à la valeur marché actuelle (dernier point du graphe + goodwill).</div>
+      {% else %}
+        <div class="badge"><span class="dot"></span>Données manquantes pour scénarios</div>
+      {% endif %}
+    </div>
+
+    <div class="note" style="margin-top:14px;">
+      Objectif = décision. Prêt = amortissement avec arrondis au centime.
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card" style="margin-top:14px;">
+      <h2>Évolution du prix marché (€/m²)</h2>
+      <label style="display:inline-flex;gap:8px;align-items:center;color:#9fb0d0;font-size:13px;">
+        <input id="toggleNet" type="checkbox" checked>
+        Afficher net vendeur
+      </label>
+      <canvas id="marketChart" height="90"></canvas>
+      <div class="note">Historique depuis l’achat</div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="card">
+      <h2>Historique marché (éditable)</h2>
+      <div class="note">Ajoute/modifie un point (mois + €/m²). Ça alimente valeur marché, scénarios, break-even.</div>
+
+      <div class="mp-form">
+        <input id="mpDate" class="mp-input" type="month" value="{{ end_date|date:'Y-m' }}">
+        <input id="mpPrice" class="mp-input" type="number" step="1" min="0" placeholder="€/m²">
+        <button id="mpSave" class="btn">Save</button>
+        <span id="mpMsg" class="muted" style="margin-left:10px"></span>
+      </div>
+
+        {% comment %} <div class="sep"></div>
+
+        <table>
+          <thead>
+            <tr><th>Mois</th><th>€/m²</th><th></th></tr>
+          </thead>
+          <tbody id="marketPointsBody">
+            <tr><td colspan="3" class="muted">Chargement…</td></tr>
+          </tbody>
+        </table>
+      </div> {% endcomment %}
+
+    <div class="sep"></div>
+
+    <div class="card">
+      <h2>Sensibilité — vente dans 1 à 5 ans</h2>
+
+      {% if time_scenarios and time_scenarios.rows %}
+        <table>
+          <thead>
+            <tr>
+              <th>Horizon</th>
+              <th>Date de vente</th>
+              <th>Valeur marché</th>
+              <th>CRD</th>
+              <th>Cash investi</th>
+              <th>Net vendeur</th>
+              <th>Gain / Perte</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in time_scenarios.rows %}
+              <tr>
+                <td class="muted">{{ r.years }} an{% if r.years|add:"0" > 1 %}s{% endif %}</td>
+                <td class="muted">{{ r.sell_date }}</td>
+                <td>{% if r.market_value %}{{ r.market_value|floatformat:0|intcomma }} €{% else %}—{% endif %}</td>
+                <td>{% if r.crd %}{{ r.crd|floatformat:0|intcomma }} €{% else %}—{% endif %}</td>
+                <td>{% if r.cash_invested %}{{ r.cash_invested|floatformat:0|intcomma }} €{% else %}—{% endif %}</td>
+                <td>{% if r.net_vendeur %}{{ r.net_vendeur|floatformat:0|intcomma }} €{% else %}—{% endif %}</td>
+                <td>
+                  {% if r.gain_loss %}
+                    {% if r.gain_loss|slice:":1" == "-" %}
+                      <span class="bad">{{ r.gain_loss|floatformat:0|intcomma }} €</span>
+                    {% else %}
+                      <span class="good">{{ r.gain_loss|floatformat:0|intcomma }} €</span>
+                    {% endif %}
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="note">Projection depuis la valeur actuelle (dernier point + goodwill) avec croissance {{ growth }}%/an.</div>
+      {% else %}
+        <div class="badge"><span class="dot"></span>time_scenarios non dispo</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    window.IMMO_DASHBOARD = {
+      propId: {{ prop.id }},
+      endDate: "{{ end_date|date:'Y-m-d' }}",
+      growth: "{{ growth }}",
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{% static 'immo/dashboard.js' %}"></script>
+</body>
+</html>

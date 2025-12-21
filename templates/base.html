@@ -1,10 +1,12 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}{% endblock %}</title>
+
+  <!-- Global CSS -->
   <link rel="stylesheet" href="{% static 'app.css' %}">
   {% block css_files %}{% endblock %}
 </head>
@@ -38,6 +40,10 @@
         </a>
 
         {% if user.is_authenticated %}
+          <a class="icon-btn" href="{% url 'immo:property-list' %}" aria-label="IMMO">
+            <span class="icon">🏠</span>
+          </a>
+
           <a class="icon-btn" href="{% url 'account_logout' %}" aria-label="Logout">
             <span class="icon">⎋</span>
           </a>
@@ -59,15 +65,20 @@
     <a href="{% url 'reels:list' %}">Reels</a>
     <a href="{% url 'cv' %}" class="nav-cv">CV</a>
 
-    <!-- tu peux garder ces liens si tu veux, mais c’est “admin-ish” -->
-    {% comment %} <a href="{% url 'read-later' %}">Stored Posts</a> {% endcomment %}
     <a href="{% url 'posts-page' %}">All Posts</a>
 
     {% if user.is_authenticated %}
+      <hr style="opacity:.2; margin:1rem 0">
 
-    {% if user.is_superuser %}
-      <a href="{% url 'post-create' %}">New post</a>
-{% endif %}
+      <span style="font-size:.75rem; opacity:.6; padding:0 .5rem;">IMMO</span>
+      <a href="{% url 'immo:property-list' %}">Mes propriétés</a>
+      <a href="{% url 'immo:property-create' %}">Nouvelle propriété</a>
+
+      <hr style="opacity:.2; margin:1rem 0">
+
+      {% if user.is_superuser %}
+        <a href="{% url 'post-create' %}">New post</a>
+      {% endif %}
 
       <a href="{% url 'account_logout' %}">Logout</a>
     {% else %}
@@ -76,13 +87,18 @@
     {% endif %}
   </nav>
 
-  {% block content %}{% endblock %}
+  <main>
+    {% block content %}{% endblock %}
+  </main>
 
+  <!-- Global JS -->
   <script src="{% static 'app.js' %}"></script>
 
   <footer style="text-align:center; padding: 2rem 0; font-size: 0.85rem;">
     <p>V0.2</p>
     <a href="{% url 'legal' %}">Mentions légales</a>
   </footer>
+
+  {% block js_files %}{% endblock %}
 </body>
 </html>

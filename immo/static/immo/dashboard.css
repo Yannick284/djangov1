@@ -1,0 +1,82 @@
+:root{
+      --bg:#0b0f17; --text:#e8eefc; --muted:#9fb0d0; --border:rgba(255,255,255,.10);
+      --good:#22c55e; --bad:#ef4444; --warn:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(99,102,241,.18), transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, rgba(34,197,94,.12), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      line-height:1.35;
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:22px}
+    header{display:flex;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+    h1{margin:0;font-size:26px;letter-spacing:.2px}
+    .sub{color:var(--muted);font-size:13px;margin-top:6px}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;color:var(--muted);font-size:13px}
+    .pill{border:1px solid var(--border);background:rgba(255,255,255,.04);padding:8px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:8px}
+    .pill code{color:var(--text);background:transparent}
+
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .card{border:1px solid var(--border);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border-radius:16px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .card h2{margin:0 0 10px;font-size:14px;color:var(--muted);font-weight:600;letter-spacing:.2px}
+
+    .kpi{font-size:28px;font-weight:750;letter-spacing:.2px;margin:0}
+    .kpi small{font-size:13px;color:var(--muted);font-weight:600;margin-left:8px}
+
+    .kpi-sub{margin-top:8px;color:var(--muted);font-size:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .kpi-sub code{
+      padding:3px 7px;border-radius:999px;border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);color:var(--text);
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px
+    }
+
+    .row{display:flex;justify-content:space-between;gap:12px;margin-top:10px;color:var(--muted);font-size:13px}
+    .row b{color:var(--text);font-weight:650}
+
+    .span-3{grid-column:span 3}
+    .span-6{grid-column:span 6}
+    .span-12{grid-column:span 12}
+
+    @media (max-width:980px){
+      .span-3{grid-column:span 6}
+      header{flex-direction:column;align-items:flex-start}
+      .controls{justify-content:flex-start}
+    }
+    @media (max-width:560px){
+      .span-6,.span-3{grid-column:span 12}
+      .kpi{font-size:24px}
+    }
+
+    .badge{display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:7px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.04);margin-top:8px}
+    .dot{width:9px;height:9px;border-radius:999px;background:var(--warn)}
+    .dot.good{background:var(--good)}
+    .dot.bad{background:var(--bad)}
+
+    table{width:100%;border-collapse:collapse;font-size:13px;color:var(--text);overflow:hidden;border-radius:12px}
+    th,td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.08);text-align:right;white-space:nowrap}
+    th:first-child,td:first-child{text-align:left}
+    th{color:var(--muted);font-weight:700;background:rgba(255,255,255,.03)}
+    tr:hover td{background:rgba(255,255,255,.03)}
+
+    .muted{color:var(--muted)}
+    .good{color:var(--good);font-weight:750}
+    .bad{color:var(--bad);font-weight:750}
+    .sep{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
+    .note{font-size:12px;color:var(--muted);margin-top:10px}
+
+    /* market points single line */
+    .mp-input{
+      width:170px; padding:7px 9px; border-radius:10px; border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.03); color:var(--text); outline:none;
+    }
+    .btn{
+      padding:7px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05); color:var(--text); cursor:pointer; font-weight:650;
+    }
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .clickable-row{cursor:pointer}

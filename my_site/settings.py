@@ -56,6 +56,8 @@ if RENDER_EXTERNAL_HOSTNAME:
 INSTALLED_APPS = [
     'blog',
     'reels',
+    'immo',
+    "django.contrib.humanize",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
