@@ -21,8 +21,17 @@ from .models import Property, Loan
 
 from .services.scenarios import sale_scenarios
 from decimal import Decimal
+from django.views.generic import ListView
 
 
+class PropertyListView(LoginRequiredMixin, ListView):
+    model = Property
+    template_name = "immo/property_list.html"
+    context_object_name = "properties"
+
+    def get_queryset(self):
+        return Property.objects.filter(user=self.request.user).order_by("-purchase_date")
+    
 @login_required
 def ledger_view(request, property_id: int):
     prop = get_object_or_404(Property, id=property_id, user=request.user)
