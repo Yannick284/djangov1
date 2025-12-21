@@ -22,6 +22,7 @@ from .models import Property, Loan
 from .services.scenarios import sale_scenarios
 from decimal import Decimal
 from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class PropertyListView(LoginRequiredMixin, ListView):
