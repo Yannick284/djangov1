@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}IMMO — Mes biens{% endblock %}
+
+{% block content %}
+<main class="wrap">
+  <header class="page-head">
+    <h1>Mes biens</h1>
+    <div class="page-actions">
+      <a class="btn" href="{% url 'property-create' %}">+ Ajouter une propriété</a>
+    </div>
+  </header>
+
+  {% if properties %}
+    <div class="cards">
+      {% for p in properties %}
+        <a class="card-link" href="{% url 'immo-dashboard' p.id %}">
+          <div class="card">
+            <div class="card-title">{{ p.name }}</div>
+            <div class="card-meta">
+              Achat : {{ p.purchase_date }} · Prix : {{ p.purchase_price }} €
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>Aucune propriété pour l’instant.</p>
+    <a class="btn" href="{% url 'property-create' %}">Créer la première</a>
+  {% endif %}
+</main>
+{% endblock %}

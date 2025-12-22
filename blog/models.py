@@ -31,9 +31,9 @@ class Post(models.Model):
     title = models.CharField(max_length=150)
     excerpt = models.CharField(max_length=200)
     
-    # s3_storage = S3Boto3Storage()
-    # image = models.ImageField(storage=s3_storage, upload_to="posts", null=True)
-    image = models.ImageField(upload_to="posts", null=True, blank=True)
+    s3_storage = S3Boto3Storage()
+    image = models.ImageField(storage=s3_storage, upload_to="posts", null=True)
+    # image = models.ImageField(upload_to="posts", null=True, blank=True)
     is_superuser_only = models.BooleanField(default=False)
     date = models.DateField(auto_now=True)
     slug = models.SlugField(unique=True, db_index=True)
