@@ -272,7 +272,7 @@ class PropertyCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse("immo-dashboard", kwargs={"property_id": self.object.id})
+        return reverse("immo:immo-dashboard", kwargs={"property_id": self.object.id}) 
 
 class PropertyUpdateView(LoginRequiredMixin, UpdateView):
     model = Property
