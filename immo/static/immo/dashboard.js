@@ -1,4 +1,13 @@
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+  return null;
+}
+
 // ------- Market points -------
+
+
 (async function initMarketPoints() {
   const mpDate = document.getElementById("mpDate");
   const mpPrice = document.getElementById("mpPrice");
