@@ -259,21 +259,50 @@ from django.shortcuts import get_object_or_404
 from .models import Property
 from .forms import PropertyForm
 
-class PropertyCreateView(LoginRequiredMixin, CreateView):
-    model = Property
-    form_class = PropertyForm
+from django.views import View
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.db import transaction
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from .forms import PropertyForm, LoanForm
+from .models import Property
+
+
+class PropertyCreateView(LoginRequiredMixin, View):
     template_name = "immo/property_form.html"
 
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.user = self.request.user
-        obj.save()
-        self.object = obj
-        return super().form_valid(form)
+    def get(self, request):
+        return render(request, self.template_name, {
+            "property_form": PropertyForm(),
+            "loan_form": LoanForm(),
+        })
 
-    def get_success_url(self):
-        return reverse("immo:immo-dashboard", kwargs={"property_id": self.object.id}) 
+    @transaction.atomic
+    def post(self, request):
+        property_form = PropertyForm(request.POST)
+        loan_form = LoanForm(request.POST)
 
+        if not property_form.is_valid() or not loan_form.is_valid():
+            return render(request, self.template_name, {
+                "property_form": property_form,
+                "loan_form": loan_form,
+            })
+
+        # 1️⃣ Property
+        prop = property_form.save(commit=False)
+        prop.user = request.user
+        prop.save()
+
+        # 2️⃣ Loan (optionnel)
+        if not loan_form.is_empty():
+            loan = loan_form.save(commit=False)
+            loan.property = prop
+            loan.save()
+
+        return redirect(
+            reverse("immo:immo-dashboard", kwargs={"property_id": prop.id})
+        )
 class PropertyUpdateView(LoginRequiredMixin, UpdateView):
     model = Property
     form_class = PropertyForm
