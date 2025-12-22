@@ -1,3 +1,8 @@
+const ymToIsoDate = (ym) => {
+  if (!ym || ym.length < 7) return null;
+  return `${ym}-01`;
+};
+
 function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
