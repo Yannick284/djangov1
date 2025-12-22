@@ -27,23 +27,24 @@ def property_summary(prop: Property, end_date: date):
     mv_est = None
     last_m2 = None
     last_m2_date = None
+    
 
-    if prop.surface_sqm:
-        last_point = (
-            prop.market_points
-            .filter(date__lte=end_date)
-            .order_by("-date")
-            .first()
-        )
+    # 1) override manuel (valeur totale €)
+    if prop.market_value_est:
+        mv_est = Decimal(prop.market_value_est)
 
+    # 2) sinon calcul depuis le dernier point €/m²
+    elif prop.surface_sqm:
+        last_point = prop.market_points.filter(date__lte=end_date).order_by("-date").first()
         if last_point:
             last_m2 = Decimal(last_point.price_per_sqm)
             last_m2_date = last_point.date
 
             goodwill = Decimal(prop.goodwill_eur_per_sqm or 0)
-            parking = Decimal(prop.parking or 0)
+        
 
-            mv_est = (last_m2 + goodwill) * Decimal(prop.surface_sqm) + parking
+            parking = Decimal(prop.parking or 0)
+            mv_est =   (goodwill+last_m2)*Decimal(prop.surface_sqm) + parking
 
     # ------------------------------------------------------------------
     # LOYERS / CHARGES / DÉPENSES

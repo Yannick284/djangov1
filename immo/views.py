@@ -206,28 +206,28 @@ from django.views.decorators.http import require_http_methods
 
 from .models import Property, MarketPricePoint
 from .services.months import iter_month_starts, month_start
+from django.views.decorators.csrf import csrf_protect
 
 @login_required
+@csrf_protect
 @require_http_methods(["GET", "POST"])
-def market_points_view(request, property_id: int):
+def market_points_view(request, property_id):
     prop = get_object_or_404(Property, id=property_id, user=request.user)
 
     if request.method == "POST":
-        data = json.loads(request.body.decode("utf-8"))
-        d = date.fromisoformat(data["date"])
-        d = month_start(d)
+        payload = json.loads(request.body.decode("utf-8"))
+        d = payload.get("date")
+        p = payload.get("price_per_sqm")
 
-        price = Decimal(str(data["price_per_sqm"]))
+        if not d or p in (None, ""):
+            return JsonResponse({"error": "date/price_per_sqm required"}, status=400)
+
         obj, _ = MarketPricePoint.objects.update_or_create(
             property=prop,
             date=d,
-            defaults={"price_per_sqm": price},
+            defaults={"price_per_sqm": Decimal(str(p))},
         )
-        return JsonResponse({
-            "ok": True,
-            "date": obj.date.isoformat(),
-            "price_per_sqm": str(obj.price_per_sqm),
-        })
+        return JsonResponse({"ok": True, "id": obj.id})
 
     # GET
     end_str = request.GET.get("end")
