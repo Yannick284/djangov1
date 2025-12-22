@@ -15,28 +15,35 @@ from .loan_schedule import balance_after_months
 def months_between(start: date, end: date) -> int:
     s = month_start(start)
     e = month_start(end)
-    return (e.year - s.year) * 12 + (e.month - s.month)  # inclusif
+    return (e.year - s.year) * 12 + (e.month - s.month)
 
 
 def property_summary(prop: Property, end_date: date):
     end_date = end_date or date.today()
 
     # ------------------------------------------------------------------
-    # VALEUR DE MARCHÉ = DERNIER POINT DU GRAPHE × SURFACE
+    # VALEUR DE MARCHÉ = DERNIER POINT DU GRAPHE × SURFACE (+ goodwill + parking)
     # ------------------------------------------------------------------
     mv_est = None
     last_m2 = None
     last_m2_date = None
 
     if prop.surface_sqm:
-        last_point = prop.market_points.filter(date__lte=end_date).order_by("-date").first()
+        last_point = (
+            prop.market_points
+            .filter(date__lte=end_date)
+            .order_by("-date")
+            .first()
+        )
+
         if last_point:
             last_m2 = Decimal(last_point.price_per_sqm)
             last_m2_date = last_point.date
 
             goodwill = Decimal(prop.goodwill_eur_per_sqm or 0)
-            adjusted_m2 = last_m2 + goodwill 
-            mv_est = adjusted_m2 * Decimal(prop.surface_sqm) +prop.parking
+            parking = Decimal(prop.parking or 0)
+
+            mv_est = (last_m2 + goodwill) * Decimal(prop.surface_sqm) + parking
 
     # ------------------------------------------------------------------
     # LOYERS / CHARGES / DÉPENSES
@@ -55,7 +62,7 @@ def property_summary(prop: Property, end_date: date):
         expenses_total += Decimal(expenses_for_month(expenses, m))
 
     # ------------------------------------------------------------------
-    # PRÊT (AMORTISSEMENT RÉEL)
+    # PRÊT
     # ------------------------------------------------------------------
     loan_payment_total = Decimal("0")
     insurance_total = Decimal("0")
@@ -97,10 +104,10 @@ def property_summary(prop: Property, end_date: date):
     )
 
     cashflow_economic = cashflow_real + capital_paid
-    cash_invested_real = -cashflow_real  # convention
+    cash_invested_real = -cashflow_real
 
     # ------------------------------------------------------------------
-    # VENTE (COHÉRENTE AVEC LE GRAPHE)
+    # VENTE
     # ------------------------------------------------------------------
     sale_info = None
     gain_loss = None
@@ -138,12 +145,11 @@ def property_summary(prop: Property, end_date: date):
         "cashflow_economic": str(cashflow_economic),
         "cash_invested_real": str(cash_invested_real),
 
-        # Marché (issu du graphe)
-       "market_value_est": str(mv_est) if mv_est is not None else None,
+        # Marché
+        "market_value_est": str(mv_est) if mv_est is not None else None,
         "market_price_per_sqm_last": str(last_m2) if last_m2 is not None else None,
         "market_price_point_date": last_m2_date.isoformat() if last_m2_date else None,
-        "market_price_per_sqm_adjusted": str(adjusted_m2) if adjusted_m2 is not None else None,
-        "goodwill_eur_per_sqm": str(prop.goodwill_eur_per_sqm) if prop.goodwill_eur_per_sqm is not None else None,
+        "goodwill_eur_per_sqm": str(prop.goodwill_eur_per_sqm),
 
         # Vente
         "selling_fees_rate": str(prop.selling_fees_rate),
