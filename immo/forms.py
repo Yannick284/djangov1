@@ -1,5 +1,7 @@
 from django import forms
-from .models import Property
+from decimal import Decimal
+from .models import Property, Loan
+
 
 class PropertyForm(forms.ModelForm):
     class Meta:
@@ -14,7 +16,7 @@ class PropertyForm(forms.ModelForm):
             "parking",
             "selling_fees_rate",
             "goodwill_eur_per_sqm",
-            "market_value_est",  # optionnel (si tu veux pouvoir forcer une valeur)
+            "market_value_est",  # override manuel optionnel
         ]
         widgets = {
             "purchase_date": forms.DateInput(attrs={"type": "date"}),
@@ -33,3 +35,28 @@ class PropertyForm(forms.ModelForm):
         if v is not None and v > 30:
             raise forms.ValidationError("Taux de frais de vente trop élevé.")
         return v
+
+
+class LoanForm(forms.ModelForm):
+    class Meta:
+        model = Loan
+        fields = [
+            "borrowed_capital",
+            "annual_rate",
+            "years",
+            "insurance_monthly",
+            "start_date",
+        ]
+        widgets = {
+            "borrowed_capital": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
+            "annual_rate": forms.NumberInput(attrs={"step": "0.001", "min": "0"}),
+            "insurance_monthly": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
+            "start_date": forms.DateInput(attrs={"type": "date"}),
+        }
+
+    def is_empty(self):
+        """Permet de rendre le prêt optionnel"""
+        for field in self.fields:
+            if self.cleaned_data.get(field):
+                return False
+        return True
