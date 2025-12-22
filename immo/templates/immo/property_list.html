@@ -8,14 +8,14 @@
   <header class="page-head">
     <h1>Mes biens</h1>
     <div class="page-actions">
-      <a class="btn" href="{% url 'property-create' %}">+ Ajouter une propriété</a>
+      <a class="btn" href="{% url 'immo:property-create' %}">+ Ajouter une propriété</a>
     </div>
   </header>
 
   {% if properties %}
     <div class="cards">
       {% for p in properties %}
-        <a class="card-link" href="{% url 'immo-dashboard' p.id %}">
+        <a class="card-link" href="{% url 'immo:immo-dashboard' p.id %}">
           <div class="card">
             <div class="card-title">{{ p.name }}</div>
             <div class="card-meta">
@@ -27,7 +27,7 @@
     </div>
   {% else %}
     <p>Aucune propriété pour l’instant.</p>
-    <a class="btn" href="{% url 'property-create' %}">Créer la première</a>
+    <a class="btn" href="{% url 'immo:property-create' %}">Créer la première</a>
   {% endif %}
 </main>
 {% endblock %}
