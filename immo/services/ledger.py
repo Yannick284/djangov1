@@ -8,7 +8,18 @@ import calendar
 from ..models import Property, Expense, RentPeriod, Loan
 
 
+import calendar
+from datetime import date
 
+def month_start(d: date) -> date:
+    return d.replace(day=1)
+
+def add_months(d: date, months: int) -> date:
+    y = d.year + (d.month - 1 + months) // 12
+    m = (d.month - 1 + months) % 12 + 1
+    last_day = calendar.monthrange(y, m)[1]
+    day = min(d.day, last_day)
+    return date(y, m, day)
 
 TWOPLACES = Decimal("0.01")
 
