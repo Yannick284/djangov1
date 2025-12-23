@@ -15,7 +15,7 @@ urlpatterns = [
     path("properties/<int:property_id>/ledger/", views.ledger_view, name="immo-ledger"),
     path("properties/<int:property_id>/market-series/", views.market_series_view, name="immo-market-series"),
     path("properties/<int:property_id>/breakeven/", views.breakeven_view, name="immo-breakeven"),
-    path("properties/<int:property_id>/market-points/", views.market_points_view, name="market-points"),
+    path("properties/<int:property_id>/market-points/", views.market_points_view, name="immo-market-points"),
 
     # EDIT
     path("properties/<int:property_id>/edit/", views.PropertyUpdateView.as_view(), name="property-edit"),
