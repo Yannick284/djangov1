@@ -17,7 +17,15 @@
     {{ loan_form.non_field_errors }}
     {{ loan_form.as_p }}
 
-    <button type="submit">Créer</button>
+    <h2>Loyer / Cash (optionnel)</h2>
+    <p class="muted">
+      Sert au calcul du cashflow.  
+      Le loyer sera <b>proratisé automatiquement</b> si le début n’est pas au 1er du mois.
+    </p>
+    {{ rent_form.non_field_errors }}
+    {{ rent_form.as_p }}
+
+    <button class="btn" type="submit">Créer la propriété</button>
   </form>
 </main>
 {% endblock %}
