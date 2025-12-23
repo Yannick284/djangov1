@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import json
 from datetime import date
 from decimal import Decimal
+import json
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,16 +10,15 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
-from django.views import View
-from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_protect
 from django.views.generic import ListView, UpdateView
+from django.views import View
 
-from .models import Property, Loan, MarketPricePoint
+from .models import Property, Loan, MarketPricePoint, RentPeriod
 from .forms import PropertyForm, LoanForm, RentPeriodForm
 
-from .services.ledger import build_ledger
-from .services.months import month_start  # ✅ robuste (au lieu de month_start dans ledger)
+from .services.ledger import build_ledger, month_start
 from .services.summary import property_summary
 from .services.breakeven import breakeven_date
 from .services.scenarios import sale_scenarios
@@ -27,9 +26,6 @@ from .services.time_scenarios import time_sale_scenarios
 from .services.crd_series import crd_series_for_months
 
 
-# ---------------------------
-# LIST
-# ---------------------------
 class PropertyListView(LoginRequiredMixin, ListView):
     model = Property
     template_name = "immo/property_list.html"
@@ -39,9 +35,6 @@ class PropertyListView(LoginRequiredMixin, ListView):
         return Property.objects.filter(user=self.request.user).order_by("-purchase_date")
 
 
-# ---------------------------
-# DASHBOARD (HTML)
-# ---------------------------
 @login_required
 def dashboard_view(request, property_id: int):
     prop = get_object_or_404(Property, id=property_id, user=request.user)
@@ -49,9 +42,8 @@ def dashboard_view(request, property_id: int):
     end_str = request.GET.get("end")
     end_date = date.fromisoformat(end_str) if end_str else date.today()
 
-    # growth dans l'URL: "2.0" => affichage 2 (%), calcul en fraction 0.02
-    growth_pct = Decimal(request.GET.get("growth", "0.0"))
-    growth_frac = growth_pct / Decimal("100")
+    growth = Decimal(request.GET.get("growth", "0.0"))
+    growth_frac = growth / Decimal("100")
 
     summary = property_summary(prop, end_date)
 
@@ -77,7 +69,7 @@ def dashboard_view(request, property_id: int):
         {
             "prop": prop,
             "end_date": end_date,
-            "growth": growth_pct,  # ✅ le template + JS affichent "2.0"
+            "growth": growth,
             "summary": summary,
             "breakeven": be,
             "scenarios": scen,
@@ -86,9 +78,6 @@ def dashboard_view(request, property_id: int):
     )
 
 
-# ---------------------------
-# API: Summary / Ledger
-# ---------------------------
 @login_required
 def summary_view(request, property_id: int):
     prop = get_object_or_404(Property, id=property_id, user=request.user)
@@ -127,11 +116,6 @@ def ledger_view(request, property_id: int):
     )
 
 
-# ---------------------------
-# API: Breakeven
-# IMPORTANT: le JS envoie growth = "2.0" (pour 2%)
-# => ici on convertit en fraction 0.02
-# ---------------------------
 @login_required
 def breakeven_view(request, property_id: int):
     prop = get_object_or_404(Property, id=property_id, user=request.user)
@@ -139,31 +123,14 @@ def breakeven_view(request, property_id: int):
     end_str = request.GET.get("end")
     end_date = date.fromisoformat(end_str) if end_str else date.today()
 
-    growth_pct = Decimal(request.GET.get("growth", "0.0"))
-    growth_frac = growth_pct / Decimal("100")
-
+    # ici on attend une fraction (0.02) dans annual_growth_rate
+    growth = Decimal(request.GET.get("growth", "0.0"))
     horizon = int(request.GET.get("horizon", "120"))
 
-    res = breakeven_date(
-        prop,
-        end_date,
-        horizon_months=horizon,
-        annual_growth_rate=growth_frac,
-    )
-
-    return JsonResponse(
-        {
-            "property": prop.name,
-            "as_of": end_date.isoformat(),
-            "growth_pct": str(growth_pct),
-            "result": res,
-        }
-    )
+    res = breakeven_date(prop, end_date, horizon_months=horizon, annual_growth_rate=growth)
+    return JsonResponse({"property": prop.name, "as_of": end_date.isoformat(), "growth": str(growth), "result": res})
 
 
-# ---------------------------
-# API: Market series (chart)
-# ---------------------------
 @login_required
 def market_series_view(request, property_id: int):
     prop = get_object_or_404(Property, id=property_id, user=request.user)
@@ -187,7 +154,7 @@ def market_series_view(request, property_id: int):
         mv = (price_m2 * surface) if surface else None
 
         net_vendeur_m2 = None
-        if surface and mv is not None and crd_map:
+        if surface and mv and crd_map:
             crd_val = crd_map.get(p.date.isoformat())
             if crd_val is not None:
                 crd = Decimal(str(crd_val))
@@ -213,10 +180,6 @@ def market_series_view(request, property_id: int):
     )
 
 
-# ---------------------------
-# API: Market points (POST + GET)
-# Compat JS: renvoie points + rows
-# ---------------------------
 @login_required
 @csrf_protect
 @require_http_methods(["GET", "POST"])
@@ -252,32 +215,12 @@ def market_points_view(request, property_id: int):
             date=d,
             defaults={"price_per_sqm": price},
         )
+        return JsonResponse({"ok": True, "date": obj.date.isoformat(), "price_per_sqm": str(obj.price_per_sqm)})
 
-        return JsonResponse(
-            {
-                "ok": True,
-                "date": obj.date.isoformat(),
-                "price_per_sqm": str(obj.price_per_sqm),
-            }
-        )
-
-    # GET : points existants uniquement
-    pts = list(prop.market_points.order_by("date"))
-    points_payload = [{"date": p.date.isoformat(), "price_per_sqm": str(p.price_per_sqm)} for p in pts]
-
-    # compat avec ton JS (data.rows || data.points)
-    return JsonResponse(
-        {
-            "property": prop.name,
-            "points": points_payload,
-            "rows": points_payload,
-        }
-    )
+    pts = prop.market_points.order_by("date")
+    return JsonResponse({"property": prop.name, "points": [{"date": p.date.isoformat(), "price_per_sqm": str(p.price_per_sqm)} for p in pts]})
 
 
-# ---------------------------
-# CREATE (Property + Loan + RentPeriod optionnels)
-# ---------------------------
 class PropertyCreateView(LoginRequiredMixin, View):
     template_name = "immo/property_form.html"
 
@@ -288,7 +231,7 @@ class PropertyCreateView(LoginRequiredMixin, View):
             {
                 "property_form": PropertyForm(),
                 "loan_form": LoanForm(),
-                "rent_form": RentPeriodForm(),
+                "rent_form": RentPeriodForm(),  # <= sinon ton template affiche juste rien
             },
         )
 
@@ -298,16 +241,15 @@ class PropertyCreateView(LoginRequiredMixin, View):
         loan_form = LoanForm(request.POST)
         rent_form = RentPeriodForm(request.POST)
 
-        # les 3 peuvent être validés même si loan/rent vides (required=False dans forms)
-        if not (property_form.is_valid() and loan_form.is_valid() and rent_form.is_valid()):
+        valid_property = property_form.is_valid()
+        valid_loan = loan_form.is_valid()
+        valid_rent = rent_form.is_valid()
+
+        if not (valid_property and valid_loan and valid_rent):
             return render(
                 request,
                 self.template_name,
-                {
-                    "property_form": property_form,
-                    "loan_form": loan_form,
-                    "rent_form": rent_form,
-                },
+                {"property_form": property_form, "loan_form": loan_form, "rent_form": rent_form},
             )
 
         prop = property_form.save(commit=False)
@@ -327,9 +269,6 @@ class PropertyCreateView(LoginRequiredMixin, View):
         return redirect(reverse("immo:immo-dashboard", kwargs={"property_id": prop.id}))
 
 
-# ---------------------------
-# UPDATE
-# ---------------------------
 class PropertyUpdateView(LoginRequiredMixin, UpdateView):
     model = Property
     form_class = PropertyForm
