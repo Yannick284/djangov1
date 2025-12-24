@@ -2,31 +2,35 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 import calendar
 
+from ..models import Property, Expense, RentPeriod, Loan
 
-# ---------- Dates helpers ----------
+
+TWOPLACES = Decimal("0.01")
+
+
+def _q(x: Decimal) -> Decimal:
+    return x.quantize(TWOPLACES, rounding=ROUND_HALF_UP)
+
 
 def month_start(d: date) -> date:
     return date(d.year, d.month, 1)
 
 
-def add_months(d: date, n: int) -> date:
+def add_months(d: date, months: int) -> date:
     """
-    Ajoute n mois à une date (en conservant un jour valide).
-    Utilisé par breakeven.py => DOIT exister ici.
+    Ajoute N mois à une date (en se plaçant au 1er du mois).
     """
-    y = d.year + (d.month - 1 + n) // 12
-    m = (d.month - 1 + n) % 12 + 1
-    last_day = calendar.monthrange(y, m)[1]
-    day = min(d.day, last_day)
-    return date(y, m, day)
+    y = d.year + (d.month - 1 + months) // 12
+    m = (d.month - 1 + months) % 12 + 1
+    return date(y, m, 1)
 
 
 def iter_months(start: date, end: date):
     """
-    Itère sur les 1ers du mois entre start et end (inclus).
+    Génère: 2022-08-01, 2022-09-01, ... jusqu’à end (mois start).
     """
     cur = month_start(start)
     last = month_start(end)
@@ -35,77 +39,68 @@ def iter_months(start: date, end: date):
         cur = add_months(cur, 1)
 
 
-def days_in_month(d: date) -> int:
-    return calendar.monthrange(d.year, d.month)[1]
-
-
-def overlap_days_in_month(month_1st: date, start: date | None, end: date | None) -> int:
+def monthly_payment(capital: Decimal, annual_rate: Decimal, years: int) -> Decimal:
     """
-    Nombre de jours couverts dans le mois month_1st (1er du mois),
-    pour une période [start, end] (end inclus), prorata au jour.
-    Si end est None => période ouverte.
+    Mensualité “théorique” sans assurance.
     """
-    month_first = month_1st
-    month_last = date(month_1st.year, month_1st.month, days_in_month(month_1st))
-
-    if start is None:
-        start = month_first
-    if end is None:
-        end = month_last
-
-    s = max(start, month_first)
-    e = min(end, month_last)
-
-    if e < s:
-        return 0
-
-    return (e - s).days + 1  # inclusif
+    t = (annual_rate / Decimal("100")) / Decimal("12")
+    n = years * 12
+    if t == 0:
+        return _q(capital / Decimal(n))
+    m = capital * t / (Decimal("1") - (Decimal("1") + t) ** Decimal(-n))
+    return _q(m)
 
 
-# ---------- Cash helpers ----------
+def _days_in_month(m: date) -> int:
+    return calendar.monthrange(m.year, m.month)[1]
 
-def rent_for_month(periods, m: date) -> tuple[Decimal, Decimal]:
+
+def rent_for_month(periods: list[RentPeriod], m: date) -> tuple[Decimal, Decimal]:
     """
-    Retourne (rent_hc, charges) pour le mois m.
-    -> PRORATA si période démarre/termine au milieu du mois.
+    Retourne (rent_hc, charges) pour le mois m (m = 1er du mois).
+
+    ✅ Prorata:
+    - Si le bail commence le 13/10, alors pour Octobre on ne prend que 19 jours / 31 (ou 18 selon convention).
+    - Même logique si end_date tombe au milieu du mois.
     """
-    rent = Decimal("0")
-    charges = Decimal("0")
-    dim = Decimal(str(days_in_month(m)))
+    month_begin = month_start(m)
+    month_end = add_months(month_begin, 1)  # 1er du mois suivant (borne exclue)
+    dim = Decimal(_days_in_month(month_begin))
 
     for p in periods:
-        # p.start_date, p.end_date (nullable), p.rent_hc, p.charges
-        od = overlap_days_in_month(
-            m,
-            getattr(p, "start_date", None),
-            getattr(p, "end_date", None),
-        )
-        if od == 0:
+        # période active si chevauchement [month_begin, month_end)
+        period_start = p.start_date
+        period_end = (p.end_date if p.end_date else date.max)
+
+        # si pas de chevauchement -> continue
+        if period_end < month_begin or period_start >= month_end:
             continue
 
-        ratio = Decimal(str(od)) / dim
-        rent += Decimal(str(p.rent_hc)) * ratio
-        charges += Decimal(str(p.charges)) * ratio
+        # chevauchement effectif
+        overlap_start = max(period_start, month_begin)
+        overlap_end_excl = min(period_end, month_end)
 
-    return rent, charges
+        # nombre de jours inclus dans le mois
+        days = (overlap_end_excl - overlap_start).days
+        if days <= 0:
+            continue
+
+        frac = Decimal(days) / dim
+
+        rent = Decimal(p.rent_hc) * frac
+        ch = Decimal(p.charges) * frac
+        return (_q(rent), _q(ch))
+
+    return (Decimal("0"), Decimal("0"))
 
 
-def expenses_for_month(expenses, m: date) -> Decimal:
-    """
-    Simple: somme des dépenses dont la date tombe dans le mois.
-    (si tu as une logique plus avancée, garde ta version)
-    """
+def expenses_for_month(expenses: list[Expense], m: date) -> Decimal:
     total = Decimal("0")
     for e in expenses:
-        d = getattr(e, "date", None)
-        if not d:
-            continue
-        if d.year == m.year and d.month == m.month:
-            total += Decimal(str(getattr(e, "amount", 0)))
-    return total
+        if e.date.year == m.year and e.date.month == m.month:
+            total += Decimal(e.amount)
+    return _q(total)
 
-
-# ---------- Ledger builder (si tu l’utilises) ----------
 
 @dataclass
 class LedgerRow:
@@ -119,19 +114,31 @@ class LedgerRow:
     cum_cashflow: Decimal
 
 
-def build_ledger(prop, end_date: date):
+def build_ledger(prop: Property, end_date: date) -> list[LedgerRow]:
     """
-    Si tu utilises cette API, elle profite automatiquement du prorata rent_for_month.
+    Ledger “comptable” mois par mois:
+    - rent/charges (proratisés)
+    - dépenses
+    - mensualité prêt + assurance à partir de loan.start_date
     """
     periods = list(prop.rent_periods.order_by("start_date"))
     expenses = list(prop.expenses.all())
 
-    # Loan (optionnel)
-    loan = None
+    loan_payment = Decimal("0")
+    insurance = Decimal("0")
+    loan_start = None
+
     try:
-        loan = prop.loan
-    except Exception:
-        loan = None
+        loan: Loan = prop.loan
+        loan_start = month_start(loan.start_date)
+        loan_payment = monthly_payment(
+            Decimal(loan.borrowed_capital),
+            Decimal(loan.annual_rate),
+            int(loan.years),
+        )
+        insurance = _q(Decimal(loan.insurance_monthly))
+    except Loan.DoesNotExist:
+        pass
 
     rows: list[LedgerRow] = []
     cum = Decimal("0")
@@ -140,24 +147,23 @@ def build_ledger(prop, end_date: date):
         r_hc, ch = rent_for_month(periods, m)
         exp = expenses_for_month(expenses, m)
 
-        loan_payment = Decimal("0")
-        insurance = Decimal("0")
-        if loan and loan.start_date and month_start(loan.start_date) <= m:
-            # ici: mensualité “constante” estimée côté services si tu veux,
-            # sinon garde 0 et laisse summary faire le calcul via loan_schedule.
-            insurance = Decimal(str(getattr(loan, "insurance_monthly", 0) or 0))
+        lp = Decimal("0")
+        ins = Decimal("0")
+        if loan_start and m >= loan_start:
+            lp = loan_payment
+            ins = insurance
 
-        net = (r_hc + ch) - exp - loan_payment - insurance
-        cum += net
+        net = _q(r_hc + ch - exp - lp - ins)
+        cum = _q(cum + net)
 
         rows.append(
             LedgerRow(
                 month=m,
-                rent_hc=r_hc,
-                charges=ch,
-                expenses=exp,
-                loan_payment=loan_payment,
-                insurance=insurance,
+                rent_hc=_q(r_hc),
+                charges=_q(ch),
+                expenses=_q(exp),
+                loan_payment=_q(lp),
+                insurance=_q(ins),
                 net_cashflow=net,
                 cum_cashflow=cum,
             )

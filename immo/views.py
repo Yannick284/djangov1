@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.generic import ListView, UpdateView
 from django.views import View
 
-from .models import Property, Loan, MarketPricePoint, RentPeriod
+from .models import Property, Loan, MarketPricePoint
 from .forms import PropertyForm, LoanForm, RentPeriodForm
 
 from .services.ledger import build_ledger, month_start
@@ -39,11 +39,13 @@ class PropertyListView(LoginRequiredMixin, ListView):
 def dashboard_view(request, property_id: int):
     prop = get_object_or_404(Property, id=property_id, user=request.user)
 
+    # "end" = date d’arrêt de l’analyse (par défaut aujourd’hui)
     end_str = request.GET.get("end")
     end_date = date.fromisoformat(end_str) if end_str else date.today()
 
-    growth = Decimal(request.GET.get("growth", "0.0"))
-    growth_frac = growth / Decimal("100")
+    # growth dans l'URL est en % (ex: "2.0"), mais les services attendent une fraction (0.02)
+    growth_pct = Decimal(request.GET.get("growth", "0.0"))
+    growth_frac = growth_pct / Decimal("100")
 
     summary = property_summary(prop, end_date)
 
@@ -69,7 +71,7 @@ def dashboard_view(request, property_id: int):
         {
             "prop": prop,
             "end_date": end_date,
-            "growth": growth,
+            "growth": growth_pct,  # affichage "x%/an"
             "summary": summary,
             "breakeven": be,
             "scenarios": scen,
@@ -123,7 +125,7 @@ def breakeven_view(request, property_id: int):
     end_str = request.GET.get("end")
     end_date = date.fromisoformat(end_str) if end_str else date.today()
 
-    # ici on attend une fraction (0.02) dans annual_growth_rate
+    # Dans ton JS, tu envoies growth tel quel (aujourd’hui tu l’utilises plutôt en fraction)
     growth = Decimal(request.GET.get("growth", "0.0"))
     horizon = int(request.GET.get("horizon", "120"))
 
@@ -133,6 +135,10 @@ def breakeven_view(request, property_id: int):
 
 @login_required
 def market_series_view(request, property_id: int):
+    """
+    API du graphe: renvoie les points existants (MarketPricePoint)
+    + net vendeur /m² si prêt disponible.
+    """
     prop = get_object_or_404(Property, id=property_id, user=request.user)
 
     points = list(prop.market_points.order_by("date"))
@@ -184,6 +190,10 @@ def market_series_view(request, property_id: int):
 @csrf_protect
 @require_http_methods(["GET", "POST"])
 def market_points_view(request, property_id: int):
+    """
+    POST: { date: "YYYY-MM-01", price_per_sqm: "9200" }
+    GET: renvoie uniquement les points existants
+    """
     prop = get_object_or_404(Property, id=property_id, user=request.user)
 
     if request.method == "POST":
@@ -230,37 +240,48 @@ class PropertyCreateView(LoginRequiredMixin, View):
             self.template_name,
             {
                 "property_form": PropertyForm(),
-                "loan_form": LoanForm(),
-                "rent_form": RentPeriodForm(),  # <= sinon ton template affiche juste rien
+                # ✅ prefixes => plus de collision start_date/end_date
+                "loan_form": LoanForm(prefix="loan"),
+                "rent_form": RentPeriodForm(prefix="rent"),
             },
         )
 
     @transaction.atomic
     def post(self, request):
         property_form = PropertyForm(request.POST)
-        loan_form = LoanForm(request.POST)
-        rent_form = RentPeriodForm(request.POST)
 
-        valid_property = property_form.is_valid()
-        valid_loan = loan_form.is_valid()
-        valid_rent = rent_form.is_valid()
+        # ✅ mêmes prefixes côté POST
+        loan_form = LoanForm(request.POST, prefix="loan")
+        rent_form = RentPeriodForm(request.POST, prefix="rent")
 
-        if not (valid_property and valid_loan and valid_rent):
+        # property requis, loan/rent optionnels MAIS doivent être valides si renseignés
+        ok_property = property_form.is_valid()
+        ok_loan = loan_form.is_valid()
+        ok_rent = rent_form.is_valid()
+
+        if not ok_property or not ok_loan or not ok_rent:
             return render(
                 request,
                 self.template_name,
-                {"property_form": property_form, "loan_form": loan_form, "rent_form": rent_form},
+                {
+                    "property_form": property_form,
+                    "loan_form": loan_form,
+                    "rent_form": rent_form,
+                },
             )
 
+        # 1) création propriété
         prop = property_form.save(commit=False)
         prop.user = request.user
         prop.save()
 
+        # 2) prêt optionnel
         if not loan_form.is_empty():
             loan = loan_form.save(commit=False)
             loan.property = prop
             loan.save()
 
+        # 3) loyer/cash optionnel
         if not rent_form.is_empty():
             rp = rent_form.save(commit=False)
             rp.property = prop

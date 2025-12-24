@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from django import forms
-from decimal import Decimal
 from .models import Property, Loan, RentPeriod
 
 
 class PropertyForm(forms.ModelForm):
+    """
+    Form principal = infos du bien.
+    """
     class Meta:
         model = Property
         fields = [
@@ -18,7 +20,7 @@ class PropertyForm(forms.ModelForm):
             "parking",
             "selling_fees_rate",
             "goodwill_eur_per_sqm",
-            "market_value_est",
+            "market_value_est",  # override global € (optionnel)
         ]
         widgets = {
             "purchase_date": forms.DateInput(attrs={"type": "date"}),
@@ -37,11 +39,16 @@ class PropertyForm(forms.ModelForm):
         if v is not None and v < 0:
             raise forms.ValidationError("Le taux ne peut pas être négatif.")
         if v is not None and v > 30:
-            raise forms.ValidationError("Taux de frais de vente trop élevé (>30%).")
+            raise forms.ValidationError("Taux trop élevé (>30%).")
         return v
 
 
 class LoanForm(forms.ModelForm):
+    """
+    Prêt optionnel.
+    IMPORTANT: ce form doit être utilisé avec prefix="loan"
+    pour éviter collision avec RentPeriodForm.start_date/end_date.
+    """
     class Meta:
         model = Loan
         fields = [
@@ -66,9 +73,19 @@ class LoanForm(forms.ModelForm):
 
 
 class RentPeriodForm(forms.ModelForm):
+    """
+    Loyer / Cash optionnel.
+    IMPORTANT: ce form doit être utilisé avec prefix="rent"
+    pour éviter collision avec LoanForm.start_date.
+    """
     class Meta:
         model = RentPeriod
-        fields = ["start_date", "end_date", "rent_hc", "charges"]
+        fields = [
+            "start_date",
+            "end_date",
+            "rent_hc",
+            "charges",
+        ]
         widgets = {
             "start_date": forms.DateInput(attrs={"type": "date"}),
             "end_date": forms.DateInput(attrs={"type": "date"}),
@@ -76,13 +93,10 @@ class RentPeriodForm(forms.ModelForm):
             "charges": forms.NumberInput(attrs={"step": "0.01", "min": "0"}),
         }
 
-    # IMPORTANT: rendre vraiment optionnel côté HTML aussi
-    end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={"type": "date"}))
-    charges = forms.DecimalField(required=False, max_digits=12, decimal_places=2, initial=Decimal("0.00"))
-
     def is_empty(self) -> bool:
         cd = getattr(self, "cleaned_data", None) or {}
-        return (not cd.get("start_date")) and (cd.get("rent_hc") in (None, "", Decimal("0"), Decimal("0.00")))
+        # "utilisable" = start_date + rent_hc (charges peut être 0)
+        return not cd.get("start_date") and not cd.get("rent_hc")
 
     def clean(self):
         cleaned = super().clean()
