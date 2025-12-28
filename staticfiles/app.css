@@ -8,12 +8,12 @@ body {
   margin: 0;
   background-color: #F3F4F6;
   color: #111827;
-  padding-top: 56px; /* compense la topbar sticky */
+
+}
+main {
+  padding-top: 56px; /* hauteur de la topbar */
 }
 
-@media (max-width: 640px) {
-  body { padding-top: 56px; }
-}
 
 /* Titres */
 h1, h2, h3 {
