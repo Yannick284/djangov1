@@ -1,20 +1,13 @@
 {% extends "base.html" %}
-
 {% load static humanize %}
-{% load static %}
-{% load humanize %}
-<link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
-<!doctype html>
-<html lang="fr">
-<head>
-  <link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>IMMO — {{ prop.name }}</title>
-  <link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
-</head>
 
-<body>
+{% block title %}IMMO — {{ prop.name }}{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
   <div class="wrap">
     <header>
       <div>
@@ -217,18 +210,7 @@
         <button id="mpSave" class="btn">Save</button>
         <span id="mpMsg" class="muted" style="margin-left:10px"></span>
       </div>
-
-        {% comment %} <div class="sep"></div>
-
-        <table>
-          <thead>
-            <tr><th>Mois</th><th>€/m²</th><th></th></tr>
-          </thead>
-          <tbody id="marketPointsBody">
-            <tr><td colspan="3" class="muted">Chargement…</td></tr>
-          </tbody>
-        </table>
-      </div> {% endcomment %}
+    </div>
 
     <div class="sep"></div>
 
@@ -279,7 +261,9 @@
       {% endif %}
     </div>
   </div>
+{% endblock %}
 
+{% block js_files %}
   <script>
     window.IMMO_DASHBOARD = {
       propId: {{ prop.id }},
@@ -289,5 +273,4 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{% static 'immo/dashboard.js' %}"></script>
-</body>
-</html>
+{% endblock %}
