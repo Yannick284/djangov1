@@ -9,7 +9,7 @@
 
 {% block content %}
 
-{# =======================UNIVERSE (ADD / REMOVE)======================= #}
+{# =======================UNIVERSE (ADD / REMOVE / BUY / SELL)======================= #}
 <section class="uni-card">
   <div class="uni-head">
     <div>
@@ -18,34 +18,50 @@
     </div>
   </div>
 
-  <div class="uni-grid">
+  <div class="uni-stack">
 
     {# ADD ASSET #}
-    <form class="uni-form" method="post" action="{% url 'dividends-toggle-asset' %}?y={{ hist_year }}&g={{ growth }}">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="add">
-      <select name="universe_key" class="uni-select" required>
-        <option value="" selected disabled>Ajouter un instrument…</option>
-        <optgroup label="Actions">
-          {% for it in universe %}{% if it.kind == "stock" %}
-            <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
-          {% endif %}{% endfor %}
-        </optgroup>
-        <optgroup label="ETFs">
-          {% for it in universe %}{% if it.kind == "etf" %}
-            <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
-          {% endif %}{% endfor %}
-        </optgroup>
-      </select>
-      <button class="btn btn-dark" type="submit">Ajouter</button>
-    </form>
+    <div class="uni-block">
+      <div class="uni-block-head">
+        <div class="uni-block-title">Ajouter un instrument</div>
+        <div class="uni-block-sub">Depuis l’univers</div>
+      </div>
 
-    {# REMOVE ASSET #}
-    <form class="uni-form" method="post" action="{% url 'dividends-toggle-asset' %}?y={{ hist_year }}&g={{ growth }}">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="remove">
+      <form class="uni-form" method="post" action="{% url 'dividends-toggle-asset' %}?y={{ hist_year }}&g={{ growth }}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add">
+
         <select name="universe_key" class="uni-select" required>
-          <option value="" selected disabled>Vendre…</option>
+          <option value="" selected disabled>Choisir…</option>
+          <optgroup label="Actions">
+            {% for it in universe %}{% if it.kind == "stock" %}
+              <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
+            {% endif %}{% endfor %}
+          </optgroup>
+          <optgroup label="ETFs">
+            {% for it in universe %}{% if it.kind == "etf" %}
+              <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
+            {% endif %}{% endfor %}
+          </optgroup>
+        </select>
+
+        <button class="btn btn-dark" type="submit">Ajouter</button>
+      </form>
+    </div>
+
+    {# REMOVE ASSET (désactiver) #}
+    <div class="uni-block">
+      <div class="uni-block-head">
+        <div class="uni-block-title">Retirer un instrument</div>
+        <div class="uni-block-sub">Désactive l’asset (sans vente)</div>
+      </div>
+
+      <form class="uni-form" method="post" action="{% url 'dividends-toggle-asset' %}?y={{ hist_year }}&g={{ growth }}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="remove">
+
+        <select name="universe_key" class="uni-select" required>
+          <option value="" selected disabled>Choisir…</option>
           {% for s in sell_choices %}
             {% if s.key %}
               <option value="{{ s.key }}">{{ s.label }} ({{ s.qty|floatformat:4 }})</option>
@@ -54,61 +70,76 @@
             {% endif %}
           {% endfor %}
         </select>
-      <button class="btn btn-dark" type="submit">Retirer</button>
-    </form>
+
+        <button class="btn btn-dark" type="submit">Retirer</button>
+      </form>
+    </div>
 
     {# BUY #}
-    <form class="uni-form uni-form-wide" method="post" action="{% url 'dividends-add-buy' %}?y={{ hist_year }}&g={{ growth }}">
-      {% csrf_token %}
-      <div class="uni-form-title">Achat</div>
+    <div class="uni-block">
+      <div class="uni-block-head">
+        <div class="uni-block-title">Achat</div>
+        <div class="uni-block-sub">Ajoute une transaction BUY</div>
+      </div>
 
-      <select name="universe_key" class="uni-select" required>
-        <option value="" selected disabled>Instrument (action / ETF)…</option>
-        <optgroup label="Actions">
-          {% for it in universe %}{% if it.kind == "stock" %}
-            <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
-          {% endif %}{% endfor %}
-        </optgroup>
-        <optgroup label="ETFs">
-          {% for it in universe %}{% if it.kind == "etf" %}
-            <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
-          {% endif %}{% endfor %}
-        </optgroup>
-      </select>
+      <form class="uni-form uni-form-trade" method="post" action="{% url 'dividends-add-buy' %}?y={{ hist_year }}&g={{ growth }}">
+        {% csrf_token %}
 
-      <input class="uni-input" name="qty" type="number" step="0.0001" min="0" placeholder="Quantité" required>
-      <input class="uni-input" name="price" type="number" step="0.0001" min="0" placeholder="Prix unitaire" required>
-      <input class="uni-input" name="date" type="date" required>
+        <select name="universe_key" class="uni-select" required>
+          <option value="" selected disabled>Instrument (action / ETF)…</option>
+          <optgroup label="Actions">
+            {% for it in universe %}{% if it.kind == "stock" %}
+              <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
+            {% endif %}{% endfor %}
+          </optgroup>
+          <optgroup label="ETFs">
+            {% for it in universe %}{% if it.kind == "etf" %}
+              <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
+            {% endif %}{% endfor %}
+          </optgroup>
+        </select>
 
-      <button class="btn btn-dark" type="submit">Enregistrer achat</button>
-    </form>
+        <div class="uni-trade-grid">
+          <input class="uni-input" name="qty" type="number" step="0.0001" min="0" placeholder="Quantité" required>
+          <input class="uni-input" name="price" type="number" step="0.0001" min="0" placeholder="Prix unitaire" required>
+          <input class="uni-input uni-span-2" name="date" type="date" required>
+        </div>
+
+        <button class="btn btn-dark" type="submit">Enregistrer achat</button>
+      </form>
+    </div>
 
     {# SELL #}
-    <form class="uni-form uni-form-wide" method="post" action="{% url 'dividends-add-sell' %}?y={{ hist_year }}&g={{ growth }}">
-      {% csrf_token %}
-      <div class="uni-form-title">Vente</div>
+    <div class="uni-block">
+      <div class="uni-block-head">
+        <div class="uni-block-title">Vente</div>
+        <div class="uni-block-sub">Ajoute une transaction SELL</div>
+      </div>
 
-      <select name="universe_key" class="uni-select" required>
-        <option value="" selected disabled>Instrument (dans ton portefeuille)…</option>
-        {% for a in active_assets %}
-          {% for it in universe %}
-            {% if it.ticker == a.ticker %}
-              <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
+      <form class="uni-form uni-form-trade" method="post" action="{% url 'dividends-add-sell' %}?y={{ hist_year }}&g={{ growth }}">
+        {% csrf_token %}
+
+        <select name="universe_key" class="uni-select" required>
+          <option value="" selected disabled>Instrument (dans ton portefeuille)…</option>
+          {% for s in sell_choices %}
+            {% if s.key %}
+              <option value="{{ s.key }}">{{ s.label }} ({{ s.qty|floatformat:4 }})</option>
             {% endif %}
           {% endfor %}
-        {% endfor %}
-      </select>
+        </select>
 
-      <input class="uni-input" name="qty" type="number" step="0.0001" min="0" placeholder="Quantité" required>
-      <input class="uni-input" name="price" type="number" step="0.0001" min="0" placeholder="Prix unitaire" required>
-      <input class="uni-input" name="date" type="date" required>
+        <div class="uni-trade-grid">
+          <input class="uni-input" name="qty" type="number" step="0.0001" min="0" placeholder="Quantité" required>
+          <input class="uni-input" name="price" type="number" step="0.0001" min="0" placeholder="Prix unitaire" required>
+          <input class="uni-input uni-span-2" name="date" type="date" required>
+        </div>
 
-      <button class="btn btn-dark" type="submit">Enregistrer vente</button>
-    </form>
+        <button class="btn btn-dark" type="submit">Enregistrer vente</button>
+      </form>
+    </div>
 
   </div>
 </section>
-
 
 {# =======================DIVIDENDS HISTOGRAM======================= #}
 <section class="hist-card" data-month-api="{% url 'dividends-api-month-details' %}">

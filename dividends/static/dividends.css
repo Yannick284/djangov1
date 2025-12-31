@@ -929,3 +929,131 @@ button.hist-col:focus-visible{
 @media (max-width: 760px){
   .uni-grid{ grid-template-columns: 1fr; }
 }
+
+
+/* =========================================================
+   MOBILE POLISH — Dividends dashboard
+   Colle ce bloc TOUT EN BAS de ton CSS
+========================================================= */
+@media (max-width: 560px){
+
+  /* global spacing */
+  main{
+    padding: 12px 10px 60px;
+  }
+
+  /* cards: moins “pavé gris”, plus premium */
+  .uni-card,
+  .hist-card,
+  .perf-card,
+  .fin-card{
+    margin: 12px 0;
+    padding: 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,.10);
+    background:
+      radial-gradient(900px 260px at 15% 0%, rgba(255,255,255,.08), rgba(0,0,0,0)),
+      linear-gradient(180deg, rgba(21,26,38,.95) 0%, rgba(15,19,32,.92) 100%);
+    box-shadow: 0 18px 45px rgba(0,0,0,.45);
+  }
+
+  /* titres: taille cohérente mobile */
+  .uni-title{ font-size: 15px; }
+  .uni-sub{ font-size: 12px; opacity:.75; }
+
+  /* forms: 1 colonne */
+  .uni-grid{
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .uni-form{
+    display:flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  /* selects/inputs: grands, confortables */
+  .uni-select,
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  input[type="tel"],
+  select{
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.07);
+    color: rgba(255,255,255,.92);
+    outline: none;
+    font-size: 16px; /* évite le zoom iOS */
+    box-sizing: border-box;
+  }
+
+  input::placeholder{ color: rgba(255,255,255,.45); }
+
+  /* focus plus net */
+  .uni-select:focus,
+  input:focus,
+  select:focus{
+    border-color: rgba(78,193,182,.55);
+    box-shadow: 0 0 0 3px rgba(78,193,182,.18);
+  }
+
+  /* boutons: full width, plus “app-like” */
+  .btn{
+    width: 100%;
+    min-height: 46px;
+    border-radius: 14px;
+    font-weight: 800;
+  }
+  .btn-dark{
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.14);
+  }
+
+  /* histogram: scroll plus propre */
+  .hist-chart{
+    overflow-x: auto;
+    display:flex;
+    gap: 10px;
+    padding: 6px 2px 10px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .hist-col{
+    min-width: 66px;
+    scroll-snap-align: start;
+  }
+  .hist-track{
+    height: 150px;
+    border-radius: 18px;
+  }
+
+  /* perf table: évite l’écrasement */
+  .perf-table{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .perf-row{
+    min-width: 720px; /* tu scroll, mais tu lis */
+  }
+
+  /* heatmap: scroll OK mais plus clean */
+  .heat-grid{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 18px;
+  }
+
+  /* modal: plein écran sur mobile */
+  .dv-modal-panel{
+    width: calc(100% - 18px);
+    max-width: none;
+    margin: 8vh auto 0;
+    border-radius: 18px;
+  }
+}
