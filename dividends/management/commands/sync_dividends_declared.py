@@ -1,11 +1,12 @@
+from decimal import Decimal
 from django.core.management.base import BaseCommand
+from django.db import IntegrityError, transaction
 from dividends.models import Asset, DividendEvent
 import yfinance as yf
-from decimal import Decimal
 
 
 class Command(BaseCommand):
-    help = "Sync declared dividends (per share) from yfinance."
+    help = "Sync declared dividends (per share) from yfinance. Idempotent + safe on duplicates."
 
     def add_arguments(self, parser):
         parser.add_argument("--years", type=int, default=5)
@@ -24,21 +25,15 @@ class Command(BaseCommand):
             qs = qs.filter(user_id=user_id)
         qs = qs[:limit]
 
-        ok = 0
-        created = 0
-        fail = 0
-        no_div = 0
-        skipped = 0
+        ok = created = fail = no_div = skipped = dup = 0
 
         for a in qs:
             sym = (a.price_symbol or a.ticker or "").strip()
-
             if not sym:
                 skipped += 1
                 self.stdout.write(self.style.WARNING(f"SKIP Asset#{a.id} (no price_symbol/ticker)"))
                 continue
 
-            # Optionnel: normaliser en base si price_symbol vide
             if autofill and not (a.price_symbol or "").strip():
                 a.price_symbol = sym
                 a.save(update_fields=["price_symbol"])
@@ -54,36 +49,47 @@ class Command(BaseCommand):
             if s is None or getattr(s, "empty", True):
                 no_div += 1
                 self.stdout.write(f"NO  {a.ticker} (sym='{sym}')")
+                ok += 1
                 continue
 
-            # ~4 dividendes/an -> years*10 suffit large
             s = s.tail(years * 10)
 
             add = 0
+            dup_local = 0
+
             for dt, amt in s.items():
                 ex_date = dt.date()
-                # yfinance peut renvoyer float/np.float; on sécurise la conversion
+
                 try:
                     amount = Decimal(str(amt))
                 except Exception:
                     continue
 
-                obj, was_created = DividendEvent.objects.get_or_create(
-                    asset=a,
-                    ex_date=ex_date,
-                    amount_per_share=amount,
-                    defaults={
-                        "currency": (getattr(a, "currency", None) or "EUR"),
-                        "source": "yfinance",
-                    },
-                )
-                if was_created:
-                    add += 1
+                # ⚠️ IMPORTANT: wrap atomic + handle race duplicates
+                try:
+                    with transaction.atomic():
+                        _obj, was_created = DividendEvent.objects.get_or_create(
+                            asset=a,
+                            ex_date=ex_date,
+                            amount_per_share=amount,
+                            defaults={
+                                "currency": (getattr(a, "currency", None) or "EUR"),
+                                "source": "yfinance",
+                                "status": "declared",
+                            },
+                        )
+                        if was_created:
+                            add += 1
+                except IntegrityError:
+                    # Un autre run a créé la ligne entre-temps -> on ignore
+                    dup_local += 1
+                    continue
 
             ok += 1
             created += add
-            self.stdout.write(self.style.SUCCESS(f"OK  {a.ticker} (sym='{sym}') +{add}"))
+            dup += dup_local
+            self.stdout.write(self.style.SUCCESS(f"OK  {a.ticker} (sym='{sym}') +{add} dup={dup_local}"))
 
         self.stdout.write(
-            f"Done. OK={ok} created={created} NO={no_div} FAIL={fail} SKIP={skipped}"
+            f"Done. OK={ok} created={created} dup={dup} NO={no_div} FAIL={fail} SKIP={skipped}"
         )
