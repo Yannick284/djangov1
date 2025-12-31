@@ -170,13 +170,13 @@ WSGI_APPLICATION = 'my_site.wsgi.application'
 #     }
 # }
 
-
 DATABASES = {
-
-          "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))
-    
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL", ""),
+        conn_max_age=600,
+        ssl_require=not os.environ.get("DATABASE_URL", "").startswith("postgresql://localhost"),
+    )
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 
