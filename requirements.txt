@@ -10,3 +10,4 @@ whitenoise==6.11.0
 boto3
 django-storages
 django-allauth>=65,<66
+yfinance>=0.2.36
