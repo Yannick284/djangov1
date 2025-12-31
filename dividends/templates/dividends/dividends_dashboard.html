@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dividendes — Dashboard{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'dividends.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{# =======================UNIVERSE (ADD / REMOVE)======================= #}
+<section class="uni-card">
+  <div class="uni-head">
+    <div>
+      <h3 class="uni-title">Dictionnaire — Actions / ETFs</h3>
+      <div class="uni-sub">Ajoute / retire un instrument, puis enregistre un achat ou une vente</div>
+    </div>
+  </div>
+
+  <div class="uni-grid">
+
+    {# ADD ASSET #}
+    <form class="uni-form" method="post" action="{% url 'dividends-toggle-asset' %}?y={{ hist_year }}&g={{ growth }}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="add">
+      <select name="universe_key" class="uni-select" required>
+        <option value="" selected disabled>Ajouter un instrument…</option>
+        <optgroup label="Actions">
+          {% for it in universe %}{% if it.kind == "stock" %}
+            <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
+          {% endif %}{% endfor %}
+        </optgroup>
+        <optgroup label="ETFs">
+          {% for it in universe %}{% if it.kind == "etf" %}
+            <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
+          {% endif %}{% endfor %}
+        </optgroup>
+      </select>
+      <button class="btn btn-dark" type="submit">Ajouter</button>
+    </form>
+
+    {# REMOVE ASSET #}
+    <form class="uni-form" method="post" action="{% url 'dividends-toggle-asset' %}?y={{ hist_year }}&g={{ growth }}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="remove">
+        <select name="universe_key" class="uni-select" required>
+          <option value="" selected disabled>Vendre…</option>
+          {% for s in sell_choices %}
+            {% if s.key %}
+              <option value="{{ s.key }}">{{ s.label }} ({{ s.qty|floatformat:4 }})</option>
+            {% else %}
+              <option value="">{{ s.ticker }} ({{ s.qty|floatformat:4 }}) — (pas dans universe)</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      <button class="btn btn-dark" type="submit">Retirer</button>
+    </form>
+
+    {# BUY #}
+    <form class="uni-form uni-form-wide" method="post" action="{% url 'dividends-add-buy' %}?y={{ hist_year }}&g={{ growth }}">
+      {% csrf_token %}
+      <div class="uni-form-title">Achat</div>
+
+      <select name="universe_key" class="uni-select" required>
+        <option value="" selected disabled>Instrument (action / ETF)…</option>
+        <optgroup label="Actions">
+          {% for it in universe %}{% if it.kind == "stock" %}
+            <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
+          {% endif %}{% endfor %}
+        </optgroup>
+        <optgroup label="ETFs">
+          {% for it in universe %}{% if it.kind == "etf" %}
+            <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
+          {% endif %}{% endfor %}
+        </optgroup>
+      </select>
+
+      <input class="uni-input" name="qty" type="number" step="0.0001" min="0" placeholder="Quantité" required>
+      <input class="uni-input" name="price" type="number" step="0.0001" min="0" placeholder="Prix unitaire" required>
+      <input class="uni-input" name="date" type="date" required>
+
+      <button class="btn btn-dark" type="submit">Enregistrer achat</button>
+    </form>
+
+    {# SELL #}
+    <form class="uni-form uni-form-wide" method="post" action="{% url 'dividends-add-sell' %}?y={{ hist_year }}&g={{ growth }}">
+      {% csrf_token %}
+      <div class="uni-form-title">Vente</div>
+
+      <select name="universe_key" class="uni-select" required>
+        <option value="" selected disabled>Instrument (dans ton portefeuille)…</option>
+        {% for a in active_assets %}
+          {% for it in universe %}
+            {% if it.ticker == a.ticker %}
+              <option value="{{ it.key }}">{{ it.label }} — {{ it.ticker }}</option>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </select>
+
+      <input class="uni-input" name="qty" type="number" step="0.0001" min="0" placeholder="Quantité" required>
+      <input class="uni-input" name="price" type="number" step="0.0001" min="0" placeholder="Prix unitaire" required>
+      <input class="uni-input" name="date" type="date" required>
+
+      <button class="btn btn-dark" type="submit">Enregistrer vente</button>
+    </form>
+
+  </div>
+</section>
+
+
+{# =======================DIVIDENDS HISTOGRAM======================= #}
+<section class="hist-card" data-month-api="{% url 'dividends-api-month-details' %}">
+  <div class="hist-top">
+    <div class="hist-title">
+      <h2>Dividendes — {{ hist_year }}</h2>
+      <div class="hist-sub">
+        Total estimé : <b>{{ hist_total|floatformat:0 }}€</b>
+        <span class="hist-dot">•</span>
+        Croissance : <b>{{ growth|floatformat:1 }}%</b>
+      </div>
+    </div>
+
+    <div class="hist-actions">
+      <a class="btn btn-dark" href="?y={{ prev_y }}&g={{ growth }}">←</a>
+      <a class="btn btn-dark" href="?y={{ today.year }}&g={{ growth }}">Aujourd’hui</a>
+      <a class="btn btn-dark" href="?y={{ next_y }}&g={{ growth }}">→</a>
+    </div>
+  </div>
+
+  <div class="hist-chart">
+    {% for x in hist_months %}
+      <button
+        type="button"
+        class="hist-col dv-card-btn"
+        title="{{ x.label }}: {{ x.total|floatformat:2 }} €"
+        data-year="{{ hist_year }}"
+        data-month="{{ forloop.counter }}"
+        data-growth="{{ growth }}"
+      >
+        <div class="hist-track">
+          <div class="hist-bar hist-bar-total" style="height: {{ x.pct_total }}%;"></div>
+          <div class="hist-bar hist-bar-received" style="height: {{ x.pct_received }}%;"></div>
+        </div>
+
+        <div class="hist-x">
+          <div class="hist-month">{{ x.label }}</div>
+          <div class="hist-val">{{ x.total|floatformat:0 }}€</div>
+        </div>
+      </button>
+    {% endfor %}
+  </div>
+
+  <div class="hist-legend">
+    <span class="lg-item"><i class="lg-dot lg-dot-received"></i> Received</span>
+    <span class="lg-item"><i class="lg-dot lg-dot-regular"></i> Regular</span>
+  </div>
+</section>
+
+
+{# =======================FINANCE VALUE-ADD======================= #}
+{% if finance %}
+<section class="fin-card">
+  <div class="fin-head">
+    <div>
+      <h3 class="fin-title">Dividendes &amp; Rendement</h3>
+      <div class="fin-sub">Sur {{ hist_year }} — estimation + encaissé</div>
+    </div>
+
+    <div class="fin-kpis">
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Dividendes estimés</div>
+        <div class="fin-kpi-val mono">{{ finance.div_total|floatformat:0 }} €</div>
+      </div>
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Dividendes encaissés</div>
+        <div class="fin-kpi-val mono">{{ finance.div_received|floatformat:0 }} €</div>
+      </div>
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Yield sur PRU</div>
+        <div class="fin-kpi-val mono">{{ finance.yield_cost_pct|floatformat:1 }}%</div>
+      </div>
+      <div class="fin-kpi">
+        <div class="fin-kpi-label">Yield sur Marché</div>
+        <div class="fin-kpi-val mono">{{ finance.yield_market_pct|floatformat:1 }}%</div>
+      </div>
+      <div class="fin-kpi fin-kpi-strong">
+        <div class="fin-kpi-label">P&amp;L total + encaissé</div>
+        <div class="fin-kpi-val mono">{{ finance.pnl_vs_received|floatformat:0 }} €</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="heat-wrap">
+    <div class="heat-title">Heatmap — mois × titre</div>
+
+    <div class="heat-grid">
+      <div class="heat-row heat-row-head">
+        <div class="heat-left">Titre</div>
+        {% for m in "JFMAMJJASOND" %}
+          <div class="heat-cell heat-head">{{ m }}</div>
+        {% endfor %}
+        <div class="heat-right">Total</div>
+      </div>
+
+      {% for r in finance.heat_rows %}
+        <div class="heat-row">
+          <div class="heat-left mono">{{ r.ticker }}</div>
+
+          {% for c in r.cells2 %}
+            <div class="heat-cell"
+                 style="--i: {{ c.i }};"
+                 title="{{ c.v|floatformat:2 }} €">
+              {% if c.v > 0 %}{{ c.v|floatformat:0 }}{% endif %}
+            </div>
+          {% endfor %}
+
+          <div class="heat-right mono">{{ r.total|floatformat:0 }}€</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="heat-legend">
+      <span class="dot"></span> faible
+      <span class="dot strong"></span> fort
+      <span class="heat-note">max cellule: {{ finance.max_cell|floatformat:0 }}€</span>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+
+{# =======================PERFORMANCE + DONUT======================= #}
+{% if perf and perf.rows %}
+<section class="perf-card">
+  <div class="perf-head">
+    <div class="perf-title">
+      <h3>Performance</h3>
+      <div class="perf-sub">PMP (PRU) — latent vs réalisé</div>
+      <div class="muted">{% if perf.asof %}Mis à jour : {{ perf.asof }}{% endif %}</div>
+    </div>
+
+    <div class="perf-kpis">
+      <div class="kpi">
+        <div class="kpi-label">Total achat</div>
+        <div class="kpi-val mono">{{ perf.total_cost|floatformat:0 }} €</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Valeur marché</div>
+        <div class="kpi-val mono">{{ perf.total_market|floatformat:0 }} €</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">P&amp;L réalisé</div>
+        <div class="kpi-val mono {% if perf.total_realized < 0 %}is-neg{% else %}is-pos{% endif %}">
+          {{ perf.total_realized|floatformat:0 }} €
+        </div>
+      </div>
+
+      <div class="kpi kpi-strong">
+        <div class="kpi-label">P&amp;L latent</div>
+        <div class="kpi-val mono {% if perf.total_pnl < 0 %}is-neg{% else %}is-pos{% endif %}">
+          {{ perf.total_pnl|floatformat:0 }} €
+          <span class="kpi-pct">({{ perf.total_pnl_pct|floatformat:1 }}%)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="perf-grid">
+    <div class="perf-table">
+      <div class="perf-row perf-row-head">
+        <div>Titre</div>
+        <div class="r">Qty</div>
+        <div class="r">PMP</div>
+        <div class="r">Marché</div>
+        <div class="r">Δ unit.</div>
+        <div class="r">P&amp;L latent</div>
+      </div>
+
+      {% for r in perf.rows %}
+        <div class="perf-row">
+          <div class="ticker">
+            <b>{{ r.ticker }}</b>
+            <span class="chip">{{ r.sector|default:"—" }}</span>
+          </div>
+
+          <div class="r mono">{{ r.qty|floatformat:4 }}</div>
+          <div class="r mono">{{ r.pru|floatformat:2 }} €</div>
+          <div class="r mono">{{ r.price|floatformat:2 }} €</div>
+
+          <div class="r mono {% if r.unit_diff < 0 %}is-neg{% else %}is-pos{% endif %}">
+            {{ r.unit_diff|floatformat:2 }} €
+          </div>
+
+          <div class="r">
+            <div class="mono {% if r.pnl < 0 %}is-neg{% else %}is-pos{% endif %}">
+              {{ r.pnl|floatformat:0 }} € ({{ r.pnl_pct|floatformat:1 }}%)
+            </div>
+            <div class="pbar" aria-hidden="true">
+              <div class="pfill {% if r.pnl < 0 %}is-neg{% else %}is-pos{% endif %}"
+                   style="width: {{ r.bar_pct }}%;"></div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <aside class="donut-card">
+      <div class="donut-head">
+        <h4 class="donut-title">Secteurs</h4>
+        <div class="donut-sub">Répartition (valeur marché)</div>
+      </div>
+
+      <div class="donut-wrap">
+        <div class="donut-ring" style="background: {{ perf.donut_bg }};">
+          <div class="donut-center">
+            <div class="big mono">{{ perf.total_market|floatformat:0 }}€</div>
+            <div class="small">Total marché</div>
+          </div>
+        </div>
+
+        <div class="donut-legend">
+          {% if perf.sectors %}
+            {% for s in perf.sectors %}
+              <div class="donut-item">
+                <div class="donut-left">
+                  <i class="donut-dot" style="background: {{ s.color }};"></i>
+                  <div class="donut-name">{{ s.name }}</div>
+                </div>
+                <div class="donut-val mono">{{ s.value|floatformat:0 }}€</div>
+                <div class="donut-pct mono">{{ s.pct|floatformat:1 }}%</div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="dv-empty">Aucun secteur.</div>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endif %}
+
+
+{# ======================= MODAL (month detail)======================= #}
+<div id="dvModal" class="dv-modal" aria-hidden="true">
+  <div class="dv-modal-backdrop" data-close></div>
+
+  <div class="dv-modal-panel" role="dialog" aria-modal="true" aria-labelledby="dvTitle">
+    <div class="dv-modal-head">
+      <h3 id="dvTitle">Détail</h3>
+      <button type="button" class="dv-close" data-close aria-label="Close">✕</button>
+    </div>
+
+    <div id="dvList" class="dv-list">
+      <div class="dv-loading">Chargement…</div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js_files %}
+  <script src="{% static 'dividends/dashboard.js' %}" defer></script>
+{% endblock %}

@@ -80,3 +80,21 @@
     }
     .btn:disabled{opacity:.55;cursor:not-allowed}
     .clickable-row{cursor:pointer}
+
+    /* Chart wrapper */
+.chart-wrap {
+  position: relative;
+  height: 320px;
+}
+
+@media (max-width: 560px) {
+  .chart-wrap {
+    height: 220px; /* mobile */
+  }
+}
+
+.chart-wrap canvas{
+  width:100% !important;
+  height:100% !important;
+  display:block;
+}

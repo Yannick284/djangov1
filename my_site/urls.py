@@ -27,6 +27,7 @@ urlpatterns = [
     path("reels/", include("reels.urls", namespace="reels")),
     path("accounts/", include("allauth.urls")),
     path("immo/", include("immo.urls")),
+    path("dividends/", include("dividends.urls")),
 ] 
 
 if settings.DEBUG:

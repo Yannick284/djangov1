@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'blog',
     'reels',
     'immo',
+    'dividends',
     "django.contrib.humanize",
     'django.contrib.admin',
     'django.contrib.auth',

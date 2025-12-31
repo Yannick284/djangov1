@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dividendes — Calendrier{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'dividends.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="wrap cal">
+  <header class="cal-head">
+    <div>
+      <h1 class="cal-title">Calendrier dividendes</h1>
+      <div class="cal-sub">
+        {{ month }}/{{ year }} • <b>{{ month_total_estimated|floatformat:2 }} €</b> estimé
+        <span class="hist-dot">•</span>
+        Croissance : <b>{{ growth|floatformat:0 }}%</b>
+      </div>
+    </div>
+
+    <div class="cal-nav">
+      <a class="btn" href="?y={{ prev_y }}&m={{ prev_m }}&g={{ growth }}">←</a>
+      <a class="btn" href="?y={{ today.year }}&m={{ today.month }}&g={{ growth }}">Aujourd’hui</a>
+      <a class="btn" href="?y={{ next_y }}&m={{ next_m }}&g={{ growth }}">→</a>
+    </div>
+  </header>
+
+  <div class="cal-scroll" aria-label="Calendrier (défilement horizontal sur mobile)">
+    <div class="cal-inner">
+      <div class="cal-dow">
+        <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
+      </div>
+
+      <div class="cal-grid">
+        {% for week in grid %}
+          {% for cell in week %}
+            <div class="cal-cell{% if not cell.in_month %} is-out{% endif %}{% if cell.d == today %} is-today{% endif %}">
+              <div class="cal-cell-top">
+                <div class="cal-day">{{ cell.d.day }}</div>
+
+                {% if cell.total_estimated and cell.total_estimated != 0 %}
+                  <div class="cal-total">{{ cell.total_estimated|floatformat:2 }} €</div>
+                {% endif %}
+
+                {% if cell.d == today %}
+                  <span class="cal-pill">today</span>
+                {% endif %}
+              </div>
+
+              {% if cell.events %}
+                <div class="cal-events">
+                  {% for e in cell.events %}
+                    <div class="cal-event is-{{ e.status }}">
+                      <div class="cal-event-row">
+                        <b class="cal-ticker">{{ e.ticker }}</b>
+                        <span class="cal-amt">{{ e.estimated_amount|floatformat:2 }} {{ e.currency }}</span>
+                      </div>
+                      <div class="cal-event-row">
+                        <span class="cal-badge is-{{ e.status }}">{{ e.status }}</span>
+                        <span class="cal-meta">ex: {{ e.ex_date }}</span>
+                      </div>
+                      <div class="cal-meta">
+                        {{ e.amount_per_share|floatformat:4 }} × {{ e.shares|floatformat:4 }}
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="cal-empty">—</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

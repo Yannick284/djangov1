@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dividendes — Portfolio{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'dividends.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="perf-card">
+  <div class="perf-head">
+    <div class="perf-title">
+      <h3>Portfolio</h3>
+      <div class="perf-sub">PMP (PRU) + P&amp;L latent + P&amp;L réalisé</div>
+      <div class="muted">{% if asof %}Mis à jour : {{ asof }}{% endif %}</div>
+    </div>
+
+    <div class="perf-kpis">
+      <div class="kpi">
+        <div class="kpi-label">Coût restant</div>
+        <div class="kpi-val mono">{{ totals.cost_basis|floatformat:0 }} €</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Valeur marché</div>
+        <div class="kpi-val mono">{{ totals.market_value|floatformat:0 }} €</div>
+      </div>
+      <div class="kpi kpi-strong">
+        <div class="kpi-label">P&amp;L latent</div>
+        <div class="kpi-val mono {% if totals.unrealized < 0 %}is-neg{% else %}is-pos{% endif %}">
+          {{ totals.unrealized|floatformat:0 }} €
+        </div>
+      </div>
+      <div class="kpi kpi-strong">
+        <div class="kpi-label">P&amp;L réalisé</div>
+        <div class="kpi-val mono {% if totals.realized < 0 %}is-neg{% else %}is-pos{% endif %}">
+          {{ totals.realized|floatformat:0 }} €
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if rows %}
+    <div class="perf-table">
+      <div class="perf-row perf-row-head">
+        <div>Titre</div>
+        <div class="r">Qty</div>
+        <div class="r">PMP</div>
+        <div class="r">Prix</div>
+        <div class="r">Coût</div>
+        <div class="r">Marché</div>
+        <div class="r">Latent</div>
+        <div class="r">Réalisé</div>
+      </div>
+
+      {% for r in rows %}
+        <div class="perf-row">
+          <div class="ticker">
+            <b>{{ r.ticker }}</b>
+            <span class="chip">{{ r.sector|default:"—" }}</span>
+          </div>
+
+          <div class="r mono">{{ r.qty|floatformat:4 }}</div>
+          <div class="r mono">{{ r.pmp|floatformat:2 }} €</div>
+          <div class="r mono">{{ r.last_price|floatformat:2 }} €</div>
+
+          <div class="r mono">{{ r.cost_basis|floatformat:0 }} €</div>
+          <div class="r mono">{{ r.market_value|floatformat:0 }} €</div>
+
+          <div class="r mono {% if r.unrealized < 0 %}is-neg{% else %}is-pos{% endif %}">
+            {{ r.unrealized|floatformat:0 }} €
+          </div>
+
+          <div class="r mono {% if r.realized < 0 %}is-neg{% else %}is-pos{% endif %}">
+            {{ r.realized|floatformat:0 }} €
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="dv-empty">Aucune position (qty &gt; 0).</div>
+  {% endif %}
+</section>
+
+{% if months_rows %}
+<section class="fin-card">
+  <div class="fin-head">
+    <div>
+      <h3 class="fin-title">P&amp;L réalisé par mois</h3>
+      <div class="fin-sub">Basé sur PMP et la date de vente</div>
+    </div>
+  </div>
+
+  <div class="heat-wrap">
+    <div class="heat-grid">
+      <div class="heat-row heat-row-head">
+        <div class="heat-left">Mois</div>
+        <div class="heat-right">P&amp;L</div>
+      </div>
+
+      {% for m in months_rows %}
+        <div class="heat-row">
+          <div class="heat-left mono">{{ m.ym }}</div>
+          <div class="heat-right mono {% if m.pnl < 0 %}is-neg{% else %}is-pos{% endif %}">
+            {{ m.pnl|floatformat:0 }} €
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
