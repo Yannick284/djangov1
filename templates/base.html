@@ -13,12 +13,12 @@
 
 <body>
 
-  <!-- TOPBAR (style e-commerce) -->
+  <!-- TOPBAR -->
   <header class="topbar" id="main-navigation">
     <div class="topbar-inner">
 
-      <!-- LEFT: burger + MENU -->
-      <button class="nav-toggle menu-btn" aria-controls="mobile-drawer" aria-expanded="false">
+      <!-- LEFT: burger -->
+      <button class="nav-toggle menu-btn" aria-controls="mobile-drawer" aria-expanded="false" type="button">
         <span class="sr-only">Open menu</span>
         <span class="burger" aria-hidden="true"></span>
         <span class="menu-text">MENU</span>
@@ -44,6 +44,10 @@
             <span class="icon">🏠</span>
           </a>
 
+          <a class="icon-btn" href="{% url 'dividends-dashboard' %}" aria-label="Dividendes">
+            <span class="icon">💸</span>
+          </a>
+
           <a class="icon-btn" href="{% url 'account_logout' %}" aria-label="Logout">
             <span class="icon">⎋</span>
           </a>
@@ -60,29 +64,39 @@
   <!-- OVERLAY + DRAWER -->
   <div class="nav-overlay" hidden></div>
 
-  <nav id="mobile-drawer" class="nav-drawer" hidden>
+  <nav id="mobile-drawer" class="nav-drawer" hidden aria-label="Navigation mobile">
     <a href="{% url 'starting-page' %}">Accueil</a>
     <a href="{% url 'reels:list' %}">Reels</a>
     <a href="{% url 'cv' %}" class="nav-cv">CV</a>
 
+    <hr style="opacity:.2; margin:1rem 0">
+
+    <span style="font-size:.75rem; opacity:.6; padding:0 .5rem;">BLOG</span>
     <a href="{% url 'posts-page' %}">All Posts</a>
 
     {% if user.is_authenticated %}
       <hr style="opacity:.2; margin:1rem 0">
 
+      <span style="font-size:.75rem; opacity:.6; padding:0 .5rem;">FINANCE</span>
+      <a href="{% url 'dividends-dashboard' %}">Dividendes</a>
+
+      <hr style="opacity:.2; margin:1rem 0">
+
       <span style="font-size:.75rem; opacity:.6; padding:0 .5rem;">IMMO</span>
       <a href="{% url 'immo:property-list' %}">Mes propriétés</a>
       <a href="{% url 'immo:property-create' %}">Nouvelle propriété</a>
-      
 
       <hr style="opacity:.2; margin:1rem 0">
 
       {% if user.is_superuser %}
+        <span style="font-size:.75rem; opacity:.6; padding:0 .5rem;">ADMIN</span>
         <a href="{% url 'post-create' %}">New post</a>
+        <hr style="opacity:.2; margin:1rem 0">
       {% endif %}
 
       <a href="{% url 'account_logout' %}">Logout</a>
     {% else %}
+      <hr style="opacity:.2; margin:1rem 0">
       <a href="{% url 'account_login' %}">Login</a>
       <a href="{% url 'account_signup' %}">Signup</a>
     {% endif %}
