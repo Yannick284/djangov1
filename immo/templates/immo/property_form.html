@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
+
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
+{% endblock %}
+
 {% block title %}IMMO — Nouvelle propriété{% endblock %}
 
 
