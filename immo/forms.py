@@ -10,6 +10,18 @@ class PropertyForm(forms.ModelForm):
     """
     class Meta:
         model = Property
+        labels = {
+            "name": "Nom du bien",
+            "purchase_date": "Date d'achat",
+            "purchase_price": "Prix d'achat (€)",
+            "notary_fees": "Frais de notaire (€)",
+            "agency_fees": "Frais d'agence (€)",
+            "surface_sqm": "Surface (m²)",
+            "parking": "Valeur du parking (€)",
+            "selling_fees_rate": "Frais de vente (%)",
+            "goodwill_eur_per_sqm": "Ajustement de prix (€/m²)",
+            "market_value_est": "Valeur estimée imposée (€)",
+        }
         fields = [
             "name",
             "purchase_date",
@@ -51,6 +63,13 @@ class LoanForm(forms.ModelForm):
     """
     class Meta:
         model = Loan
+        labels = {
+            "borrowed_capital": "Capital emprunté (€)",
+            "annual_rate": "Taux annuel (%)",
+            "years": "Durée (années)",
+            "insurance_monthly": "Assurance mensuelle (€)",
+            "start_date": "Début du prêt",
+        }
         fields = [
             "borrowed_capital",
             "annual_rate",
@@ -80,6 +99,12 @@ class RentPeriodForm(forms.ModelForm):
     """
     class Meta:
         model = RentPeriod
+        labels = {
+            "start_date": "Début de location",
+            "end_date": "Fin de location (vide = en cours)",
+            "rent_hc": "Loyer hors charges (€/mois)",
+            "charges": "Charges (€/mois)",
+        }
         fields = [
             "start_date",
             "end_date",

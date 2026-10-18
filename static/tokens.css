@@ -1,0 +1,76 @@
+/* =========================================================
+   Design tokens — "vitrine claire, coffre sombre"
+
+   Deux zones :
+   - public (par défaut) : accueil, blog, CV, reels      -> fond pierre, encre bleu nuit, accent sapin
+   - vault  (data-zone)  : immo, dividendes             -> fond coffre, texte brume, accent laiton
+
+   Les pages choisissent leur zone avec {% block zone %}vault{% endblock %}.
+   Tous les composants lisent les variables --yw-* : changer de zone
+   change toute la page sans réécrire un seul composant.
+   ========================================================= */
+
+:root {
+  /* Palette brute */
+  --pierre: #EDF0EE;        /* fond des pages publiques */
+  --craie: #FAFBFA;         /* surfaces claires */
+  --encre: #12202B;         /* texte principal */
+  --encre-douce: #4B5B64;   /* texte secondaire (6:1 sur pierre) */
+  --trait: #D3DAD6;         /* bordures claires */
+  --sapin: #0F5E4D;         /* accent clair */
+  --sapin-fonce: #0A463A;
+  --sapin-pale: #DDEBE5;
+
+  --coffre: #0C1613;        /* fond des pages privées */
+  --coffre-2: #13221E;      /* surfaces sombres */
+  --coffre-3: #1B2F29;
+  --brume: #E6EEE9;         /* texte sur fond sombre */
+  --brume-douce: #9DB1A8;   /* texte secondaire sur fond sombre */
+  --laiton: #D6A845;        /* accent sombre */
+
+  /* Typographie */
+  --font-texte: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-titre: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+
+  /* Échelle (ratio ~1.25) */
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3rem;
+  --step-2: 1.65rem;
+  --step-3: 2.1rem;
+  --step-4: clamp(2.6rem, 1.6rem + 3.6vw, 4.4rem);
+
+  --topbar-h: 60px;
+  --radius-control: 6px;
+  --radius-media: 3px;
+}
+
+/* Zone publique (défaut) */
+body {
+  --yw-bg: var(--pierre);
+  --yw-surface: var(--craie);
+  --yw-text: var(--encre);
+  --yw-text-2: var(--encre-douce);
+  --yw-line: var(--trait);
+  --yw-accent: var(--sapin);
+  --yw-accent-hover: var(--sapin-fonce);
+  --yw-on-accent: #FFFFFF;
+  --yw-focus: var(--sapin);
+  --yw-gain: #1E8A5A;
+  --yw-loss: #B93F2B;
+}
+
+/* Zone privée (sur <body>, ou sur une section de page publique : la bande « coffre » de l'accueil) */
+[data-zone="vault"] {
+  --yw-bg: var(--coffre);
+  --yw-surface: var(--coffre-2);
+  --yw-text: var(--brume);
+  --yw-text-2: var(--brume-douce);
+  --yw-line: rgba(230, 238, 233, 0.14);
+  --yw-accent: var(--laiton);
+  --yw-accent-hover: #E7BF63;
+  --yw-on-accent: #1A1405;
+  --yw-focus: var(--laiton);
+  --yw-gain: #56D49A;
+  --yw-loss: #FF8F77;
+}

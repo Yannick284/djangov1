@@ -6,7 +6,7 @@ from django.views.generic import ListView, CreateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 
-from .models import Post
+from .models import Post, Tag
 from .forms import CommentForm, PostForm
 
 
@@ -36,7 +36,7 @@ class StartingPageView(ListView):
     context_object_name = "posts"
 
     def get_queryset(self):
-        qs = Post.objects.order_by("-date")
+        qs = Post.objects.order_by("-date").prefetch_related("tags")
         user = self.request.user
 
         if not user.is_authenticated:
@@ -54,24 +54,60 @@ class StartingPageView(ListView):
             | Q(is_public=False, is_superuser_only=False)
         )[:3]
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            # Chiffres affichés dans la bande « Mes outils » de l'accueil
+            from dividends.models import Asset
+            from immo.models import Property
+            from reels.models import Reel
+
+            ctx["tool_stats"] = {
+                "immo": Property.objects.filter(user=user).count(),
+                "dividends": Asset.objects.filter(user=user, is_active=True).count(),
+                "reels": Reel.objects.filter(user=user).count(),
+            }
+        return ctx
+
 
 class AllPostsView(ListView):
     template_name = "blog/all-posts.html"
     model = Post
-    ordering = ["-date"]
     context_object_name = "all_posts"
 
-    def get_queryset(self):
-        qs = super().get_queryset()
+    def visible_posts(self):
+        """Tous les articles que l'utilisateur a le droit de voir (avant filtres)."""
+        qs = Post.objects.prefetch_related("tags")
         user = self.request.user
 
         if not user.is_authenticated:
             return qs.filter(is_public=True, is_superuser_only=False)
-
         if user.is_superuser:
             return qs
-
         return qs.filter(is_superuser_only=False)
+
+    def get_queryset(self):
+        qs = self.visible_posts()
+        q = self.request.GET.get("q", "").strip()
+        tag = self.request.GET.get("tag", "").strip()
+
+        if q:
+            qs = qs.filter(
+                Q(title__icontains=q) | Q(excerpt__icontains=q) | Q(content__icontains=q)
+            )
+        if tag:
+            qs = qs.filter(tags__caption=tag)
+
+        return qs.distinct().order_by("-date")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["q"] = self.request.GET.get("q", "").strip()
+        ctx["current_tag"] = self.request.GET.get("tag", "").strip()
+        ctx["tags"] = Tag.objects.filter(post__in=self.visible_posts()).distinct().order_by("caption")
+        ctx["saved_count"] = len(self.request.session.get("stored_posts") or [])
+        return ctx
 
 
 class SinglePostView(View):
@@ -147,7 +183,10 @@ class ReadLaterView(View):
     def post(self, request):
         stored_posts = request.session.get("stored_posts") or []
 
-        post_id = int(request.POST["post_id"])
+        try:
+            post_id = int(request.POST.get("post_id", ""))
+        except ValueError:
+            return HttpResponseRedirect(reverse_lazy("read-later"))
 
         if post_id not in stored_posts:
             stored_posts.append(post_id)
@@ -155,7 +194,14 @@ class ReadLaterView(View):
             stored_posts.remove(post_id)
 
         request.session["stored_posts"] = stored_posts
-        return HttpResponseRedirect("/")
+
+        # Depuis la liste : on y reste. Depuis un article : on y revient.
+        if request.POST.get("from") == "list":
+            return HttpResponseRedirect(reverse_lazy("read-later"))
+        post = Post.objects.filter(pk=post_id).only("slug").first()
+        if post:
+            return HttpResponseRedirect(reverse_lazy("post-detail-page", args=[post.slug]))
+        return HttpResponseRedirect(reverse_lazy("read-later"))
 
 
 class CreatePostView(LoginRequiredMixin, CreateView):

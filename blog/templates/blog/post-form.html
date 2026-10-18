@@ -1,30 +1,44 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}Nouvel article · Yannick Wahl{% endblock %}
+
 {% block css_files %}
-<link rel="stylesheet" href="{% static 'post-form.css' %}">
+  <link rel="stylesheet" href="{% static 'post-form.css' %}">
 {% endblock %}
 
 {% block content %}
-<section class="post-form-page">
-  <div class="post-form-card">
-    <h1>Créer un post</h1>
+<div class="ui-narrow post-form-page">
+  <h1>Nouvel article</h1>
 
-    <form method="POST" enctype="multipart/form-data" class="post-form">
-      {% csrf_token %}
+  <form method="POST" enctype="multipart/form-data" class="post-form" novalidate>
+    {% csrf_token %}
 
-      {% for field in form %}
-        <div class="form-group">
-          <label>{{ field.label }}</label>
-          {{ field }}
-          {% if field.errors %}
-            <p class="field-error">{{ field.errors }}</p>
-          {% endif %}
+    {% if form.non_field_errors %}
+      <div class="ui-errors" role="alert">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    {% for field in form %}
+      {% if field.field.widget.input_type == "checkbox" %}
+        <div class="ui-field post-form__check">
+          <label for="{{ field.id_for_label }}">{{ field }} <span>{{ field.label }}</span></label>
+          {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+          {{ field.errors }}
         </div>
-      {% endfor %}
+      {% else %}
+        <div class="ui-field {% if field.errors %}has-error{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+          {{ field.errors }}
+        </div>
+      {% endif %}
+    {% endfor %}
 
-      <button type="submit" class="btn-primary">Publier</button>
-    </form>
-  </div>
-</section>
+    <div class="post-form__actions">
+      <button type="submit" class="ui-btn ui-btn--solid">Publier l'article</button>
+      <a class="ui-btn" href="{% url 'posts-page' %}">Annuler</a>
+    </div>
+  </form>
+</div>
 {% endblock %}

@@ -1,341 +1,105 @@
-/* =========================================================
-   Global
-   ========================================================= */
-
-body {
-  background-color: #F3F4F6;
-  color: #0F172A;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
-}
-
-#main-navigation {
-  background-color: #0F172A;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.35);
-}
-
-/* =========================================================
-   Alert
-   ========================================================= */
+/* Page d'un article : lecture confortable, commentaires */
 
 #alert {
-  max-width: 40rem;
-  margin: 6rem auto 2rem auto;
-  padding: 1.25rem 1.5rem;
-  border-radius: 12px;
-
-  background-color: #FEF2F2;
-  border: 1px solid #FCA5A5;
-  color: #7F1D1D;
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--yw-loss);
+  border-left-width: 4px;
+  border-radius: var(--radius-control);
+  background: var(--yw-surface);
 }
 
-/* =========================================================
-   Header éditorial (une seule colonne, stable)
-   ========================================================= */
+.article__head { padding-top: clamp(1.75rem, 4vw, 3.25rem); }
 
-#summary {
-  max-width: 48rem;
-  margin: 6.5rem auto 0 auto;
-  padding: 0 1.5rem;
+.article__back { margin-bottom: 1.5rem; font-size: 0.95rem; }
 
-  /* reset au cas où un autre CSS “card” s’applique */
-  background: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
+.article__head h1 {
+  margin-bottom: 0.3em;
+  font-size: clamp(2rem, 1.3rem + 2.8vw, 3.4rem);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
 }
 
-/* Title */
-#summary h2 {
-  font-size: 2.4rem;
-  line-height: 1.15;
-  margin: 0 0 0.75rem 0;
-  letter-spacing: -0.035em;
-  color: #020617;
+.article__excerpt {
+  margin-bottom: 1.25rem;
+  color: var(--yw-text-2);
+  font-family: var(--font-titre);
+  font-size: var(--step-1);
+  line-height: 1.35;
 }
 
-/* Meta sous le titre (PAS à droite) */
-#summary address,
-#summary time {
-  display: block !important;
-  float: none !important;
-
-  font-style: normal;
-  margin: 0;
+.article__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  color: var(--yw-text-2);
+  font-size: 0.93rem;
 }
 
-#summary address {
-  font-size: 0.9rem;
-  color: #475569;
-  margin-bottom: 0.15rem;
+.article__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--yw-line);
 }
+.article__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.article__actions form { margin: 0; }
 
-#summary time {
-  font-size: 0.85rem;
-  color: #64748B;
+.article__figure {
+  max-width: 54rem;
+  margin: 2rem auto 0;
+  padding-inline: 1.25rem;
 }
-
-/* Tags */
-#summary > div {
-  margin-top: 0.6rem;
-}
-
-.tag {
-  display: inline-block;
-  margin-right: 0.4rem;
-  margin-bottom: 0.25rem;
-  padding: 0.3rem 0.75rem;
-
-  font-size: 0.75rem;
-  border-radius: 999px;
-  background-color: #F1F5F9;
-  color: #475569;
-}
-
-/* Read later */
-#read-later {
-  margin-top: 1rem;
-}
-
-#read-later button {
-  background: transparent;
-  border: 1px solid #CBD5E1;
-  color: #334155;
-
-  padding: 0.45rem 1.2rem;
-  border-radius: 999px;
-
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-#read-later button:hover {
-  background-color: #F1F5F9;
-}
-
-/* =========================================================
-   Image (pas crop, taille maîtrisée, pas de “carte vide”)
-   ========================================================= */
-
-/* IMPORTANT : on neutralise le layout parasite */
-#summary article {
-  margin-top: 1.75rem;
-
-  display: block !important;
-  width: 100% !important;
-  max-width: 48rem !important;
-
-  padding: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-}
-
-/*
-  On affiche l’image dans un cadre de hauteur fixe,
-  avec object-fit: contain -> JAMAIS crop.
-  (Oui, il peut y avoir des bandes si portrait, c’est normal.)
-*/
-#summary article img {
-  display: block !important;
-  width: 100% !important;
-
-  height: 340px;              /* mobile/tablette */
-  object-fit: contain;        /* PAS DE CROP */
-  background-color: #FFFFFF;  /* bandes propres */
-  border-radius: 18px;
-
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
-}
-
-/* Si ta méta (By/Date) est DANS l’article, on la force sous l’image */
-#summary article address,
-#summary article time {
-  display: block !important;
-  margin-top: 0.6rem !important;
-}
-
-/* =========================================================
-   Main content
-   ========================================================= */
-
-main {
-  max-width: 48rem;
-  margin: 0 auto 3.5rem auto;
-  padding: 2rem 1.5rem 0 1.5rem;
-}
-
-main::before {
-  content: "";
-  display: block;
-  width: 48px;
-  height: 3px;
-  margin-bottom: 2rem;
-  border-radius: 999px;
-  background-color: #E5E7EB;
-}
-
-main p {
-  font-size: 1.05rem;
-  line-height: 1.85;
-  color: #334155;
-  margin: 0 0 1.4rem 0;
-}
-
-/* =========================================================
-   Comment form
-   ========================================================= */
-
-#comment-form {
-  max-width: 42rem;
-  margin: 3rem auto;
-  padding: 2rem;
-
-  background-color: #FFFFFF;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
-}
-
-/* =========================================================
-   Comments list
-   ========================================================= */
-
-#comments {
-  max-width: 48rem;
-  margin: 3rem auto 4rem auto;
-  padding: 2rem;
-
-  background-color: #FFFFFF;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
-}
-
-#comments li {
-  padding: 0.9rem 0;
-  border-bottom: 1px solid #E5E7EB;
-}
-
-#comments li:last-child {
-  border-bottom: none;
-}
-
-/* =========================================================
-   Desktop tweaks
-   ========================================================= */
-
-@media (min-width: 900px) {
-  #summary {
-    padding: 0;
-  }
-
-  main {
-    padding: 2rem 0 0 0;
-  }
-
-  /* image plus basse sur desktop, sinon ça envahit */
-  #summary article img {
-    height: 420px;
-  }
-}
-
-
-/* =========================
-   Comment form (restyle)
-   ========================= */
-
-#comment-form {
-  max-width: 42rem;
-  margin: 3rem auto;
-  padding: 2rem;
-
-  background-color: #FFFFFF;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.10);
-}
-
-#comment-form h2 {
-  margin: 0 0 1rem 0;
-  color: #020617;
-}
-
-/* Layout des champs */
-.form-control {
-  margin-bottom: 1rem;
-}
-
-.form-control label {
-  display: block;
-  margin-bottom: 0.35rem;
-  font-weight: 600;
-  color: #0F172A;
-}
-
-/* Inputs */
-.form-control input,
-.form-control textarea {
+.article__figure img {
   display: block;
   width: 100%;
-  font: inherit;
-
-  padding: 0.55rem 0.65rem;
-  border-radius: 10px;
-
-  border: 1px solid #D1D5DB;
-  background-color: #F9FAFB;
-  color: #0F172A;
-
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  max-height: 30rem;
+  object-fit: cover;
+  border-radius: var(--radius-media);
 }
 
-.form-control textarea {
-  min-height: 8rem;
-  resize: vertical;
+/* Le texte : empattement, grand corps, mesure courte */
+.article__body {
+  padding-block: 2rem 1rem;
+  font-family: var(--font-titre);
+  font-size: 1.22rem;
+  line-height: 1.72;
+}
+.article__body p { margin-bottom: 1.25em; }
+
+/* Commentaires */
+.comments { padding-block: 0.5rem 1rem; }
+.comments h2 {
+  padding-top: 2rem;
+  border-top: 1px solid var(--yw-line);
+  font-size: var(--step-2);
 }
 
-.form-control input:focus,
-.form-control textarea:focus {
-  outline: none;
-  border-color: #94A3B8;
-  box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.25);
-  background-color: #FFFFFF;
-}
-
-/* Bouton */
-#comment-form button {
-  margin-top: 0.5rem;
-
-  background-color: #4F46E5;
-  color: #FFFFFF;
-
-  padding: 0.55rem 1.6rem;
-  border-radius: 999px;
-  border: none;
-
-  font-weight: 600;
-  cursor: pointer;
-
-  transition: background-color 0.15s ease, transform 0.12s ease;
-}
-
-#comment-form button:hover {
-  background-color: #4338CA;
-  transform: translateY(-1px);
-}
-
-/* Erreurs */
-.errorlist {
-  list-style: none;
-  margin: 0.35rem 0 0 0;
+.comments__list {
+  margin: 0 0 2.5rem;
   padding: 0;
-  color: #B91C1C;
-  font-size: 0.85rem;
+  list-style: none;
 }
+.comments__list li {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--yw-line);
+}
+.comments__list li:first-child { padding-top: 0; }
+.comments__author { margin: 0 0 0.25rem; font-weight: 600; }
+.comments__list p:not(.comments__author) { margin: 0 0 0.5em; }
 
-.invalid label {
-  color: #B91C1C;
-}
+.comments__empty { color: var(--yw-text-2); margin-bottom: 2rem; }
 
-.invalid input,
-.invalid textarea {
-  border-color: #FB7185;
-  background-color: #FEF2F2;
+.comment-form {
+  padding: 1.5rem;
+  border: 1px solid var(--yw-line);
+  border-radius: var(--radius-control);
+  background: var(--yw-surface);
 }
+.comment-form h3 { font-size: var(--step-1); margin-bottom: 1rem; }
+.comment-form .ui-field:nth-of-type(1),
+.comment-form .ui-field:nth-of-type(2) { max-width: 26rem; }

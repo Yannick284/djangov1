@@ -1,53 +1,44 @@
-body {
-  background-color: #F3F4F6;
-  color: #111827;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+/* Page « Articles » : titre, recherche, étiquettes, résultats */
+
+.articles { padding-block: clamp(2rem, 5vw, 4rem) 1rem; }
+
+.articles__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 1.5rem;
 }
-
-#main-navigation {
-  background-color: #111827;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.35);
-}
-
-/* ===== Wrapper ===== */
-
-#all-posts {
-  margin: 6rem auto 3.5rem auto;
-  width: 100%;
-  max-width: 72rem;
-  padding: 0 1.5rem;
-}
-
-#all-posts h2 {
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 2rem;
-  color: #111827;
-
-  
-}
-
-/* ===== Grid ===== */
-
-#all-posts ul {
-  list-style: none;
+.articles__head h1 {
   margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
+  font-size: var(--step-4);
+  letter-spacing: -0.025em;
 }
 
-@media (min-width: 640px) {
-  #all-posts ul {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.filters {
+  display: flex;
+  gap: 0.6rem;
+  max-width: 34rem;
+  margin-bottom: 1rem;
+}
+.filters__search { flex: 1; margin: 0; }
+
+.tagbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+.tagbar .ui-chip { padding: 0.3rem 0.75rem; font-size: 0.9rem; }
+
+.results {
+  margin: 0 0 1rem;
+  color: var(--yw-text-2);
 }
 
-@media (min-width: 1024px) {
-  #all-posts ul {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.empty-state {
+  padding: 3rem 0;
+  color: var(--yw-text-2);
 }
-
-/* Les cartes elles-mêmes sont stylées par post.css */
+.empty-state p { margin-bottom: 1rem; }

@@ -30,6 +30,7 @@ def property_summary(prop: Property, end_date: date):
     mv_est = None
     last_m2 = None
     last_m2_date = None
+    adjusted_m2 = None
 
     if prop.market_value_est:
         mv_est = Decimal(prop.market_value_est)
@@ -42,7 +43,8 @@ def property_summary(prop: Property, end_date: date):
             goodwill = Decimal(prop.goodwill_eur_per_sqm or 0)
             parking = Decimal(prop.parking or 0)
 
-            mv_est = (last_m2 + goodwill) * Decimal(prop.surface_sqm) + parking
+            adjusted_m2 = last_m2 + goodwill
+            mv_est = adjusted_m2 * Decimal(prop.surface_sqm) + parking
 
     # ============================================================
     # 2) DATES DE RÉFÉRENCE
@@ -193,6 +195,7 @@ def property_summary(prop: Property, end_date: date):
         "market_value_est": str(mv_est) if mv_est is not None else None,
         "market_price_per_sqm_last": str(last_m2) if last_m2 is not None else None,
         "market_price_point_date": last_m2_date.isoformat() if last_m2_date else None,
+        "market_price_per_sqm_adjusted": str(adjusted_m2) if adjusted_m2 is not None else None,
 
         # Vente
         "selling_fees_rate": str(prop.selling_fees_rate or 0),

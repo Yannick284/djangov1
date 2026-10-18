@@ -1,40 +1,40 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static humanize i18n %}
 
 {% block css_files %}
   <link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
 {% endblock %}
 
-
-{% block title %}IMMO — Mes biens{% endblock %}
-
-
+{% block title %}Mes biens · Immo · Yannick Wahl{% endblock %}
+{% block zone %}vault{% endblock %}
 
 {% block content %}
-<main class="wrap">
+{% language 'fr' %}
+<div class="wrap">
   <header class="page-head">
     <h1>Mes biens</h1>
-    <div class="page-actions">
-      <a class="btn" href="{% url 'immo:property-create' %}">+ Ajouter une propriété</a>
-    </div>
+    <a class="btn btn-solid" href="{% url 'immo:property-create' %}">Ajouter un bien</a>
   </header>
 
   {% if properties %}
-    <div class="cards">
+    <ul class="props">
       {% for p in properties %}
-        <a class="card-link" href="{% url 'immo:immo-dashboard' p.id %}">
-          <div class="card">
-            <div class="card-title">{{ p.name }}</div>
-            <div class="card-meta">
-              Achat : {{ p.purchase_date }} · Prix : {{ p.purchase_price }} €
-            </div>
-          </div>
-        </a>
+        <li>
+          <a class="prop" href="{% url 'immo:immo-dashboard' p.id %}">
+            <span class="prop__name">{{ p.name }}</span>
+            <span class="prop__price">{{ p.purchase_price|floatformat:"0g" }} €</span>
+            <span class="prop__meta">Acheté le {{ p.purchase_date|date:"j F Y" }}</span>
+          </a>
+          <a class="edit-link" href="{% url 'immo:property-edit' p.id %}">Modifier</a>
+        </li>
       {% endfor %}
-    </div>
+    </ul>
   {% else %}
-    <p>Aucune propriété pour l’instant.</p>
-    <a class="btn" href="{% url 'immo:property-create' %}">Créer la première</a>
+    <div class="empty-state">
+      <p>Aucun bien pour l'instant. Ajoute ton premier bien pour suivre le prêt, les loyers, les dépenses et les scénarios de revente.</p>
+      <a class="btn btn-solid" href="{% url 'immo:property-create' %}">Ajouter un bien</a>
+    </div>
   {% endif %}
-</main>
+</div>
+{% endlanguage %}
 {% endblock %}

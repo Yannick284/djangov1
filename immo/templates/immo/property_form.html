@@ -1,38 +1,57 @@
 {% extends "base.html" %}
 {% load static %}
 
-
 {% block css_files %}
   <link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
 {% endblock %}
 
-{% block title %}IMMO — Nouvelle propriété{% endblock %}
-
+{% block title %}{% if object %}Modifier {{ object.name }}{% else %}Nouveau bien{% endif %} · Immo · Yannick Wahl{% endblock %}
+{% block zone %}vault{% endblock %}
 
 {% block content %}
-<main class="wrap">
-  <h1>Nouvelle propriété</h1>
+{% with pf=property_form %}
+<div class="wrap">
+  <header class="page-head">
+    <h1>{% if object %}Modifier {{ object.name }}{% else %}Nouveau bien{% endif %}</h1>
+    <a class="btn" href="{% if object %}{% url 'immo:immo-dashboard' object.id %}{% else %}{% url 'immo:property-list' %}{% endif %}">Annuler</a>
+  </header>
 
-  <form method="post">
+  <form method="post" novalidate>
     {% csrf_token %}
 
-    <h2>Bien</h2>
-    {{ property_form.non_field_errors }}
-    {{ property_form.as_p }}
+    <section class="form-section">
+      <h2>Le bien</h2>
+      {{ pf.non_field_errors }}
+      <div class="form-grid">
+        {% for field in pf %}{% include "immo/includes/field.html" %}{% endfor %}
+      </div>
+    </section>
 
-    <h2>Prêt (optionnel)</h2>
-    {{ loan_form.non_field_errors }}
-    {{ loan_form.as_p }}
+    {% if loan_form %}
+      <section class="form-section">
+        <h2>Le prêt <span class="muted">(facultatif)</span></h2>
+        {{ loan_form.non_field_errors }}
+        <div class="form-grid">
+          {% for field in loan_form %}{% include "immo/includes/field.html" %}{% endfor %}
+        </div>
+      </section>
+    {% endif %}
 
-    <h2>Loyer / Cash (optionnel)</h2>
-    <p class="muted">
-      Sert au calcul du cashflow.  
-      Le loyer sera <b>proratisé automatiquement</b> si le début n’est pas au 1er du mois.
-    </p>
-    {{ rent_form.non_field_errors }}
-    {{ rent_form.as_p }}
+    {% if rent_form %}
+      <section class="form-section">
+        <h2>Le loyer <span class="muted">(facultatif)</span></h2>
+        <p>Sert au calcul du cashflow. Le loyer est <b>proratisé automatiquement</b> si la location ne commence pas le 1er du mois.</p>
+        {{ rent_form.non_field_errors }}
+        <div class="form-grid">
+          {% for field in rent_form %}{% include "immo/includes/field.html" %}{% endfor %}
+        </div>
+      </section>
+    {% endif %}
 
-    <button class="btn" type="submit">Créer la propriété</button>
+    <div class="form-actions">
+      <button class="btn btn-solid" type="submit">{% if object %}Enregistrer les modifications{% else %}Créer le bien{% endif %}</button>
+    </div>
   </form>
-</main>
+</div>
+{% endwith %}
 {% endblock %}
