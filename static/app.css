@@ -1,0 +1,437 @@
+/* =========================================================
+   Cadre commun : base, barre du haut, menu mobile, pied de page
+   et composants partagés (préfixe ui-).
+   Les couleurs viennent de tokens.css (variables --yw-*).
+   ========================================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--topbar-h) + 1rem);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--yw-bg);
+  color: var(--yw-text);
+  font-family: var(--font-texte);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+  text-rendering: optimizeLegibility;
+}
+
+body.nav-locked { overflow: hidden; }
+
+main { flex: 1 0 auto; }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-titre);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  color: var(--yw-text);
+  margin: 0 0 0.6em;
+}
+
+p { margin: 0 0 1em; }
+
+a {
+  color: var(--yw-accent);
+  text-underline-offset: 0.2em;
+}
+
+img { max-width: 100%; height: auto; }
+
+:focus-visible {
+  outline: 2px solid var(--yw-focus);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem; top: -4rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  background: var(--yw-accent);
+  color: var(--yw-on-accent);
+  border-radius: var(--radius-control);
+  text-decoration: none;
+}
+.skip-link:focus { top: 0.75rem; }
+
+/* ---------- Conteneurs ---------- */
+.ui-wrap {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+.ui-narrow {
+  width: 100%;
+  max-width: 44rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+/* =========================================================
+   Barre du haut
+   (le sélecteur .topbar bat les règles `header { ... }` des
+    feuilles de style des pages privées)
+   ========================================================= */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: block;
+  margin: 0;
+  background: color-mix(in srgb, var(--yw-bg) 94%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--yw-line);
+}
+
+.topbar__inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 72rem;
+  height: var(--topbar-h);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.brand {
+  font-family: var(--font-titre);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--yw-text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.topnav {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.topnav a,
+.topbar__link {
+  position: relative;
+  padding: 0.5rem 0.75rem;
+  color: var(--yw-text-2);
+  text-decoration: none;
+  font-size: 0.97rem;
+  font-weight: 500;
+  border-radius: var(--radius-control);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.topnav a:hover,
+.topbar__link:hover {
+  color: var(--yw-text);
+  background: color-mix(in srgb, var(--yw-text) 7%, transparent);
+}
+
+.topnav a[aria-current="page"] {
+  color: var(--yw-text);
+}
+.topnav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0.75rem; right: 0.75rem; bottom: 0.15rem;
+  height: 2px;
+  background: var(--yw-accent);
+}
+
+/* Sépare les pages publiques des outils : même frontière que vitrine / coffre */
+.topnav__sep {
+  width: 1px;
+  height: 1.25rem;
+  margin: 0 0.5rem;
+  background: var(--yw-line);
+}
+
+.topbar__end {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.topbar__end .topbar__link { display: none; }
+.topbar__link--accent { border: 1px solid var(--yw-line); }
+
+/* Bouton menu (mobile) */
+.menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--yw-text);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-control);
+}
+.burger,
+.burger::before {
+  display: block;
+  width: 20px; height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+}
+.burger { position: relative; }
+.burger::before {
+  content: "";
+  position: absolute;
+  top: -6px; left: 0;
+  box-shadow: 0 12px 0 currentColor;
+}
+
+@media (min-width: 860px) {
+  .topnav { display: flex; }
+  .topbar__end { margin-left: 0; }
+  .topbar__end .topbar__link { display: inline-flex; }
+  .menu-btn { display: none; }
+}
+
+/* =========================================================
+   Menu mobile
+   ========================================================= */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(8, 14, 12, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.drawer-overlay.is-open { opacity: 1; pointer-events: auto; }
+
+.drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  z-index: 70;
+  width: min(88vw, 340px);
+  padding: 1rem 1.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--yw-surface);
+  border-left: 1px solid var(--yw-line);
+  transform: translateX(100%);
+  visibility: hidden;                 /* masqué aussi pour le clavier et les ombres */
+  transition: transform 0.22s ease, visibility 0s linear 0.22s;
+}
+.drawer.is-open {
+  transform: none;
+  visibility: visible;
+  transition: transform 0.22s ease;
+}
+
+.drawer__close {
+  align-self: flex-end;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--yw-text-2);
+  font: inherit;
+  cursor: pointer;
+}
+
+.drawer__title {
+  margin: 1.4rem 0 0.25rem;
+  color: var(--yw-text-2);
+  font-size: var(--step--1);
+}
+
+.drawer a {
+  display: block;
+  padding: 0.7rem 0.25rem;
+  color: var(--yw-text);
+  font-size: 1.1rem;
+  text-decoration: none;
+  border-bottom: 1px solid var(--yw-line);
+}
+.drawer a:hover { color: var(--yw-accent); }
+.drawer a[aria-current="page"] { color: var(--yw-accent); font-weight: 600; }
+
+/* =========================================================
+   Pied de page
+   ========================================================= */
+.sitefoot {
+  margin-top: 4rem;
+  border-top: 1px solid var(--yw-line);
+  color: var(--yw-text-2);
+  font-size: var(--step--1);
+}
+.sitefoot__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2rem;
+}
+.sitefoot a { color: var(--yw-text-2); }
+.sitefoot a:hover { color: var(--yw-text); }
+
+/* =========================================================
+   Composants partagés
+   ========================================================= */
+
+/* Boutons */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.55rem 1.15rem;
+  border: 1px solid var(--yw-line);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--yw-text);
+  font: inherit;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.ui-btn:hover { border-color: var(--yw-text-2); }
+
+.ui-btn--solid {
+  background: var(--yw-accent);
+  border-color: var(--yw-accent);
+  color: var(--yw-on-accent);
+}
+.ui-btn--solid:hover {
+  background: var(--yw-accent-hover);
+  border-color: var(--yw-accent-hover);
+}
+
+.ui-btn--small {
+  min-height: 36px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.92rem;
+}
+
+/* Étiquettes (tags) */
+.ui-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.55rem;
+  border: 1px solid var(--yw-line);
+  border-radius: 4px;
+  color: var(--yw-text-2);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-decoration: none;
+  white-space: nowrap;
+}
+a.ui-chip:hover { color: var(--yw-text); border-color: var(--yw-text-2); }
+.ui-chip[aria-current="true"] {
+  background: var(--yw-accent);
+  border-color: var(--yw-accent);
+  color: var(--yw-on-accent);
+}
+
+/* Formulaires */
+.ui-field { margin: 0 0 1.1rem; }
+.ui-field label,
+.ui-field > p > label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+.ui-field input[type="text"],
+.ui-field input[type="email"],
+.ui-field input[type="password"],
+.ui-field input[type="url"],
+.ui-field input[type="search"],
+.ui-field input[type="number"],
+.ui-field input[type="date"],
+.ui-field select,
+.ui-field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--yw-line);
+  border-radius: var(--radius-control);
+  background: var(--yw-surface);
+  color: var(--yw-text);
+  font: inherit;
+}
+.ui-field textarea { min-height: 9rem; resize: vertical; line-height: 1.5; }
+.ui-field input:focus,
+.ui-field select:focus,
+.ui-field textarea:focus {
+  outline: 2px solid var(--yw-focus);
+  outline-offset: 1px;
+  border-color: var(--yw-focus);
+}
+.ui-field .helptext { display: block; margin-top: 0.3rem; color: var(--yw-text-2); font-size: 0.88rem; }
+.ui-field.has-error input,
+.ui-field.has-error textarea { border-color: var(--yw-loss); }
+.ui-errors {
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--yw-loss);
+  font-size: 0.92rem;
+}
+.errorlist { margin: 0.35rem 0 0; padding: 0; list-style: none; color: var(--yw-loss); font-size: 0.92rem; }
+
+/* Messages (confirmations, erreurs) */
+.ui-flash {
+  max-width: 72rem;
+  margin: 1rem auto 0;
+  padding: 0 1.25rem;
+  list-style: none;
+}
+.ui-flash li {
+  margin: 0 0 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--yw-line);
+  border-left: 4px solid var(--yw-accent);
+  border-radius: var(--radius-control);
+  background: var(--yw-surface);
+}
+.ui-flash li.error { border-left-color: var(--yw-loss); }
+
+/* Texte long (articles, mentions légales) */
+.ui-prose { max-width: 66ch; }
+.ui-prose p, .ui-prose li { line-height: 1.7; }
+.ui-prose h2 { font-size: var(--step-2); margin-top: 2em; }
+.ui-prose h3 { font-size: var(--step-1); margin-top: 1.6em; }
+
+/* Mouvement réduit */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

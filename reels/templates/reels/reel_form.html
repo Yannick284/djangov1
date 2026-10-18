@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'reels/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="reels-page">
+  <div class="form-card">
+    <h1>{% if form.instance.pk %}Modifier un reel{% else %}Ajouter un reel{% endif %}</h1>
+{% if form.instance.pk %}
+  <a class="btn danger" href="{% url 'reels:delete' form.instance.pk %}">Supprimer</a>
+{% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="pretty-form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="{{ form.url.id_for_label }}">URL</label>
+          {{ form.url }}
+          {{ form.url.errors }}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.category.id_for_label }}">Catégorie</label>
+          {{ form.category }}
+          {{ form.category.errors }}
+          <a class="small-link" href="{% url 'reels:category-create' %}">+ Nouvelle catégorie</a>
+        </div>
+
+        <div class="field">
+          <label for="{{ form.status.id_for_label }}">Statut</label>
+          {{ form.status }}
+          {{ form.status.errors }}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.rating.id_for_label }}">Note</label>
+          {{ form.rating }}
+          {{ form.rating.errors }}
+        </div>
+
+        <div class="field field-full">
+          <label for="{{ form.comment.id_for_label }}">Commentaire</label>
+          {{ form.comment }}
+          {{ form.comment.errors }}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.tags.id_for_label }}">Tags</label>
+          {{ form.tags }}
+          {{ form.tags.errors }}
+        </div>
+
+        <div class="field">
+          <label for="{{ form.thumbnail_url.id_for_label }}">Thumbnail URL</label>
+          {{ form.thumbnail_url }}
+          {{ form.thumbnail_url.errors }}
+        </div>
+
+        <div class="field field-full">
+          <label for="{{ form.thumbnail.id_for_label }}">Thumbnail (upload)</label>
+          {{ form.thumbnail }}
+          {{ form.thumbnail.errors }}
+          <div class="hint">Optionnel. Si vide, on utilisera le placeholder.</div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Enregistrer</button>
+        <a class="btn" href="{% url 'reels:list' %}">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

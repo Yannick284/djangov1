@@ -1,0 +1,11 @@
+/* Liste « À lire plus tard » : une ligne d'article + un bouton pour la retirer */
+
+.stored { padding-bottom: 1.25rem; }
+.stored .post-row__link { padding-bottom: 0.75rem; }
+
+.stored__remove {
+  margin: 0;
+}
+@media (min-width: 760px) {
+  .stored__remove { padding-left: 11.5rem; }
+}

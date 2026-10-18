@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static humanize i18n %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
+{% endblock %}
+
+{% block title %}Mes biens · Immo · Yannick Wahl{% endblock %}
+{% block zone %}vault{% endblock %}
+
+{% block content %}
+{% language 'fr' %}
+<div class="wrap">
+  <header class="page-head">
+    <h1>Mes biens</h1>
+    <a class="btn btn-solid" href="{% url 'immo:property-create' %}">Ajouter un bien</a>
+  </header>
+
+  {% if properties %}
+    <ul class="props">
+      {% for p in properties %}
+        <li>
+          <a class="prop" href="{% url 'immo:immo-dashboard' p.id %}">
+            <span class="prop__name">{{ p.name }}</span>
+            <span class="prop__price">{{ p.purchase_price|floatformat:"0g" }} €</span>
+            <span class="prop__meta">Acheté le {{ p.purchase_date|date:"j F Y" }}</span>
+          </a>
+          <a class="edit-link" href="{% url 'immo:property-edit' p.id %}">Modifier</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty-state">
+      <p>Aucun bien pour l'instant. Ajoute ton premier bien pour suivre le prêt, les loyers, les dépenses et les scénarios de revente.</p>
+      <a class="btn btn-solid" href="{% url 'immo:property-create' %}">Ajouter un bien</a>
+    </div>
+  {% endif %}
+</div>
+{% endlanguage %}
+{% endblock %}

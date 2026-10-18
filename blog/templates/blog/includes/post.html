@@ -1,0 +1,24 @@
+{% load i18n %}<li class="post-row">
+  <a class="post-row__link" href="{% url 'post-detail-page' post.slug %}">
+    <time class="post-row__date" datetime="{{ post.date|date:'Y-m-d' }}">{% language 'fr' %}{{ post.date|date:"j F Y" }}{% endlanguage %}</time>
+
+    <div class="post-row__body">
+      <h3 class="post-row__title">{{ post.title }}</h3>
+      <p class="post-row__excerpt">{{ post.excerpt }}</p>
+
+      <p class="post-row__meta">
+        {% if post.is_superuser_only %}
+          <span class="ui-chip">Admin</span>
+        {% elif not post.is_public %}
+          <span class="ui-chip">Privé</span>
+        {% endif %}
+        {% for tag in post.tags.all %}<span class="ui-chip">{{ tag.caption }}</span>{% endfor %}
+        <span class="post-row__time">{{ post.reading_minutes }} min de lecture</span>
+      </p>
+    </div>
+
+    {% if post.image %}
+      <img class="post-row__image" src="{{ post.image.url }}" alt="" loading="lazy" />
+    {% endif %}
+  </a>
+</li>

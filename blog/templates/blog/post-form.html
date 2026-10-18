@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Nouvel article · Yannick Wahl{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'post-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ui-narrow post-form-page">
+  <h1>Nouvel article</h1>
+
+  <form method="POST" enctype="multipart/form-data" class="post-form" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="ui-errors" role="alert">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    {% for field in form %}
+      {% if field.field.widget.input_type == "checkbox" %}
+        <div class="ui-field post-form__check">
+          <label for="{{ field.id_for_label }}">{{ field }} <span>{{ field.label }}</span></label>
+          {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+          {{ field.errors }}
+        </div>
+      {% else %}
+        <div class="ui-field {% if field.errors %}has-error{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+          {{ field.errors }}
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <div class="post-form__actions">
+      <button type="submit" class="ui-btn ui-btn--solid">Publier l'article</button>
+      <a class="ui-btn" href="{% url 'posts-page' %}">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

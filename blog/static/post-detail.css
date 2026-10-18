@@ -1,0 +1,105 @@
+/* Page d'un article : lecture confortable, commentaires */
+
+#alert {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--yw-loss);
+  border-left-width: 4px;
+  border-radius: var(--radius-control);
+  background: var(--yw-surface);
+}
+
+.article__head { padding-top: clamp(1.75rem, 4vw, 3.25rem); }
+
+.article__back { margin-bottom: 1.5rem; font-size: 0.95rem; }
+
+.article__head h1 {
+  margin-bottom: 0.3em;
+  font-size: clamp(2rem, 1.3rem + 2.8vw, 3.4rem);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+.article__excerpt {
+  margin-bottom: 1.25rem;
+  color: var(--yw-text-2);
+  font-family: var(--font-titre);
+  font-size: var(--step-1);
+  line-height: 1.35;
+}
+
+.article__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  color: var(--yw-text-2);
+  font-size: 0.93rem;
+}
+
+.article__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--yw-line);
+}
+.article__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.article__actions form { margin: 0; }
+
+.article__figure {
+  max-width: 54rem;
+  margin: 2rem auto 0;
+  padding-inline: 1.25rem;
+}
+.article__figure img {
+  display: block;
+  width: 100%;
+  max-height: 30rem;
+  object-fit: cover;
+  border-radius: var(--radius-media);
+}
+
+/* Le texte : empattement, grand corps, mesure courte */
+.article__body {
+  padding-block: 2rem 1rem;
+  font-family: var(--font-titre);
+  font-size: 1.22rem;
+  line-height: 1.72;
+}
+.article__body p { margin-bottom: 1.25em; }
+
+/* Commentaires */
+.comments { padding-block: 0.5rem 1rem; }
+.comments h2 {
+  padding-top: 2rem;
+  border-top: 1px solid var(--yw-line);
+  font-size: var(--step-2);
+}
+
+.comments__list {
+  margin: 0 0 2.5rem;
+  padding: 0;
+  list-style: none;
+}
+.comments__list li {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--yw-line);
+}
+.comments__list li:first-child { padding-top: 0; }
+.comments__author { margin: 0 0 0.25rem; font-weight: 600; }
+.comments__list p:not(.comments__author) { margin: 0 0 0.5em; }
+
+.comments__empty { color: var(--yw-text-2); margin-bottom: 2rem; }
+
+.comment-form {
+  padding: 1.5rem;
+  border: 1px solid var(--yw-line);
+  border-radius: var(--radius-control);
+  background: var(--yw-surface);
+}
+.comment-form h3 { font-size: var(--step-1); margin-bottom: 1rem; }
+.comment-form .ui-field:nth-of-type(1),
+.comment-form .ui-field:nth-of-type(2) { max-width: 26rem; }

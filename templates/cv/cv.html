@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}CV · Yannick Wahl{% endblock %}
+{% block meta_description %}Curriculum vitae de Yannick Wahl, à lire en ligne ou à télécharger en PDF.{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'cv.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ui-wrap cv">
+  <header class="cv__head">
+    <h1>Curriculum vitae</h1>
+    <a class="ui-btn ui-btn--solid" href="{{ cv_url }}" target="_blank" rel="noopener">Télécharger le PDF</a>
+  </header>
+
+  <div class="cv__viewer">
+    <iframe src="{{ cv_url }}" title="Curriculum vitae de Yannick Wahl (PDF)" loading="lazy"></iframe>
+  </div>
+
+  <p class="cv__fallback">
+    L'aperçu du PDF n'est pas affiché sur petit écran.
+    <a href="{{ cv_url }}" target="_blank" rel="noopener">Ouvrir le CV dans un nouvel onglet</a>.
+  </p>
+</div>
+{% endblock %}

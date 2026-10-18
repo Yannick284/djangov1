@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Connexion · Yannick Wahl{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="auth">
+  <h1>Connexion</h1>
+  <p class="auth__lead">Pour accéder à tes outils : immo, dividendes et reels.</p>
+
+  <form method="post" action="{% url 'account_login' %}">
+    {% csrf_token %}
+    {% if redirect_field_value %}
+      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+    {% endif %}
+
+    {% if form.non_field_errors %}
+      <div class="auth__error" role="alert">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    {% for field in form %}
+      {% if field.field.widget.input_type == "checkbox" %}
+        <div class="ui-field auth__check">
+          <label for="{{ field.id_for_label }}">{{ field }} <span>{{ field.label }}</span></label>
+          {{ field.errors }}
+        </div>
+      {% else %}
+        <div class="ui-field {% if field.errors %}has-error{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <button class="ui-btn ui-btn--solid auth__submit" type="submit">Se connecter</button>
+  </form>
+
+  <p class="auth__links">
+    <a href="{% url 'account_reset_password' %}">Mot de passe oublié ?</a>
+    <a href="{% url 'account_signup' %}">Créer un compte</a>
+  </p>
+</section>
+{% endblock %}

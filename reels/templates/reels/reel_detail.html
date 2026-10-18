@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'reels/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="reels-page">
+
+  <div class="detail-header">
+    <h1>{{ reel.title|default:"Reel" }}</h1>
+    <div class="detail-header-actions">
+      <a class="btn-link" href="{% url 'reels:edit' reel.pk %}">Modifier</a>
+      <a class="btn-link" href="{% url 'reels:list' %}">Retour</a>
+    </div>
+  </div>
+
+  <div class="detail-grid">
+    <div class="detail-card">
+      {% if reel.thumbnail %}
+        <a class="thumb-link" href="{{ reel.url }}" target="_blank" rel="noopener">
+          <img class="reel-thumb" src="{{ reel.thumbnail.url }}" alt="">
+        </a>
+      {% else %}
+        <a class="thumb-link" href="{{ reel.url }}" target="_blank" rel="noopener">
+          <div class="reel-thumb placeholder"><span>Pas d’image</span></div>
+        </a>
+      {% endif %}
+
+      <div class="reel-body">
+        <div class="reel-title">
+          <span class="reel-title-text">Détails</span>
+          <span class="badge {{ reel.status }}">{{ reel.get_status_display }}</span>
+        </div>
+
+        <div class="detail-kv">
+          <div><span>Catégorie</span><strong>{% if reel.category %}{{ reel.category.name }}{% else %}Sans catégorie{% endif %}</strong></div>
+          <div><span>Note</span><strong>{% if reel.rating %}{{ reel.rating }}/10{% else %}-{% endif %}</strong></div>
+          <div><span>Tags</span><strong>{% if reel.tags %}{{ reel.tags }}{% else %}-{% endif %}</strong></div>
+        </div>
+
+        <div class="detail-actions">
+          <a class="btn primary" href="{{ reel.url }}" target="_blank" rel="noopener">Ouvrir Instagram</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="reel-body">
+        <h2 class="detail-section-title">Commentaire</h2>
+        <p class="detail-comment">
+          {% if reel.comment %}{{ reel.comment|linebreaksbr }}{% else %}<span class="muted">Aucun commentaire.</span>{% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

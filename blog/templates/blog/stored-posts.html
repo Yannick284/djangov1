@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}À lire plus tard · Yannick Wahl{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'post.css' %}" />
+  <link rel="stylesheet" href="{% static 'all-posts.css' %}" />
+  <link rel="stylesheet" href="{% static 'stored-posts.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="ui-wrap articles">
+  <header class="articles__head">
+    <h1>À lire plus tard</h1>
+    <a href="{% url 'posts-page' %}">Tous les articles</a>
+  </header>
+
+  {% if has_posts %}
+    <ul class="post-list">
+      {% for post in posts %}
+        <li class="post-row stored">
+          <a class="post-row__link" href="{% url 'post-detail-page' post.slug %}">
+            <time class="post-row__date" datetime="{{ post.date|date:'Y-m-d' }}">{% language 'fr' %}{{ post.date|date:"j F Y" }}{% endlanguage %}</time>
+            <div class="post-row__body">
+              <h3 class="post-row__title">{{ post.title }}</h3>
+              <p class="post-row__excerpt">{{ post.excerpt }}</p>
+              <p class="post-row__meta"><span class="post-row__time">{{ post.reading_minutes }} min de lecture</span></p>
+            </div>
+          </a>
+          <form class="stored__remove" action="{% url 'read-later' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="post_id" value="{{ post.id }}">
+            <input type="hidden" name="from" value="list">
+            <button class="ui-btn ui-btn--small" type="submit">Retirer de ma liste</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty-state">
+      <p>Ta liste est vide. Sur la page d'un article, utilise « Lire plus tard » pour l'ajouter ici.</p>
+      <a class="ui-btn ui-btn--solid" href="{% url 'posts-page' %}">Parcourir les articles</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

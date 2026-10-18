@@ -1,0 +1,53 @@
+/* Connexion, inscription */
+
+.auth {
+  max-width: 26rem;
+  margin: clamp(2rem, 8vw, 5rem) auto;
+  padding: 0 1.25rem;
+}
+
+.auth h1 {
+  margin-bottom: 0.25em;
+  font-size: var(--step-3);
+  letter-spacing: -0.02em;
+}
+
+.auth__lead {
+  margin-bottom: 1.75rem;
+  color: var(--yw-text-2);
+}
+
+.auth__error {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--yw-loss);
+  border-left-width: 4px;
+  border-radius: var(--radius-control);
+  background: var(--yw-surface);
+}
+.auth__error ul { margin: 0; padding: 0; list-style: none; }
+
+.auth__check label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-weight: 400;
+  cursor: pointer;
+}
+.auth__check input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--yw-accent);
+}
+
+.auth__submit { width: 100%; margin-top: 0.5rem; }
+
+.auth__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+}

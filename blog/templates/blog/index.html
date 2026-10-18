@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}Yannick Wahl · Notes & projets{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'post.css' %}" />
+  <link rel="stylesheet" href="{% static 'index.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+  <div class="ui-wrap hero__grid">
+    <div class="hero__text">
+      <h1>Notes &amp; projets</h1>
+      <p class="hero__lead">Ce que je construis, et ce que j'en apprends.</p>
+      <div class="hero__actions">
+        <a class="ui-btn ui-btn--solid" href="{% url 'posts-page' %}">Lire les articles</a>
+        <a class="ui-btn" href="{% url 'cv' %}">Voir mon CV</a>
+      </div>
+    </div>
+    <img class="hero__photo" src="{% static 'images/me.png' %}" width="300" height="375"
+         alt="Portrait de Yannick Wahl" />
+  </div>
+</section>
+
+<section class="latest" aria-labelledby="latest-title">
+  <div class="ui-wrap">
+    <div class="section-head">
+      <h2 id="latest-title">Derniers articles</h2>
+      <a href="{% url 'posts-page' %}">Tous les articles</a>
+    </div>
+
+    {% if posts %}
+      <ul class="post-list">
+        {% for post in posts %}
+          {% include "blog/includes/post.html" %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">Aucun article publié pour l'instant.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="vault-band" data-zone="vault" aria-labelledby="tools-title">
+  <div class="ui-wrap">
+    <div class="vault-band__head">
+      <h2 id="tools-title">Mes outils</h2>
+      <p>Suivi immobilier, dividendes et reels à tester. Accessibles après connexion.</p>
+      {% if not user.is_authenticated %}
+        <a class="ui-btn ui-btn--solid" href="{% url 'account_login' %}">Se connecter</a>
+      {% endif %}
+    </div>
+
+    <div class="tools">
+      <a class="tool" href="{% url 'immo:property-list' %}">
+        <span class="tool__name">Immo</span>
+        <span class="tool__desc">Prêt, loyers, dépenses et scénarios de revente d'un bien.</span>
+        <span class="tool__foot">
+          {% if tool_stats %}
+            <span><span class="tool__figure">{{ tool_stats.immo }}</span> bien{% if tool_stats.immo > 1 %}s{% endif %} suivi{% if tool_stats.immo > 1 %}s{% endif %}</span>
+          {% else %}
+            <span class="tool__locked">Connexion requise</span>
+          {% endif %}
+          <span class="tool__open">Ouvrir</span>
+        </span>
+      </a>
+
+      <a class="tool" href="{% url 'dividends-dashboard' %}">
+        <span class="tool__name">Dividendes</span>
+        <span class="tool__desc">Calendrier des versements, rendement et performance du portefeuille.</span>
+        <span class="tool__foot">
+          {% if tool_stats %}
+            <span><span class="tool__figure">{{ tool_stats.dividends }}</span> titre{% if tool_stats.dividends > 1 %}s{% endif %} suivi{% if tool_stats.dividends > 1 %}s{% endif %}</span>
+          {% else %}
+            <span class="tool__locked">Connexion requise</span>
+          {% endif %}
+          <span class="tool__open">Ouvrir</span>
+        </span>
+      </a>
+
+      <a class="tool" href="{% url 'reels:list' %}">
+        <span class="tool__name">Reels</span>
+        <span class="tool__desc">Les idées à tester, classées par catégorie et par statut.</span>
+        <span class="tool__foot">
+          {% if tool_stats %}
+            <span><span class="tool__figure">{{ tool_stats.reels }}</span> reel{% if tool_stats.reels > 1 %}s{% endif %} enregistré{% if tool_stats.reels > 1 %}s{% endif %}</span>
+          {% else %}
+            <span class="tool__locked">Connexion requise</span>
+          {% endif %}
+          <span class="tool__open">Ouvrir</span>
+        </span>
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
