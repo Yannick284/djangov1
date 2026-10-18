@@ -1,23 +1,68 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %} 
-All My Posts
-{% endblock %} 
+{% block title %}Articles · Yannick Wahl{% endblock %}
 
 {% block css_files %}
-  <link rel="stylesheet" href="{% static "post.css" %}" />
-  <link rel="stylesheet" href="{% static "all-posts.css" %}" />
+  <link rel="stylesheet" href="{% static 'post.css' %}" />
+  <link rel="stylesheet" href="{% static 'all-posts.css' %}" />
 {% endblock %}
 
 {% block content %}
-<section id="all-posts">
-  <h2>My Collected Posts</h2>
+<div class="ui-wrap articles">
 
-  <ul>
-    {% for post in all_posts %}
-      {% include "blog/includes/post.html" %}
-    {% endfor %}
-  </ul>
-</section>
+  <header class="articles__head">
+    <h1>Articles</h1>
+    {% if saved_count %}
+      <a href="{% url 'read-later' %}">À lire plus tard ({{ saved_count }})</a>
+    {% endif %}
+  </header>
+
+  <form class="filters" method="get" role="search" action="{% url 'posts-page' %}">
+    <div class="ui-field filters__search">
+      <label class="sr-only" for="q">Rechercher dans les articles</label>
+      <input id="q" type="search" name="q" value="{{ q }}" placeholder="Rechercher dans les articles">
+    </div>
+    {% if current_tag %}<input type="hidden" name="tag" value="{{ current_tag }}">{% endif %}
+    <button class="ui-btn ui-btn--solid" type="submit">Rechercher</button>
+  </form>
+
+  {% if tags %}
+    <nav class="tagbar" aria-label="Filtrer par étiquette">
+      <a class="ui-chip" href="{% url 'posts-page' %}{% if q %}?q={{ q|urlencode }}{% endif %}"
+         {% if not current_tag %}aria-current="true"{% endif %}>Tous</a>
+      {% for t in tags %}
+        <a class="ui-chip" href="?tag={{ t.caption|urlencode }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}"
+           {% if t.caption == current_tag %}aria-current="true"{% endif %}>{{ t.caption }}</a>
+      {% endfor %}
+    </nav>
+  {% endif %}
+
+  {% if q or current_tag %}
+    <p class="results">
+      {{ all_posts|length }} article{{ all_posts|length|pluralize }}
+      {% if q %}pour « {{ q }} »{% endif %}
+      {% if current_tag %}avec l'étiquette {{ current_tag }}{% endif %}.
+      <a href="{% url 'posts-page' %}">Effacer les filtres</a>
+    </p>
+  {% endif %}
+
+  {% if all_posts %}
+    <ul class="post-list">
+      {% for post in all_posts %}
+        {% include "blog/includes/post.html" %}
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty-state">
+      {% if q or current_tag %}
+        <p>Aucun article ne correspond à cette recherche.</p>
+        <a class="ui-btn" href="{% url 'posts-page' %}">Voir tous les articles</a>
+      {% else %}
+        <p>Aucun article publié pour l'instant.</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+</div>
 {% endblock %}

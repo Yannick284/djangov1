@@ -10,3 +10,5 @@ uploads/
 .vscode/
 __pycache__/
 *.pyc
+.venv/
+.admin_cree

@@ -2,13 +2,14 @@
 {% load static %}
 
 {% block title %}Dividendes — Calendrier{% endblock %}
+{% block zone %}vault{% endblock %}
 
 {% block css_files %}
   <link rel="stylesheet" href="{% static 'dividends.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="wrap cal">
+<div class="cal">
   <header class="cal-head">
     <div>
       <h1 class="cal-title">Calendrier dividendes</h1>
@@ -20,9 +21,9 @@
     </div>
 
     <div class="cal-nav">
-      <a class="btn" href="?y={{ prev_y }}&m={{ prev_m }}&g={{ growth }}">←</a>
-      <a class="btn" href="?y={{ today.year }}&m={{ today.month }}&g={{ growth }}">Aujourd’hui</a>
-      <a class="btn" href="?y={{ next_y }}&m={{ next_m }}&g={{ growth }}">→</a>
+      <a class="ui-btn ui-btn--small" href="?y={{ prev_y }}&m={{ prev_m }}&g={{ growth }}">←</a>
+      <a class="ui-btn ui-btn--small" href="?y={{ today.year }}&m={{ today.month }}&g={{ growth }}">Aujourd’hui</a>
+      <a class="ui-btn ui-btn--small" href="?y={{ next_y }}&m={{ next_m }}&g={{ growth }}">→</a>
     </div>
   </header>
 
@@ -44,7 +45,7 @@
                 {% endif %}
 
                 {% if cell.d == today %}
-                  <span class="cal-pill">today</span>
+                  <span class="cal-pill">aujourd’hui</span>
                 {% endif %}
               </div>
 

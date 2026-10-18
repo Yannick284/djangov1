@@ -65,7 +65,12 @@ class Post(models.Model):
     is_public = models.BooleanField(default=True)
     def __str__(self):
         return self.title
-    
+
+    @property
+    def reading_minutes(self) -> int:
+        """Temps de lecture estimé (≈ 200 mots/min), au moins 1 minute."""
+        return max(1, round(len((self.content or "").split()) / 200))
+
     
     
     

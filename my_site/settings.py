@@ -35,10 +35,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ALLOWED_HOSTS = []
 
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-a-changer")
+# ENV=prod sur Render, rien (= local) sur ta machine.
+ENV = os.getenv("ENV", "local")
+IS_PROD = ENV == "prod"
 
-# DEBUG = os.environ.get("DJANGO_DEBUG", "") == "True"
-DEBUG = True
+# En prod, la clé secrète DOIT venir de l'environnement : on refuse de démarrer sans.
+SECRET_KEY = os.environ.get("SECRET_KEY") or ("" if IS_PROD else "dev-secret-key-local-uniquement")
+if IS_PROD and not SECRET_KEY:
+    raise ValueError("SECRET_KEY manquante : ajoute-la dans les variables d'environnement Render.")
+
+# Debug actif seulement en local (ou si DJANGO_DEBUG=True est forcé).
+DEBUG = (not IS_PROD) or os.environ.get("DJANGO_DEBUG", "") == "True"
 ALLOWED_HOSTS = ["localhost", "127.0.0.1","yannickwahl.fr",
     "www.yannickwahl.fr",
     "djangov1-tvq7.onrender.com"]
@@ -46,7 +53,21 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1","yannickwahl.fr",
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-    CSRF_TRUSTED_ORIGINS = [f"https://{RENDER_EXTERNAL_HOSTNAME}"]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://yannickwahl.fr",
+    "https://www.yannickwahl.fr",
+    "https://djangov1-tvq7.onrender.com",
+]
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
+
+if IS_PROD:
+    # Render termine le HTTPS en amont et transmet le protocole dans cet en-tête.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
     
     
     
@@ -85,7 +106,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
-    
+    "my_site.middleware.FrenchAccountPagesMiddleware",  # pages /accounts/ en français
 ]
 LOGIN_URL = "/accounts/login/"
 
@@ -170,13 +191,23 @@ WSGI_APPLICATION = 'my_site.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL", ""),
-        conn_max_age=600,
-        ssl_require=not os.environ.get("DATABASE_URL", "").startswith("postgresql://localhost"),
-    )
-}
+# Sans DATABASE_URL (local) : SQLite, rien à installer. Avec DATABASE_URL (Render) : Postgres.
+_db_url = os.environ.get("DATABASE_URL", "")
+if _db_url:
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=_db_url,
+            conn_max_age=600,
+            ssl_require=not _db_url.startswith(("postgresql://localhost", "postgres://localhost")),
+        )
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
 

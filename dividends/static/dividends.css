@@ -1057,3 +1057,83 @@ button.hist-col:focus-visible{
     border-radius: 18px;
   }
 }
+
+/* =========================================================
+   RACCORD AU CADRE COMMUN (zone « coffre »)
+   ========================================================= */
+main > section[class]{
+  width:min(69.5rem, calc(100% - 2.5rem));
+  margin-left:auto;
+  margin-right:auto;
+}
+main > section:first-child{ margin-top:1.5rem; }
+
+.uni-card{ border-radius:6px; }
+.uni-input{
+  width:100%;
+  min-height:44px;
+  padding:10px 12px;
+  border-radius:6px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font:inherit;
+  outline:none;
+  color-scheme:dark;
+}
+.uni-input::placeholder{ color:rgba(255,255,255,.5); }
+.uni-select{ border-radius:6px; min-height:44px; color-scheme:dark; font:inherit; }
+.uni-input:focus,
+.uni-select:focus{ border-color:var(--laiton); box-shadow:0 0 0 2px rgba(214,168,69,.25); }
+.uni-title{ font-family:var(--font-titre); font-size:1.35rem; font-weight:500; }
+
+/* Formulaire achat / vente : deux blocs côte à côte sur grand écran */
+.uni-card{ display:grid; gap:1rem; }
+.uni-head{ margin-bottom:0; }
+@media (min-width: 900px){
+  .uni-card{ grid-template-columns:1fr 1fr; }
+  .uni-head{ grid-column:1 / -1; }
+}
+.uni-block{
+  padding:1rem;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:6px;
+  background:rgba(255,255,255,.03);
+}
+.uni-block-head{ margin-bottom:.75rem; }
+.uni-block-title{ font-family:var(--font-titre); font-size:1.2rem; line-height:1.2; }
+.uni-block-sub{ margin-top:2px; color:rgba(255,255,255,.65); font-size:.86rem; }
+.uni-form-trade{ display:grid; grid-template-columns:1fr; gap:.75rem; align-items:stretch; }
+.uni-trade-grid{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:.75rem; }
+.uni-span-2{ grid-column:auto; }
+.uni-form-trade .btn{ justify-self:start; min-height:44px; }
+@media (max-width: 560px){ .uni-trade-grid{ grid-template-columns:1fr; } }
+
+/* =========================================================
+   CALENDRIER — zone coffre (surcharge)
+========================================================= */
+.cal{
+  width:min(69.5rem, calc(100% - 2.5rem));
+  margin:2rem auto 3rem;
+}
+.cal-title{ font-family:var(--font-titre); font-weight:500; font-size:var(--step-3, 2rem); color:var(--yw-text); }
+.cal-sub{ opacity:1; color:var(--yw-text-2); margin-top:.25rem; font-variant-numeric:tabular-nums; }
+.cal-sub b{ color:var(--yw-accent); }
+.cal-dow{ background:transparent; opacity:1; color:var(--yw-text-2); }
+.cal-cell{
+  background:var(--yw-surface);
+  border:1px solid var(--yw-line);
+  border-radius:var(--radius-control, 6px);
+  color:var(--yw-text);
+}
+.cal-cell.is-out{ background:transparent; opacity:.5; }
+.cal-cell.is-today{ outline:2px solid var(--yw-accent); outline-offset:-1px; }
+.cal-day{ color:var(--yw-text); font-variant-numeric:tabular-nums; }
+.cal-empty{ opacity:.35; color:var(--yw-text-2); }
+.cal-pill{ background:transparent; border-color:var(--yw-accent); color:var(--yw-accent); }
+.cal-total{ color:var(--yw-accent); opacity:1; }
+.cal-event{ background:var(--yw-bg); border:1px solid var(--yw-line); color:var(--yw-text); }
+.cal-event.is-regular{ background:transparent; border:1px dashed var(--yw-text-2); }
+.cal-event.is-received{ background:transparent; border:1px solid var(--yw-line); opacity:.7; }
+.cal-badge{ background:transparent; border-color:var(--yw-line); color:var(--yw-text-2); }
+.cal-meta{ opacity:1; color:var(--yw-text-2); }

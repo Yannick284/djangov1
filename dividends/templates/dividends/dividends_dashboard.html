@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block title %}Dividendes — Dashboard{% endblock %}
+{% block zone %}vault{% endblock %}
 
 {% block css_files %}
   <link rel="stylesheet" href="{% static 'dividends.css' %}">
@@ -79,7 +80,7 @@
     <div class="uni-block">
       <div class="uni-block-head">
         <div class="uni-block-title">Achat</div>
-        <div class="uni-block-sub">Ajoute une transaction BUY</div>
+        <div class="uni-block-sub">Enregistre l'achat d'un titre</div>
       </div>
 
       <form class="uni-form uni-form-trade" method="post" action="{% url 'dividends-add-buy' %}?y={{ hist_year }}&g={{ growth }}">
@@ -113,7 +114,7 @@
     <div class="uni-block">
       <div class="uni-block-head">
         <div class="uni-block-title">Vente</div>
-        <div class="uni-block-sub">Ajoute une transaction SELL</div>
+        <div class="uni-block-sub">Enregistre la vente d'un titre</div>
       </div>
 
       <form class="uni-form uni-form-trade" method="post" action="{% url 'dividends-add-sell' %}?y={{ hist_year }}&g={{ growth }}">

@@ -1,27 +1,26 @@
-# from django.contrib.auth import get_user_model
+"""
+Crée le compte administrateur au déploiement, SANS mot de passe écrit dans le code.
 
-# User = get_user_model()
+À définir dans les variables d'environnement Render :
+    DJANGO_SUPERUSER_USERNAME, DJANGO_SUPERUSER_EMAIL, DJANGO_SUPERUSER_PASSWORD
 
-# username = "yannick"
-# password = "admin"
-# email = "yannickwahl@gmail.com"
+Sans ces variables, le script ne fait rien.
+Lancement : python manage.py shell < my_site/create_superuser.py
+"""
+import os
 
-# if not User.objects.filter(username=username).exists():
-#     User.objects.create_superuser(username=username, email=email, password=password)
-#     print(">>> Superuser created")
-# else:
-#     print(">>> Superuser already exists")
-    
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-username = "yannick"
-password = "admin"
-email = "yannickvalh@gmail.com"
+username = os.environ.get("DJANGO_SUPERUSER_USERNAME")
+email = os.environ.get("DJANGO_SUPERUSER_EMAIL", "")
+password = os.environ.get("DJANGO_SUPERUSER_PASSWORD")
 
-if not User.objects.filter(username=username).exists():
+if not (username and password):
+    print(">>> Variables DJANGO_SUPERUSER_* absentes : aucun compte créé")
+elif User.objects.filter(username=username).exists():
+    print(">>> Superuser already exists")
+else:
     User.objects.create_superuser(username=username, email=email, password=password)
     print(">>> Superuser created")
-else:
-    print(">>> Superuser already exists")

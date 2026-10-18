@@ -1,43 +1,36 @@
-const btn = document.querySelector(".menu-btn") || document.querySelector(".nav-toggle");
-const drawer = document.querySelector("#mobile-drawer");
-const overlay = document.querySelector(".nav-overlay");
+/* Menu mobile : ouverture, fermeture (bouton, fond, Échap, clic sur un lien),
+   et retour du focus. Le panneau est `inert` tant qu'il est fermé. */
+(() => {
+  const toggle = document.querySelector("[data-nav-toggle]");
+  const drawer = document.getElementById("site-drawer");
+  const overlay = document.querySelector("[data-nav-overlay]");
+  if (!toggle || !drawer || !overlay) return;
 
-function openNav() {
-  document.body.dataset.navOpen = "true";
-  btn?.setAttribute("aria-expanded", "true");
-  if (drawer) drawer.hidden = false;
-  if (overlay) overlay.hidden = false;
-}
+  const setOpen = (open, returnFocus = true) => {
+    drawer.classList.toggle("is-open", open);
+    overlay.classList.toggle("is-open", open);
+    document.body.classList.toggle("nav-locked", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    if (open) {
+      drawer.removeAttribute("inert");
+      drawer.querySelector("[data-nav-close]")?.focus();
+    } else {
+      drawer.setAttribute("inert", "");
+      if (returnFocus) toggle.focus();
+    }
+  };
 
-function closeNav() {
-  delete document.body.dataset.navOpen;
-  btn?.setAttribute("aria-expanded", "false");
-  if (drawer) drawer.hidden = true;
-  if (overlay) overlay.hidden = true;
-}
+  toggle.addEventListener("click", () => setOpen(!drawer.classList.contains("is-open")));
+  overlay.addEventListener("click", () => setOpen(false));
+  drawer.querySelector("[data-nav-close]")?.addEventListener("click", () => setOpen(false));
+  drawer.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false, false)));
 
-btn?.addEventListener("click", () => {
-  const isOpen = document.body.dataset.navOpen === "true";
-  isOpen ? closeNav() : openNav();
-});
-
-overlay?.addEventListener("click", closeNav);
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeNav();
-});
-
-/* Séparateurs dans le drawer */
-if (drawer) {
-  // évite de dupliquer si le JS est chargé plusieurs fois
-  drawer.querySelectorAll(".drawer-sep").forEach((el) => el.remove());
-
-  const links = Array.from(drawer.querySelectorAll("a"));
-  links.forEach((a, i) => {
-    if (i === links.length - 1) return;
-    const sep = document.createElement("div");
-    sep.className = "drawer-sep";
-    sep.setAttribute("aria-hidden", "true");
-    a.insertAdjacentElement("afterend", sep);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && drawer.classList.contains("is-open")) setOpen(false);
   });
-}
+
+  // Si on passe en largeur "bureau" menu ouvert, on referme proprement.
+  window.matchMedia("(min-width: 860px)").addEventListener("change", (e) => {
+    if (e.matches && drawer.classList.contains("is-open")) setOpen(false, false);
+  });
+})();

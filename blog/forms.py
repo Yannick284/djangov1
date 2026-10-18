@@ -13,15 +13,15 @@ class CommentForm(forms.ModelForm):
         model = Comment
         exclude = ["post"]
         labels = {
-          "user_name": "Your Name",
-          "user_email": "Your Email",
-          "text": "Your Comment"
+          "user_name": "Votre nom",
+          "user_email": "Votre e-mail",
+          "text": "Votre commentaire"
         }
 
 
 class CustomSignupForm(SignupForm):
-    first_name = forms.CharField(max_length=30, label="First name")
-    last_name = forms.CharField(max_length=30, label="Last name")
+    first_name = forms.CharField(max_length=30, label="Prénom")
+    last_name = forms.CharField(max_length=30, label="Nom")
 
     def save(self, request):
         user = super().save(request)
@@ -48,3 +48,14 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ["title", "excerpt", "image", "content", "is_public"]
         exclude = ("slug", "owner", "date")
+        labels = {
+            "title": "Titre",
+            "excerpt": "Résumé",
+            "image": "Image de couverture",
+            "content": "Texte",
+            "is_public": "Visible par tout le monde",
+        }
+        help_texts = {
+            "excerpt": "Une ou deux phrases, affichées dans la liste des articles.",
+            "is_public": "Décoché : réservé aux personnes connectées.",
+        }

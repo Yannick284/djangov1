@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import json
 
 from django.contrib.auth.decorators import login_required
@@ -26,6 +26,21 @@ from .services.time_scenarios import time_sale_scenarios
 from .services.crd_series import crd_series_for_months
 
 
+def _parse_end(raw):
+    """Date d'arrêt tolérante : une valeur invalide retombe sur aujourd'hui."""
+    try:
+        return date.fromisoformat(raw) if raw else date.today()
+    except ValueError:
+        return date.today()
+
+
+def _parse_decimal(raw, default="0.0"):
+    try:
+        return Decimal(raw if raw not in (None, "") else default)
+    except InvalidOperation:
+        return Decimal(default)
+
+
 class PropertyListView(LoginRequiredMixin, ListView):
     model = Property
     template_name = "immo/property_list.html"
@@ -40,11 +55,10 @@ def dashboard_view(request, property_id: int):
     prop = get_object_or_404(Property, id=property_id, user=request.user)
 
     # "end" = date d’arrêt de l’analyse (par défaut aujourd’hui)
-    end_str = request.GET.get("end")
-    end_date = date.fromisoformat(end_str) if end_str else date.today()
+    end_date = _parse_end(request.GET.get("end"))
 
     # growth dans l'URL est en % (ex: "2.0"), mais les services attendent une fraction (0.02)
-    growth_pct = Decimal(request.GET.get("growth", "0.0"))
+    growth_pct = _parse_decimal(request.GET.get("growth"))
     growth_frac = growth_pct / Decimal("100")
 
     summary = property_summary(prop, end_date)
@@ -83,8 +97,7 @@ def dashboard_view(request, property_id: int):
 @login_required
 def summary_view(request, property_id: int):
     prop = get_object_or_404(Property, id=property_id, user=request.user)
-    end_str = request.GET.get("end")
-    end_date = date.fromisoformat(end_str) if end_str else date.today()
+    end_date = _parse_end(request.GET.get("end"))
     return JsonResponse(property_summary(prop, end_date))
 
 
@@ -92,8 +105,7 @@ def summary_view(request, property_id: int):
 def ledger_view(request, property_id: int):
     prop = get_object_or_404(Property, id=property_id, user=request.user)
 
-    end_str = request.GET.get("end")
-    end_date = date.fromisoformat(end_str) if end_str else date.today()
+    end_date = _parse_end(request.GET.get("end"))
 
     rows = build_ledger(prop, end_date)
 
@@ -122,11 +134,10 @@ def ledger_view(request, property_id: int):
 def breakeven_view(request, property_id: int):
     prop = get_object_or_404(Property, id=property_id, user=request.user)
 
-    end_str = request.GET.get("end")
-    end_date = date.fromisoformat(end_str) if end_str else date.today()
+    end_date = _parse_end(request.GET.get("end"))
 
     # Dans ton JS, tu envoies growth tel quel (aujourd’hui tu l’utilises plutôt en fraction)
-    growth = Decimal(request.GET.get("growth", "0.0"))
+    growth = _parse_decimal(request.GET.get("growth"))
     horizon = int(request.GET.get("horizon", "120"))
 
     res = breakeven_date(prop, end_date, horizon_months=horizon, annual_growth_rate=growth)
@@ -297,6 +308,12 @@ class PropertyUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(Property, id=self.kwargs["property_id"], user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        # Le gabarit du formulaire attend `property_form` (comme à la création)
+        ctx["property_form"] = ctx["form"]
+        return ctx
 
     def get_success_url(self):
         return reverse("immo:immo-dashboard", kwargs={"property_id": self.object.id})
