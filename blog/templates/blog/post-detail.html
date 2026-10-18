@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static i18n blog_extras %}
+
+{% block title %}{{ post.title }} · Yannick Wahl{% endblock %}
+{% block meta_description %}{{ post.excerpt }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_description %}{{ post.excerpt }}{% endblock %}
+{% block og_image %}{% if post.image %}{% if post.image.url|slice:":4" == "http" %}{{ post.image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}{% endif %}{% endif %}{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'post-detail.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+{% if comment_form.errors %}
+  <div class="ui-narrow">
+    <div id="alert" role="alert">
+      <strong>Le commentaire n'a pas été enregistré.</strong>
+      Corrige les champs signalés dans le formulaire, puis réessaie.
+      <a href="#comment-form">Aller au formulaire</a>
+    </div>
+  </div>
+{% endif %}
+
+<article class="article">
+  <header class="ui-narrow article__head">
+    <p class="article__back"><a href="{% url 'posts-page' %}">Tous les articles</a></p>
+    <h1>{{ post.title }}</h1>
+    <p class="article__excerpt">{{ post.excerpt }}</p>
+
+    <div class="article__meta">
+      {% if post.owner %}<span>Par {{ post.owner.first_name|default:post.owner.username }}</span>{% endif %}
+      <time datetime="{{ post.date|date:'Y-m-d' }}">{% language 'fr' %}{{ post.date|date:"j F Y" }}{% endlanguage %}</time>
+      <span>{{ post.reading_minutes }} min de lecture</span>
+    </div>
+
+    <div class="article__actions">
+      <div class="article__tags">
+        {% for tag in post_tags %}
+          <a class="ui-chip" href="{% url 'posts-page' %}?tag={{ tag.caption|urlencode }}">{{ tag.caption }}</a>
+        {% endfor %}
+      </div>
+
+      {% if can_edit %}<a class="ui-btn ui-btn--small" href="{% url 'post-edit' post.slug %}">Modifier</a>{% endif %}
+      <form action="{% url 'read-later' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" value="{{ post.id }}" name="post_id">
+        <button class="ui-btn ui-btn--small" type="submit">
+          {% if saved_for_later %}Retirer de ma liste{% else %}Lire plus tard{% endif %}
+        </button>
+      </form>
+    </div>
+  </header>
+
+  {% if post.image %}
+    <figure class="article__figure">
+      <img src="{{ post.image.url }}" alt="{{ post.title }}" />
+    </figure>
+  {% endif %}
+
+  <div class="ui-narrow">
+    <div class="ui-prose article__body">
+      {{ post.content|markdown }}
+    </div>
+  </div>
+</article>
+
+<section class="ui-narrow comments" aria-labelledby="comments-title">
+  <h2 id="comments-title">Commentaires{% if comments %} ({{ comments|length }}){% endif %}</h2>
+
+  {% if comments %}
+    <ul class="comments__list">
+      {% for comment in comments %}
+        <li>
+          <p class="comments__author">{{ comment.user_name }}</p>
+          {{ comment.text|linebreaks }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="comments__empty">Aucun commentaire pour l'instant. Tu peux ouvrir la discussion.</p>
+  {% endif %}
+
+  {% if pending_comments %}
+    <div class="comments__pending">
+      <h3>À valider ({{ pending_comments|length }})</h3>
+      <ul class="comments__list">
+        {% for comment in pending_comments %}
+          <li>
+            <p class="comments__author">{{ comment.user_name }} <span class="comments__mail">{{ comment.user_email }}</span></p>
+            {{ comment.text|linebreaks }}
+            <div class="comments__mod">
+              <form method="post" action="{% url 'comment-moderate' comment.pk 'approve' %}">{% csrf_token %}<button class="ui-btn ui-btn--small ui-btn--solid" type="submit">Approuver</button></form>
+              <form method="post" action="{% url 'comment-moderate' comment.pk 'delete' %}">{% csrf_token %}<button class="ui-btn ui-btn--small" type="submit">Supprimer</button></form>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form id="comment-form" class="comment-form" action="{% url 'post-detail-page' post.slug %}" method="POST">
+    {% csrf_token %}
+    <h3>Laisser un commentaire</h3>
+    {% if comment_form.non_field_errors %}<div class="ui-errors" role="alert">{{ comment_form.non_field_errors }}</div>{% endif %}
+    <div class="hp" aria-hidden="true">{{ comment_form.website.label_tag }} {{ comment_form.website }}</div>
+    {% for form_field in comment_form %}{% if form_field.name != "website" %}
+      <div class="ui-field {% if form_field.errors %}has-error{% endif %}">
+        {{ form_field.label_tag }}
+        {{ form_field }}
+        {{ form_field.errors }}
+        {% if form_field.name == 'user_email' %}<span class="helptext">Ton e-mail n'est jamais affiché.</span>{% endif %}
+      </div>
+    {% endif %}{% endfor %}
+    <button class="ui-btn ui-btn--solid" type="submit">Envoyer le commentaire</button>
+    <p class="helptext">Les commentaires sont lus avant d'être publiés.</p>
+  </form>
+</section>
+
+{% endblock %}

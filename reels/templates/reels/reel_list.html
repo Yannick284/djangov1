@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reels · Yannick Wahl{% endblock %}
+{% block css_files %}<link rel="stylesheet" href="{% static 'reels/style.css' %}">{% endblock %}
+
+{% block content %}
+<div class="ui-wrap rl">
+  <header class="rl-head">
+    <div>
+      <h1>Reels</h1>
+      <p class="rl-head__sub">{{ total }} reel{{ total|pluralize }}{% if q or selected_category or selected_status %} (filtré){% endif %}</p>
+    </div>
+    <div class="rl-head__actions">
+      <a class="ui-btn" href="{% url 'reels:categories' %}">Catégories</a>
+      <a class="ui-btn ui-btn--solid" href="{% url 'reels:create' %}">Ajouter un reel</a>
+    </div>
+  </header>
+
+  <form class="rl-filters" method="get" role="search">
+    <div class="ui-field">
+      <label for="q">Recherche</label>
+      <input id="q" type="search" name="q" value="{{ q }}" placeholder="Titre, mot-clé, commentaire…">
+    </div>
+    <div class="ui-field">
+      <label for="category">Catégorie</label>
+      <select id="category" name="category">
+        <option value="">Toutes</option>
+        {% for c in categories %}
+          <option value="{{ c.pk }}" {% if selected_category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}{% if is_admin %} ({{ c.user.username }}){% endif %}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="ui-field">
+      <label for="status">Statut</label>
+      <select id="status" name="status">
+        <option value="">Tous</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="ui-field">
+      <label for="order">Tri</label>
+      <select id="order" name="order">
+        <option value="-updated_at" {% if selected_order == "-updated_at" %}selected{% endif %}>Récents</option>
+        <option value="-rating" {% if selected_order == "-rating" %}selected{% endif %}>Meilleures notes</option>
+        <option value="rating" {% if selected_order == "rating" %}selected{% endif %}>Notes les plus basses</option>
+        <option value="title" {% if selected_order == "title" %}selected{% endif %}>Titre A → Z</option>
+      </select>
+    </div>
+    <div class="rl-filters__actions">
+      <button class="ui-btn ui-btn--solid" type="submit">Filtrer</button>
+      <a class="ui-btn" href="{% url 'reels:list' %}">Réinitialiser</a>
+    </div>
+  </form>
+
+  {% if reels %}
+    <ul class="rl-grid">
+      {% for reel in reels %}
+        <li class="rl-card">
+          <a class="rl-card__media" href="{% url 'reels:detail' reel.pk %}" aria-label="Voir {{ reel.title|default:'ce reel' }}">
+            {% include "reels/includes/thumb.html" %}
+          </a>
+          <div class="rl-card__body">
+            <h2 class="rl-card__title"><a href="{% url 'reels:detail' reel.pk %}">{{ reel.title|default:"Sans titre" }}</a></h2>
+            <p class="rl-meta">
+              <span class="rl-badge rl-badge--{{ reel.status }}">{{ reel.get_status_display }}</span>
+              {% if reel.category %}· {{ reel.category.name }}{% endif %}
+              {% if reel.rating %}· {{ reel.rating }}/10{% endif %}
+              {% if is_admin %}· @{{ reel.user.username }}{% endif %}
+            </p>
+            <div class="rl-status" role="group" aria-label="Changer le statut">
+              {% for value, label in status_choices %}
+                <form method="post" action="{% url 'reels:set-status' reel.pk value %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                  <button class="ui-chip" type="submit" {% if reel.status == value %}aria-current="true"{% endif %}>{{ label }}</button>
+                </form>
+              {% endfor %}
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+
+    {% if is_paginated %}
+      <nav class="rl-pager" aria-label="Pagination">
+        {% if page_obj.has_previous %}<a class="ui-btn ui-btn--small" href="?{% if qs_without_page %}{{ qs_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">Précédent</a>{% else %}<span></span>{% endif %}
+        <span>Page {{ page_obj.number }} sur {{ paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a class="ui-btn ui-btn--small" href="?{% if qs_without_page %}{{ qs_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">Suivant</a>{% else %}<span></span>{% endif %}
+      </nav>
+    {% endif %}
+  {% else %}
+    <div class="rl-empty">
+      {% if q or selected_category or selected_status %}
+        <p>Aucun reel ne correspond à ces filtres.</p>
+        <a class="ui-btn" href="{% url 'reels:list' %}">Voir tous les reels</a>
+      {% else %}
+        <p>Aucun reel pour l'instant. Colle le lien d'un reel pour commencer ta liste.</p>
+        <a class="ui-btn ui-btn--solid" href="{% url 'reels:create' %}">Ajouter un reel</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

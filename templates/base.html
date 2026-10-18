@@ -1,0 +1,126 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Yannick Wahl{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Notes, projets et outils personnels de Yannick Wahl.{% endblock %}" />
+  <meta name="theme-color" content="#EDF0EE" />
+  <link rel="alternate" type="application/rss+xml" title="Articles · Yannick Wahl" href="{% url 'rss' %}" />
+  <meta property="og:site_name" content="Yannick Wahl" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
+  <meta property="og:title" content="{% block og_title %}Yannick Wahl · Notes &amp; projets{% endblock %}" />
+  <meta property="og:description" content="{% block og_description %}Notes, projets et outils personnels de Yannick Wahl.{% endblock %}" />
+  <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+  <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/me.png' %}{% endblock %}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F5E4D'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='20' font-weight='700' text-anchor='middle' fill='%23FAFBFA'%3EY%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap">
+
+  <link rel="stylesheet" href="{% static 'tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'app.css' %}">
+  {% block css_files %}{% endblock %}
+</head>
+
+<body data-zone="{% block zone %}public{% endblock %}">
+  <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+  {% with ns=request.resolver_match.namespace name=request.resolver_match.url_name %}
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="{% url 'starting-page' %}">Yannick Wahl</a>
+
+      <nav class="topnav" aria-label="Navigation principale">
+        <a href="{% url 'posts-page' %}" {% if name == 'posts-page' or name == 'post-detail-page' %}aria-current="page"{% endif %}>Articles</a>
+        <a href="{% url 'projects' %}" {% if name == 'projects' or name == 'project-detail' %}aria-current="page"{% endif %}>Projets</a>
+        <a href="{% url 'cv' %}" {% if name == 'cv' %}aria-current="page"{% endif %}>CV</a>
+        <a href="{% url 'reels:list' %}" {% if ns == 'reels' %}aria-current="page"{% endif %}>Reels</a>
+        <a href="{% url 'atlas' %}" {% if name == 'atlas' %}aria-current="page"{% endif %}>Atlas</a>
+        {% if user.is_authenticated %}
+          <span class="topnav__sep" aria-hidden="true"></span>
+          <a href="{% url 'immo:property-list' %}" {% if ns == 'immo' %}aria-current="page"{% endif %}>Immo</a>
+          <a href="{% url 'dividends-dashboard' %}" {% if name|slice:':9' == 'dividends' %}aria-current="page"{% endif %}>Dividendes</a>
+        {% endif %}
+      </nav>
+
+      <div class="topbar__end">
+        {% if user.is_authenticated %}
+          <a class="topbar__link" href="{% url 'profile' %}">Profil</a>
+          <a class="topbar__link" href="{% url 'account_logout' %}">Déconnexion</a>
+        {% else %}
+          <a class="topbar__link topbar__link--accent" href="{% url 'account_login' %}">Connexion</a>
+        {% endif %}
+        <button class="menu-btn" type="button" data-nav-toggle aria-controls="site-drawer" aria-expanded="false">
+          <span class="burger" aria-hidden="true"></span>
+          <span>Menu</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="drawer-overlay" data-nav-overlay></div>
+
+  <nav id="site-drawer" class="drawer" aria-label="Menu" inert>
+    <button class="drawer__close" type="button" data-nav-close>Fermer</button>
+
+    <p class="drawer__title">Site</p>
+    <a href="{% url 'starting-page' %}" {% if name == 'starting-page' %}aria-current="page"{% endif %}>Accueil</a>
+    <a href="{% url 'posts-page' %}" {% if name == 'posts-page' or name == 'post-detail-page' %}aria-current="page"{% endif %}>Articles</a>
+    <a href="{% url 'read-later' %}" {% if name == 'read-later' %}aria-current="page"{% endif %}>À lire plus tard</a>
+    <a href="{% url 'projects' %}" {% if name == 'projects' or name == 'project-detail' %}aria-current="page"{% endif %}>Projets</a>
+    <a href="{% url 'cv' %}" {% if name == 'cv' %}aria-current="page"{% endif %}>CV</a>
+    <a href="{% url 'reels:list' %}" {% if ns == 'reels' %}aria-current="page"{% endif %}>Reels</a>
+    <a href="{% url 'atlas' %}" {% if name == 'atlas' %}aria-current="page"{% endif %}>Atlas</a>
+
+    {% if user.is_authenticated %}
+      <p class="drawer__title">Outils</p>
+      <a href="{% url 'immo:property-list' %}" {% if ns == 'immo' %}aria-current="page"{% endif %}>Immo</a>
+      <a href="{% url 'dividends-dashboard' %}" {% if name == 'dividends-dashboard' %}aria-current="page"{% endif %}>Dividendes</a>
+      <a href="{% url 'dividends-calendar' %}" {% if name == 'dividends-calendar' %}aria-current="page"{% endif %}>Calendrier des dividendes</a>
+
+      {% if user.is_superuser %}
+        <p class="drawer__title">Administration</p>
+        <a href="{% url 'post-create' %}">Nouvel article</a>
+        <a href="{% url 'admin:index' %}">Administration Django</a>
+      {% endif %}
+
+      <p class="drawer__title">Compte</p>
+      <a href="{% url 'profile' %}" {% if name == 'profile' %}aria-current="page"{% endif %}>Mon profil</a>
+      <a href="{% url 'account_logout' %}">Déconnexion</a>
+    {% else %}
+      <p class="drawer__title">Compte</p>
+      <a href="{% url 'account_login' %}">Connexion</a>
+      <a href="{% url 'account_signup' %}">Créer un compte</a>
+    {% endif %}
+  </nav>
+
+  {% endwith %}
+
+  {% if messages %}
+    <ul class="ui-flash" role="status">
+      {% for message in messages %}
+        <li class="{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <main id="contenu" class="{% block main_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="sitefoot">
+    <div class="sitefoot__inner">
+      <span>© {% now "Y" %} Yannick Wahl</span>
+      <span><a href="{% url 'legal' %}">Mentions légales</a> · v0.6</span>
+    </div>
+  </footer>
+
+  <script src="{% static 'app.js' %}"></script>
+  {% block js_files %}{% endblock %}
+</body>
+</html>

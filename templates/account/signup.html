@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Créer un compte · Yannick Wahl{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="auth">
+  <h1>Créer un compte</h1>
+  <p class="auth__lead">Un compte donne accès à tes propres outils. Tes données restent privées.</p>
+
+  <form method="post" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+    {% if redirect_field_value %}
+      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+    {% endif %}
+
+    {% if form.non_field_errors %}
+      <div class="auth__error" role="alert">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    {% for field in form %}
+      <div class="ui-field {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<span class="helptext">{{ field.help_text|safe }}</span>{% endif %}
+        {{ field.errors }}
+      </div>
+    {% endfor %}
+
+    <button class="ui-btn ui-btn--solid auth__submit" type="submit">Créer mon compte</button>
+  </form>
+
+  <p class="auth__links">
+    <a href="{% url 'account_login' %}">J'ai déjà un compte</a>
+  </p>
+</section>
+{% endblock %}

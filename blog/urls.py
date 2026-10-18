@@ -1,0 +1,24 @@
+from django.urls import path
+from .views import CVView
+from django.views.generic import TemplateView
+
+
+from . import views
+
+urlpatterns = [
+    path("", views.StartingPageView.as_view(), name="starting-page"),
+    path("posts", views.AllPostsView.as_view(), name="posts-page"),
+    path("posts/<slug:slug>", views.SinglePostView.as_view(),
+         name="post-detail-page"),  # /posts/my-first-post
+    path("read-later", views.ReadLaterView.as_view(), name="read-later"),
+    # blog/urls.py
+    path("posts/new/", views.CreatePostView.as_view(), name="post-create"),
+    path("posts/preview/", views.preview_markdown, name="post-preview"),
+    path("posts/<slug:slug>/edit/", views.UpdatePostView.as_view(), name="post-edit"),
+    path("comments/<int:pk>/<slug:action>/", views.moderate_comment, name="comment-moderate"),
+    path("projects/", views.ProjectListView.as_view(), name="projects"),
+    path("projects/<slug:slug>/", views.ProjectDetailView.as_view(), name="project-detail"),
+    path("rss.xml", views.rss_feed, name="rss"),
+    path("cv/", CVView.as_view(), name="cv"),
+    path("legal/", TemplateView.as_view(template_name="legal.html"), name="legal"),
+]

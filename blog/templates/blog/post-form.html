@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if object %}Modifier l'article{% else %}Nouvel article{% endif %} · Yannick Wahl{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'post-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ui-narrow post-form-page">
+  <h1>{% if object %}Modifier l'article{% else %}Nouvel article{% endif %}</h1>
+
+  <form method="POST" enctype="multipart/form-data" class="post-form" novalidate data-preview-url="{% url 'post-preview' %}">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="ui-errors" role="alert">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    {% for field in form %}
+      {% if field.name == "is_public" %}
+        <div class="ui-field post-form__check">
+          <label for="{{ field.id_for_label }}">{{ field }} <span>{{ field.label }}</span></label>
+          {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+          {{ field.errors }}
+        </div>
+
+      {% elif field.name == "tags" %}
+        <fieldset class="ui-field post-form__tags">
+          <legend>{{ field.label }}</legend>
+          <div class="post-form__taglist">{{ field }}</div>
+          {{ field.errors }}
+        </fieldset>
+
+      {% elif field.name == "content" %}
+        <div class="ui-field {% if field.errors %}has-error{% endif %}">
+          <div class="md-tabs" role="tablist">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <span>
+              <button type="button" class="ui-chip" data-md-tab="write" aria-current="true">Écrire</button>
+              <button type="button" class="ui-chip" data-md-tab="preview">Aperçu</button>
+            </span>
+          </div>
+          {{ field }}
+          <div class="ui-prose md-preview" data-md-preview hidden></div>
+          {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+          {{ field.errors }}
+        </div>
+
+      {% else %}
+        <div class="ui-field {% if field.errors %}has-error{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+          {{ field.errors }}
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <div class="post-form__actions">
+      <button type="submit" class="ui-btn ui-btn--solid">{% if object %}Enregistrer{% else %}Publier l'article{% endif %}</button>
+      <a class="ui-btn" href="{% if object %}{% url 'post-detail-page' object.slug %}{% else %}{% url 'posts-page' %}{% endif %}">Annuler</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block js_files %}
+  <script src="{% static 'post-form.js' %}" defer></script>
+{% endblock %}

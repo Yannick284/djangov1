@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Accès refusé · Yannick Wahl{% endblock %}
+{% block content %}
+<div class="ui-wrap ui-narrow" style="padding-block: clamp(3rem, 8vw, 6rem)">
+  <h1>Accès refusé</h1>
+  <p>Ton compte n'a pas le droit d'ouvrir cette page.</p>
+  <p><a class="ui-btn ui-btn--solid" href="{% url 'starting-page' %}">Retour à l'accueil</a></p>
+</div>
+{% endblock %}

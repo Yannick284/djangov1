@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% load static %}
+{# Toutes les pages django-allauth sans gabarit dédié (mot de passe oublié, e-mails, etc.) passent par le cadre du site. #}
+{% block title %}{% block head_title %}{% endblock %} · Yannick Wahl{% endblock %}
+{% block css_files %}<link rel="stylesheet" href="{% static 'auth.css' %}">{% endblock %}
+{% block main_class %}auth auth--generic{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static blog_extras %}
+
+{% block title %}{{ project.title }} · Projets · Yannick Wahl{% endblock %}
+{% block meta_description %}{{ project.summary }}{% endblock %}
+{% block og_title %}{{ project.title }}{% endblock %}
+{% block og_description %}{{ project.summary }}{% endblock %}
+{% block og_image %}{% if project.image %}{% if project.image.url|slice:":4" == "http" %}{{ project.image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{{ project.image.url }}{% endif %}{% endif %}{% endblock %}
+{% block css_files %}<link rel="stylesheet" href="{% static 'projects.css' %}" />{% endblock %}
+
+{% block content %}
+<article class="ui-narrow projects pdetail">
+  <p><a href="{% url 'projects' %}">Tous les projets</a></p>
+  <h1>{{ project.title }}</h1>
+  <p class="pdetail__summary">{{ project.summary }}</p>
+  <p class="pcard__meta">
+    <span class="pstatus pstatus--{{ project.status }}">{{ project.get_status_display }}</span>
+    {% for t in project.tech_list %}<span class="ui-chip">{{ t }}</span>{% endfor %}
+  </p>
+
+  {% if project.url or project.repo_url %}
+    <p class="pdetail__links">
+      {% if project.url %}<a class="ui-btn ui-btn--solid" href="{{ project.url }}" target="_blank" rel="noopener">Voir le projet</a>{% endif %}
+      {% if project.repo_url %}<a class="ui-btn" href="{{ project.repo_url }}" target="_blank" rel="noopener">Voir le code</a>{% endif %}
+    </p>
+  {% endif %}
+
+  {% if project.image %}<figure class="pdetail__figure"><img src="{{ project.image.url }}" alt="{{ project.title }}"></figure>{% endif %}
+
+  {% if project.description %}
+    <div class="ui-prose">{{ project.description|markdown }}</div>
+  {% endif %}
+</article>
+{% endblock %}

@@ -1,0 +1,44 @@
+/* Page « Articles » : titre, recherche, étiquettes, résultats */
+
+.articles { padding-block: clamp(2rem, 5vw, 4rem) 1rem; }
+
+.articles__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.articles__head h1 {
+  margin: 0;
+  font-size: var(--step-4);
+  letter-spacing: -0.025em;
+}
+
+.filters {
+  display: flex;
+  gap: 0.6rem;
+  max-width: 34rem;
+  margin-bottom: 1rem;
+}
+.filters__search { flex: 1; margin: 0; }
+
+.tagbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+.tagbar .ui-chip { padding: 0.3rem 0.75rem; font-size: 0.9rem; }
+
+.results {
+  margin: 0 0 1rem;
+  color: var(--yw-text-2);
+}
+
+.empty-state {
+  padding: 3rem 0;
+  color: var(--yw-text-2);
+}
+.empty-state p { margin-bottom: 1rem; }

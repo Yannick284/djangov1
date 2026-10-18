@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}Gérer {{ prop.name }} · Immo · Yannick Wahl{% endblock %}
+{% block zone %}vault{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'immo/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+{% language 'fr' %}
+<div class="wrap">
+  <header class="page-head">
+    <div>
+      <h1>Gérer {{ prop.name }}</h1>
+      <div class="sub">Prêt, loyers et dépenses : ils alimentent le bilan et le cashflow.</div>
+    </div>
+    <div class="controls">
+      <a class="btn" href="{% url 'immo:property-edit' prop.id %}">Modifier le bien</a>
+      <a class="btn btn-solid" href="{% url 'immo:immo-dashboard' prop.id %}">Retour au bilan</a>
+    </div>
+  </header>
+
+  <!-- PRÊT -->
+  <section class="form-section" aria-labelledby="loan-title">
+    <h2 id="loan-title">Le prêt</h2>
+    <p>{% if loan %}Un seul prêt par bien. Modifie-le ici si les conditions changent.{% else %}Aucun prêt enregistré. Sans prêt, le bilan ne compte ni mensualité ni capital restant dû.{% endif %}</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="action" value="loan-save">
+      {{ loan_form.non_field_errors }}
+      <div class="form-grid">
+        {% for field in loan_form %}{% include "immo/includes/field.html" %}{% endfor %}
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-solid" type="submit">{% if loan %}Enregistrer le prêt{% else %}Ajouter le prêt{% endif %}</button>
+      </div>
+    </form>
+    {% if loan %}
+      <form method="post" class="inline-delete">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="loan-delete">
+        <details>
+          <summary>Supprimer le prêt</summary>
+          <p>Les mensualités disparaîtront du bilan.</p>
+          <button class="btn" type="submit">Confirmer la suppression</button>
+        </details>
+      </form>
+    {% endif %}
+  </section>
+
+  <!-- LOYERS -->
+  <section class="form-section" aria-labelledby="rent-title">
+    <h2 id="rent-title">Les loyers</h2>
+    <p>Une ligne par période de location. Le loyer du premier et du dernier mois est proratisé automatiquement.</p>
+
+    {% if rent_periods %}
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Début</th><th>Fin</th><th>Loyer hors charges</th><th>Charges</th><th><span class="sr-only">Action</span></th></tr></thead>
+          <tbody>
+            {% for p in rent_periods %}
+              <tr>
+                <td>{{ p.start_date|date:"j F Y" }}</td>
+                <td>{% if p.end_date %}{{ p.end_date|date:"j F Y" }}{% else %}En cours{% endif %}</td>
+                <td>{{ p.rent_hc|floatformat:"2g" }} €</td>
+                <td>{{ p.charges|floatformat:"2g" }} €</td>
+                <td>
+                  <form method="post">{% csrf_token %}
+                    <input type="hidden" name="action" value="rent-delete">
+                    <input type="hidden" name="item_id" value="{{ p.id }}">
+                    <button class="btn btn-small" type="submit" aria-label="Supprimer la période du {{ p.start_date|date:'j F Y' }}">Supprimer</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">Aucune période de loyer pour l'instant.</p>
+    {% endif %}
+
+    <h3>Ajouter une période</h3>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="action" value="rent-add">
+      {{ rent_form.non_field_errors }}
+      <div class="form-grid">
+        {% for field in rent_form %}{% include "immo/includes/field.html" %}{% endfor %}
+      </div>
+      <div class="form-actions"><button class="btn btn-solid" type="submit">Ajouter la période</button></div>
+    </form>
+  </section>
+
+  <!-- DÉPENSES -->
+  <section class="form-section" aria-labelledby="exp-title">
+    <h2 id="exp-title">Les dépenses</h2>
+    <p>Travaux, taxes, charges de copropriété… Chaque dépense est déduite du cashflow du mois concerné.</p>
+
+    {% if expenses %}
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Date</th><th>Catégorie</th><th>Montant</th><th>Note</th><th><span class="sr-only">Action</span></th></tr></thead>
+          <tbody>
+            {% for e in expenses %}
+              <tr>
+                <td>{{ e.date|date:"j F Y" }}</td>
+                <td>{{ e.get_category_display }}</td>
+                <td>{{ e.amount|floatformat:"2g" }} €</td>
+                <td class="muted">{{ e.note }}</td>
+                <td>
+                  <form method="post">{% csrf_token %}
+                    <input type="hidden" name="action" value="expense-delete">
+                    <input type="hidden" name="item_id" value="{{ e.id }}">
+                    <button class="btn btn-small" type="submit" aria-label="Supprimer la dépense du {{ e.date|date:'j F Y' }}">Supprimer</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">Aucune dépense pour l'instant.</p>
+    {% endif %}
+
+    <h3>Ajouter une dépense</h3>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="action" value="expense-add">
+      {{ exp_form.non_field_errors }}
+      <div class="form-grid">
+        {% for field in exp_form %}{% include "immo/includes/field.html" %}{% endfor %}
+      </div>
+      <div class="form-actions"><button class="btn btn-solid" type="submit">Ajouter la dépense</button></div>
+    </form>
+  </section>
+
+  <!-- SUPPRESSION DU BIEN -->
+  <section class="form-section danger-zone" aria-labelledby="del-title">
+    <h2 id="del-title">Supprimer ce bien</h2>
+    <details>
+      <summary>Afficher</summary>
+      <p>Le bien, son prêt, ses loyers, ses dépenses et son historique de marché seront supprimés définitivement. Retape le nom du bien pour confirmer.</p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="property-delete">
+        <div class="ui-field">
+          <label for="confirm_name">Nom du bien : {{ prop.name }}</label>
+          <input id="confirm_name" type="text" name="confirm_name" autocomplete="off" required>
+        </div>
+        <button class="btn" type="submit">Supprimer définitivement</button>
+      </form>
+    </details>
+  </section>
+</div>
+{% endlanguage %}
+{% endblock %}

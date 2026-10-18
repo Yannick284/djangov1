@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Supprimer un reel · Yannick Wahl{% endblock %}
+{% block css_files %}<link rel="stylesheet" href="{% static 'reels/style.css' %}">{% endblock %}
+
+{% block content %}
+<div class="ui-wrap ui-narrow rl">
+  <h1>Supprimer ce reel ?</h1>
+  <p><strong>{{ object.title|default:object.url }}</strong></p>
+  <p>La suppression est définitive.</p>
+  <form method="post" class="rl-form__actions">
+    {% csrf_token %}
+    <button class="ui-btn rl-danger" type="submit">Supprimer</button>
+    <a class="ui-btn" href="{% url 'reels:edit' object.pk %}">Annuler</a>
+  </form>
+</div>
+{% endblock %}

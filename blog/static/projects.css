@@ -1,0 +1,29 @@
+/* Projets : liste et fiche */
+.projects { padding-block: clamp(2rem, 5vw, 4rem) 3rem; }
+.projects__head h1 { margin: 0 0 0.4rem; font-size: var(--step-4); letter-spacing: -0.025em; }
+.projects__head p { margin: 0 0 2rem; color: var(--yw-text-2); font-size: var(--step-1); }
+.projects__empty { color: var(--yw-text-2); padding: 2rem 0; }
+
+.projects__grid {
+  list-style: none; margin: 0; padding: 0; display: grid; gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+}
+.pcard { display: flex; flex-direction: column; background: var(--yw-surface); border: 1px solid var(--yw-line); border-radius: var(--radius-media); overflow: hidden; }
+.pcard__img { display: block; aspect-ratio: 16 / 9; background: var(--yw-line); }
+.pcard__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pcard__body { padding: 1.1rem 1.25rem 1.3rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+.pcard__body h2 { margin: 0; font-size: var(--step-2); line-height: 1.2; }
+.pcard__body h2 a { color: inherit; text-decoration: none; }
+.pcard__body h2 a:hover { text-decoration: underline; }
+.pcard__body p { margin: 0; }
+.pcard__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: auto; padding-top: 0.5rem; }
+.pcard__meta .ui-chip { padding: 0.15rem 0.6rem; font-size: 0.82rem; }
+.pstatus { font-size: 0.82rem; padding: 0.15rem 0.6rem; border-radius: 999px; border: 1px solid var(--yw-accent); color: var(--yw-accent); }
+.pstatus--done { border-color: var(--yw-gain); color: var(--yw-gain); }
+.pstatus--paused { border-color: var(--yw-line); color: var(--yw-text-2); }
+
+.pdetail h1 { margin: 0.5rem 0 0.4rem; font-size: var(--step-4); letter-spacing: -0.025em; }
+.pdetail__summary { font-size: var(--step-1); color: var(--yw-text-2); margin: 0 0 1rem; }
+.pdetail__links { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.25rem 0; }
+.pdetail__figure { margin: 1.5rem 0; }
+.pdetail__figure img { width: 100%; height: auto; border-radius: var(--radius-media); border: 1px solid var(--yw-line); }

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Projets · Yannick Wahl{% endblock %}
+{% block meta_description %}Les projets que je construis : ce qu'ils font, avec quoi, et où en est chacun.{% endblock %}
+{% block css_files %}<link rel="stylesheet" href="{% static 'projects.css' %}" />{% endblock %}
+
+{% block content %}
+<div class="ui-wrap projects">
+  <header class="projects__head">
+    <h1>Projets</h1>
+    <p>Ce que je construis, avec quoi, et où j'en suis.</p>
+  </header>
+
+  {% if projects %}
+    <ul class="projects__grid">
+      {% for project in projects %}
+        <li class="pcard">
+          {% if project.image %}
+            <a class="pcard__img" href="{% url 'project-detail' project.slug %}" tabindex="-1" aria-hidden="true"><img src="{{ project.image.url }}" alt="" loading="lazy"></a>
+          {% endif %}
+          <div class="pcard__body">
+            <h2><a href="{% url 'project-detail' project.slug %}">{{ project.title }}</a></h2>
+            <p>{{ project.summary }}</p>
+            <p class="pcard__meta">
+              <span class="pstatus pstatus--{{ project.status }}">{{ project.get_status_display }}</span>
+              {% for t in project.tech_list %}<span class="ui-chip">{{ t }}</span>{% endfor %}
+            </p>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="projects__empty">Aucun projet publié pour l'instant. Reviens bientôt.</p>
+  {% endif %}
+</div>
+{% endblock %}

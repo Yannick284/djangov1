@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Catégories · Reels · Yannick Wahl{% endblock %}
+{% block css_files %}<link rel="stylesheet" href="{% static 'reels/style.css' %}">{% endblock %}
+
+{% block content %}
+<div class="ui-wrap rl">
+  <header class="rl-head">
+    <h1>Catégories</h1>
+    <div class="rl-head__actions"><a class="ui-btn" href="{% url 'reels:list' %}">Retour aux reels</a></div>
+  </header>
+
+  {% if categories %}
+    <ul class="rl-cats">
+      {% for c in categories %}
+        <li>
+          <form method="post" action="{% url 'reels:category-rename' c.pk %}">
+            {% csrf_token %}
+            <label class="sr-only" for="name-{{ c.pk }}">Nom de la catégorie</label>
+            <input id="name-{{ c.pk }}" type="text" name="name" value="{{ c.name }}" maxlength="60" required>
+            <button class="ui-btn ui-btn--small" type="submit">Renommer</button>
+          </form>
+          <a href="{% url 'reels:list' %}?category={{ c.pk }}">{{ c.n }} reel{{ c.n|pluralize }}</a>
+          <details class="rl-cats__n">
+            <summary>Supprimer</summary>
+            <form method="post" action="{% url 'reels:category-delete' c.pk %}">
+              {% csrf_token %}
+              <p>Les reels de cette catégorie sont conservés, sans catégorie.</p>
+              <button class="ui-btn ui-btn--small rl-danger" type="submit">Confirmer la suppression</button>
+            </form>
+          </details>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="rl-empty">Aucune catégorie pour l'instant.</p>
+  {% endif %}
+
+  <h2>Nouvelle catégorie</h2>
+  <form method="post" class="rl-new" novalidate>
+    {% csrf_token %}
+    {% if new_form.non_field_errors %}<div class="ui-errors">{{ new_form.non_field_errors }}</div>{% endif %}
+    {% include "reels/includes/field.html" with field=new_form.name %}
+    <button class="ui-btn ui-btn--solid" type="submit">Créer</button>
+  </form>
+</div>
+{% endblock %}

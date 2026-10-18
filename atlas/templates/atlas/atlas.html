@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Atlas : carte du monde à gratter et jeux de géographie · Yannick Wahl{% endblock %}
+{% block meta_description %}Grattez les pays que vous avez visités sur une carte du monde, partagez-la, ou testez votre géographie avec deux jeux : retrouver un pays sur la carte, reconnaître une silhouette.{% endblock %}
+{% block og_title %}Atlas : carte du monde à gratter et jeux de géographie{% endblock %}
+{% block og_description %}Grattez les pays visités, partagez votre carte, ou jouez : où est ce pays ? quelle est cette silhouette ?{% endblock %}
+{% block css_files %}<link rel="stylesheet" href="{% static 'atlas/atlas.css' %}">{% endblock %}
+{% block js_files %}<script src="{% static 'atlas/atlas.js' %}" defer></script>{% endblock %}
+
+{% block content %}
+<div class="ui-wrap at" data-mode="scratch" data-world="{% static 'atlas/world.json' %}">
+  <header class="at-head">
+    <h1>Atlas</h1>
+    <p>Grattez les pays que vous avez visités, ou testez votre géographie.</p>
+  </header>
+
+  <noscript><p class="at-status">L'atlas a besoin de JavaScript pour fonctionner.</p></noscript>
+  <p class="at-status" id="at-status" role="status">Chargement de la carte…</p>
+
+  <div class="at-tabs" role="tablist" aria-label="Choisir une activité">
+    <button class="at-tab" role="tab" id="tab-scratch" aria-selected="true" aria-controls="at-stage" data-mode="scratch" type="button">Carte à gratter</button>
+    <button class="at-tab" role="tab" id="tab-where" aria-selected="false" aria-controls="at-stage" data-mode="where" type="button" tabindex="-1">Où est-ce ?</button>
+    <button class="at-tab" role="tab" id="tab-shape" aria-selected="false" aria-controls="at-stage" data-mode="shape" type="button" tabindex="-1">Silhouettes</button>
+  </div>
+
+  <div id="at-stage" role="tabpanel" aria-labelledby="tab-scratch">
+
+    <div class="at-zones" data-modes="scratch where shape">
+      <span class="at-zones__label" id="at-zonelabel">Zoom</span>
+      <div class="at-zones__chips" role="group" aria-labelledby="at-zonelabel">
+        <button class="ui-chip" type="button" data-region="monde" aria-pressed="true">Monde</button>
+        <button class="ui-chip" type="button" data-region="europe" aria-pressed="false">Europe</button>
+        <button class="ui-chip" type="button" data-region="afrique" aria-pressed="false">Afrique</button>
+        <button class="ui-chip" type="button" data-region="asie" aria-pressed="false">Asie</button>
+        <button class="ui-chip" type="button" data-region="amerique-nord" aria-pressed="false">Amérique du Nord</button>
+        <button class="ui-chip" type="button" data-region="amerique-sud" aria-pressed="false">Amérique du Sud</button>
+        <button class="ui-chip" type="button" data-region="oceanie" aria-pressed="false">Océanie</button>
+      </div>
+    </div>
+
+    <div class="at-notice" id="at-shared" data-modes="scratch" hidden>
+      <p>Vous regardez une carte partagée. Vos modifications ne touchent pas votre propre carte.</p>
+      <div>
+        <button class="ui-btn ui-btn--small" type="button" data-shared="back">Revenir à ma carte</button>
+        <button class="ui-btn ui-btn--small" type="button" data-shared="keep">Garder cette carte</button>
+      </div>
+    </div>
+
+    <div class="at-hud" id="at-hud" data-modes="where shape" hidden>
+      <div data-hud="intro">
+        <p class="at-hud__lead" data-lead></p>
+        <p class="at-hud__best" data-best></p>
+        <button class="ui-btn ui-btn--solid" type="button" data-start>Commencer</button>
+      </div>
+
+      <div data-hud="play" hidden>
+        <div class="at-hud__stats" aria-live="off">
+          <span data-count></span>
+          <span data-score></span>
+          <span data-streak></span>
+        </div>
+        <div class="at-hud__body">
+          <svg class="at-sil" data-sil viewBox="0 0 200 200" role="img" aria-label="Silhouette d'un pays" hidden><path d=""/></svg>
+          <div class="at-hud__qa">
+            <p class="at-q" data-question></p>
+            <div class="at-choices" data-choices hidden></div>
+            <p class="at-feedback" data-feedback role="status"></p>
+            <div class="at-hud__actions">
+              <button class="ui-btn" type="button" data-skip>Passer</button>
+              <button class="ui-btn ui-btn--solid" type="button" data-next hidden>Suivant</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-hud="end" hidden>
+        <p class="at-end__score" data-endscore></p>
+        <p class="at-end__msg" data-endmsg></p>
+        <p class="at-hud__best" data-endbest></p>
+        <div class="at-hud__actions">
+          <button class="ui-btn ui-btn--solid" type="button" data-restart>Rejouer</button>
+          <button class="ui-btn" type="button" data-copyscore>Copier mon score</button>
+          <span class="at-copied" data-copied hidden>Copié</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="at-mapwrap" id="at-mapwrap" data-modes="scratch where">
+      <svg id="at-map" class="at-map" viewBox="0 0 1000 440" role="group" aria-label="Carte du monde"></svg>
+      <div class="at-tip" id="at-tip" hidden></div>
+      <div class="at-zoom" aria-label="Zoom de la carte" role="group">
+        <button type="button" class="ui-btn ui-btn--small" data-zoom="in" aria-label="Zoomer">+</button>
+        <button type="button" class="ui-btn ui-btn--small" data-zoom="out" aria-label="Dézoomer">−</button>
+      </div>
+    </div>
+    <p class="at-caption" id="at-caption" data-modes="scratch" role="status" aria-live="polite">Touchez un pays pour le gratter.</p>
+
+    <section class="at-scratch" data-modes="scratch" aria-labelledby="at-count-title">
+      <div class="at-count">
+        <h2 id="at-count-title" class="sr-only">Votre carte</h2>
+        <p class="at-count__big"><span id="at-n">0</span><span class="at-count__unit">pays</span></p>
+        <p class="at-count__sub" id="at-sub">sur 197, soit 0 % du monde</p>
+        <ul class="at-bars" id="at-bars"></ul>
+      </div>
+
+      <div class="at-actions">
+        <div class="ui-field">
+          <label for="at-search">Ajouter un pays par son nom</label>
+          <input id="at-search" type="text" list="at-names" autocomplete="off" placeholder="Slovénie, Japon, Chili…">
+          <datalist id="at-names"></datalist>
+        </div>
+        <div class="at-actions__btns">
+          <button class="ui-btn" type="button" id="at-copy">Copier le lien</button>
+          <button class="ui-btn" type="button" id="at-png">Enregistrer l'image</button>
+          <button class="ui-btn" type="button" id="at-reset">Tout effacer</button>
+        </div>
+        <p class="at-copied" id="at-copied" role="status" hidden></p>
+      </div>
+
+      <div class="at-list" id="at-list"></div>
+    </section>
+  </div>
+
+  <p class="at-credits">197 États comptés : les 193 membres de l'ONU, le Vatican, la Palestine, Taïwan et le Kosovo. Les territoires (Groenland, Porto Rico…) se grattent aussi mais ne comptent pas. Fond de carte : Natural Earth (domaine public). Noms français : mledoze/countries (ODbL). Votre carte et vos scores restent dans votre navigateur.</p>
+</div>
+{% endblock %}

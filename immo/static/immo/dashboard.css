@@ -1,0 +1,139 @@
+/* Immo : pages privées (zone « coffre »).
+   Les couleurs viennent des tokens du cadre commun (static/tokens.css). */
+:root{
+  --bg:var(--coffre); --text:var(--brume); --muted:var(--brume-douce);
+  --border:rgba(230,238,233,.14);
+  --good:#56D49A; --bad:#FF8F77; --warn:#D6A845;
+}
+.wrap{max-width:72rem;margin:0 auto;padding:clamp(1.25rem,3vw,2rem) 1.25rem 1rem}
+.wrap > header{display:flex;gap:14px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:1.5rem}
+.wrap h1{margin:0;font-size:var(--step-3);letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:.93rem;margin-top:6px}
+.sub b{color:var(--text);font-weight:600}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;color:var(--muted);font-size:13px}
+.page-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin:0 0 1.5rem}
+.page-head h1{margin:0}
+    .pill{border:1px solid var(--border);background:rgba(255,255,255,.04);padding:8px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:8px}
+    .pill code{color:var(--text);background:transparent}
+
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .grid > *{min-width:0}
+    .card{border:1px solid var(--border);background:var(--coffre-2);border-radius:6px;padding:16px}
+    .card h2{margin:0 0 10px;font-family:var(--font-texte);font-size:.9rem;color:var(--muted);font-weight:500}
+
+    .kpi{font-family:var(--font-titre);font-size:2.3rem;font-weight:500;line-height:1.1;letter-spacing:-.01em;margin:0}
+    .kpi small{font-size:13px;color:var(--muted);font-weight:600;margin-left:8px}
+
+    .kpi-sub{margin-top:8px;color:var(--muted);font-size:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .kpi-sub code{
+      padding:3px 7px;border-radius:999px;border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);color:var(--text);
+      font-family:inherit;font-size:12px
+    }
+
+    .row{display:flex;justify-content:space-between;gap:12px;margin-top:10px;color:var(--muted);font-size:13px}
+    .row b{color:var(--text);font-weight:650}
+
+    .span-3{grid-column:span 3}
+    .span-6{grid-column:span 6}
+    .span-12{grid-column:span 12}
+
+    @media (max-width:980px){
+      .span-3{grid-column:span 6}
+      .wrap > header{flex-direction:column;align-items:flex-start}
+      .controls{justify-content:flex-start}
+    }
+    @media (max-width:560px){
+      .span-6,.span-3{grid-column:span 12}
+      .kpi{font-size:1.9rem}
+    }
+
+    .badge{display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:7px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.04);margin-top:8px}
+    .dot{width:9px;height:9px;border-radius:999px;background:var(--warn)}
+    .dot.good{background:var(--good)}
+    .dot.bad{background:var(--bad)}
+
+    table{width:100%;border-collapse:collapse;font-size:13px;color:var(--text);overflow:hidden;border-radius:12px}
+    th,td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.08);text-align:right;white-space:nowrap}
+    th:first-child,td:first-child{text-align:left}
+    th{color:var(--muted);font-weight:700;background:rgba(255,255,255,.03)}
+    tr:hover td{background:rgba(255,255,255,.03)}
+
+    .muted{color:var(--muted)}
+    .good{color:var(--good);font-weight:750}
+    .bad{color:var(--bad);font-weight:750}
+    .sep{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
+    .note{font-size:12px;color:var(--muted);margin-top:10px}
+
+    /* market points single line */
+    .mp-input{
+      width:170px; padding:7px 9px; border-radius:10px; border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.03); color:var(--text); outline:none;
+    }
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;min-height:40px;
+      padding:7px 14px;border-radius:6px;border:1px solid rgba(230,238,233,.22);
+      background:transparent; color:var(--text); cursor:pointer; font:inherit; font-weight:500; text-decoration:none;
+    }
+    .btn:hover{border-color:var(--text)}
+    .btn-solid{background:var(--laiton);border-color:var(--laiton);color:#1A1405}
+    .btn-solid:hover{background:#E7BF63;border-color:#E7BF63}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .clickable-row{cursor:pointer}
+
+    /* Chart wrapper */
+.chart-wrap {
+  position: relative;
+  height: 320px;
+}
+
+@media (max-width: 560px) {
+  .chart-wrap {
+    height: 220px; /* mobile */
+  }
+}
+
+.chart-wrap svg{width:100%;height:100%;display:block;overflow:visible}
+.chart-toggle{display:inline-flex;gap:8px;align-items:center;color:var(--muted);font-size:.9rem;margin-bottom:.5rem}
+.chart-tip{position:absolute;pointer-events:none;background:var(--coffre);border:1px solid var(--border);border-radius:6px;padding:.4rem .6rem;font-size:.85rem;white-space:nowrap;transform:translate(-50%,-100%);z-index:2}
+.chart-tip b{font-weight:600}
+.chart-legend{display:flex;gap:1.25rem;flex-wrap:wrap;margin-top:.6rem;color:var(--muted);font-size:.88rem}
+.chart-legend i{display:inline-block;width:.9rem;height:2px;margin-right:.4rem;vertical-align:middle}
+
+/* Tableaux : défilement horizontal sur petit écran (au lieu de faire déborder la page) */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;position:relative}
+
+/* Liste des biens */
+.props{list-style:none;margin:0;padding:0;border:1px solid var(--border);background:var(--border);display:grid;gap:1px}
+.props li{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;background:var(--coffre-2);padding:0 1rem 0 0}
+.prop{flex:1 1 18rem;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.15rem 1rem;padding:1.1rem 1rem 1.1rem 1.25rem;color:var(--text);text-decoration:none}
+.prop:hover{background:var(--coffre-3)}
+.prop__name{font-family:var(--font-titre);font-size:var(--step-1);line-height:1.2}
+.prop__price{grid-row:1 / span 2;grid-column:2;align-self:center;font-family:var(--font-titre);font-size:var(--step-1);color:var(--laiton)}
+.prop__meta{color:var(--muted);font-size:.9rem}
+.props .edit-link{font-size:.9rem;color:var(--muted)}
+.props .edit-link:hover{color:var(--text)}
+.empty-state{padding:2.5rem 0;color:var(--muted)}
+.empty-state p{margin-bottom:1rem}
+
+/* Formulaire d'un bien */
+.form-section{margin:0 0 2rem}
+.form-section > h2{font-size:var(--step-1);margin-bottom:.25rem}
+.form-section > p{color:var(--muted);margin-bottom:1rem}
+.form-grid{display:grid;gap:0 1.25rem}
+@media (min-width:700px){.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.form-actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1rem}
+
+/* Page « Gérer » : tableaux, boutons discrets, zone de suppression */
+.form-section h3{font-size:var(--step-0);margin:1.5rem 0 .6rem;color:var(--muted);font-weight:500}
+.form-section table{width:100%;border-collapse:collapse;margin-bottom:.5rem}
+.form-section th,.form-section td{padding:.55rem .6rem;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle}
+.form-section th{color:var(--muted);font-weight:500;font-size:.88rem}
+.form-section td form{margin:0}
+.btn-small{padding:.25rem .65rem;font-size:.85rem}
+.inline-delete{margin-top:1rem;color:var(--muted)}
+.inline-delete summary,.danger-zone summary{cursor:pointer;color:var(--muted)}
+.inline-delete details p,.danger-zone details p{margin:.6rem 0}
+.danger-zone{padding-top:1.5rem;border-top:1px solid var(--border)}
+.danger-zone .btn{border-color:var(--bad);color:var(--bad)}
+.muted{color:var(--muted)}

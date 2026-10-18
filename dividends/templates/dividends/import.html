@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Importer des opérations · Dividendes · Yannick Wahl{% endblock %}
+{% block zone %}vault{% endblock %}
+
+{% block css_files %}
+  <link rel="stylesheet" href="{% static 'dividends.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="uni-card imp">
+  <div class="uni-head">
+    <div>
+      <h1 class="uni-title">Importer des opérations</h1>
+      <div class="uni-sub">Achats et ventes depuis un fichier CSV</div>
+    </div>
+    <a class="btn btn-dark" href="{% url 'dividends-dashboard' %}">Retour</a>
+  </div>
+
+  {% if result and result.errors %}
+    <div class="imp-errors" role="alert">
+      <strong>Rien n'a été importé.</strong> Corrige ces lignes puis réessaie :
+      <ul>{% for e in result.errors|slice:":30" %}<li>{{ e }}</li>{% endfor %}</ul>
+      {% if result.errors|length > 30 %}<p>… et {{ result.errors|length|add:"-30" }} autres.</p>{% endif %}
+    </div>
+  {% elif result %}
+    <div class="imp-ok" role="status">
+      <strong>{{ result.created }}</strong> opération{{ result.created|pluralize }} importée{{ result.created|pluralize }}.
+      {% if result.skipped_duplicates %}{{ result.skipped_duplicates }} déjà présente{{ result.skipped_duplicates|pluralize }} (ignorée{{ result.skipped_duplicates|pluralize }}).{% endif %}
+      {% if result.new_assets %}<br>Nouveaux titres : {{ result.new_assets|join:", " }}. Pour afficher leurs dividendes, lance la synchronisation (voir l'aide du projet).{% endif %}
+    </div>
+  {% endif %}
+
+  <form class="uni-form imp-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="file" class="imp-label">Fichier CSV</label>
+    <input id="file" class="uni-input" type="file" name="file" accept=".csv,text/csv" required>
+    <button class="btn btn-dark" type="submit">Importer</button>
+  </form>
+
+  <div class="imp-help">
+    <h2 class="out-sub">Format attendu</h2>
+    <p class="out-empty">Une ligne par opération, avec ces colonnes (le séparateur <code>;</code> ou <code>,</code> est reconnu tout seul) :</p>
+    <div class="imp-table">
+      <table>
+        <thead><tr><th>date</th><th>type</th><th>ticker</th><th>quantite</th><th>prix</th><th>frais</th></tr></thead>
+        <tbody>
+          <tr><td>2024-03-15</td><td>achat</td><td>SAN.PA</td><td>10</td><td>92,50</td><td>1,90</td></tr>
+          <tr><td>15/03/2025</td><td>vente</td><td>KO</td><td>5</td><td>61.20</td><td>0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="imp-notes">
+      <li>La date s'écrit <code>AAAA-MM-JJ</code> ou <code>JJ/MM/AAAA</code>. Le type est « achat » ou « vente » (ou buy / sell).</li>
+      <li>Le ticker est le symbole Yahoo Finance (SAN.PA, KO, BRK-B…). L'ISIN est aussi accepté pour les titres du dictionnaire.</li>
+      <li>La colonne « frais » est facultative. Les virgules décimales sont acceptées.</li>
+      <li>Tout ou rien : si une ligne est invalide, rien n'est enregistré. Réimporter le même fichier ne crée pas de doublons.</li>
+    </ul>
+    <a class="btn btn-dark" href="{% url 'dividends-import-template' %}">Télécharger le modèle</a>
+  </div>
+</section>
+{% endblock %}

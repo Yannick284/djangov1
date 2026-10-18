@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ reel.title|default:"Reel" }} · Reels · Yannick Wahl{% endblock %}
+{% block css_files %}<link rel="stylesheet" href="{% static 'reels/style.css' %}">{% endblock %}
+
+{% block content %}
+<div class="ui-wrap rl">
+  <header class="rl-head">
+    <h1>{{ reel.title|default:"Reel sans titre" }}</h1>
+    <div class="rl-head__actions">
+      <a class="ui-btn" href="{% url 'reels:list' %}">Retour à la liste</a>
+      <a class="ui-btn" href="{% url 'reels:edit' reel.pk %}">Modifier</a>
+    </div>
+  </header>
+
+  <div class="rl-detail">
+    <a class="rl-detail__img" href="{{ reel.url }}" target="_blank" rel="noopener" aria-label="Ouvrir le reel">
+      {% include "reels/includes/thumb.html" %}
+    </a>
+    <div>
+      <p><span class="rl-badge rl-badge--{{ reel.status }}">{{ reel.get_status_display }}</span></p>
+      <dl class="rl-kv">
+        <dt>Catégorie</dt><dd>{% if reel.category %}{{ reel.category.name }}{% else %}Sans catégorie{% endif %}</dd>
+        <dt>Note</dt><dd>{% if reel.rating %}{{ reel.rating }}/10{% else %}Pas de note{% endif %}</dd>
+        <dt>Mots-clés</dt><dd>{% if reel.tags %}{{ reel.tags }}{% else %}Aucun{% endif %}</dd>
+      </dl>
+      <h2>Commentaire</h2>
+      <p>{% if reel.comment %}{{ reel.comment|linebreaksbr }}{% else %}Pas de commentaire.{% endif %}</p>
+      <p><a class="ui-btn ui-btn--solid" href="{{ reel.url }}" target="_blank" rel="noopener">Ouvrir le reel</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

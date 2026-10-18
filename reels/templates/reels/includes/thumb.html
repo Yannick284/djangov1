@@ -1,0 +1,5 @@
+{% if reel.image_src %}
+  <img src="{{ reel.image_src }}" alt="" loading="lazy" referrerpolicy="no-referrer">
+{% else %}
+  <span class="rl-noimg">Pas d'image</span>
+{% endif %}

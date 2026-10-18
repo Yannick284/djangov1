@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Page introuvable · Yannick Wahl{% endblock %}
+
+{% block content %}
+<div class="ui-narrow" style="padding-block: clamp(3rem, 10vw, 7rem);">
+  <h1 style="font-size: var(--step-4); letter-spacing: -0.025em;">Page introuvable</h1>
+  <p style="max-width: 36ch; color: var(--yw-text-2); font-size: var(--step-1);">
+    Cette adresse n'existe pas ou n'est plus accessible. Tu peux repartir de l'accueil ou parcourir les articles.
+  </p>
+  <p style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+    <a class="ui-btn ui-btn--solid" href="{% url 'starting-page' %}">Retour à l'accueil</a>
+    <a class="ui-btn" href="{% url 'posts-page' %}">Voir les articles</a>
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Modifier un reel{% else %}Ajouter un reel{% endif %} · Reels · Yannick Wahl{% endblock %}
+{% block css_files %}<link rel="stylesheet" href="{% static 'reels/style.css' %}">{% endblock %}
+
+{% block content %}
+<div class="ui-wrap rl">
+  <header class="rl-head">
+    <h1>{% if form.instance.pk %}Modifier un reel{% else %}Ajouter un reel{% endif %}</h1>
+  </header>
+
+  <form class="rl-form" method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="ui-errors">{{ form.non_field_errors }}</div>{% endif %}
+
+    <div class="rl-form__grid">
+      <div class="rl-form__full">{% include "reels/includes/field.html" with field=form.url %}</div>
+      <div class="rl-form__full">{% include "reels/includes/field.html" with field=form.title %}<span class="helptext">Laisse vide : on essaie de le récupérer depuis le lien.</span></div>
+      <div>
+        {% include "reels/includes/field.html" with field=form.category %}
+        <p><a href="{% url 'reels:category-create' %}">Créer une catégorie</a></p>
+      </div>
+      {% include "reels/includes/field.html" with field=form.status %}
+      {% include "reels/includes/field.html" with field=form.rating %}
+      {% include "reels/includes/field.html" with field=form.tags %}
+      <div class="rl-form__full">{% include "reels/includes/field.html" with field=form.comment %}</div>
+      {% include "reels/includes/field.html" with field=form.thumbnail_url %}
+      {% include "reels/includes/field.html" with field=form.thumbnail %}
+    </div>
+
+    <div class="rl-form__actions">
+      <button class="ui-btn ui-btn--solid" type="submit">Enregistrer</button>
+      <a class="ui-btn" href="{% if form.instance.pk %}{% url 'reels:detail' form.instance.pk %}{% else %}{% url 'reels:list' %}{% endif %}">Annuler</a>
+      {% if form.instance.pk %}<a class="ui-btn rl-danger" href="{% url 'reels:delete' form.instance.pk %}">Supprimer</a>{% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+/* Formulaire de création d'article */
+
+.post-form-page { padding-block: clamp(2rem, 5vw, 3.5rem) 1rem; }
+.post-form-page h1 { font-size: var(--step-3); margin-bottom: 1.5rem; }
+
+.post-form .ui-field input[type="file"] {
+  min-height: 0;
+  padding: 0.5rem;
+}
+
+.post-form__check label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  cursor: pointer;
+}
+.post-form__check input[type="checkbox"] {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--yw-accent);
+}
+
+.post-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* Markdown : onglets écrire / aperçu */
+.md-tabs { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.4rem; }
+.md-tabs label { margin: 0; }
+.md-tabs .ui-chip { padding: 0.2rem 0.7rem; font-size: 0.88rem; cursor: pointer; }
+.md-preview { min-height: 9rem; padding: 0.9rem 1rem; border: 1px solid var(--yw-line); border-radius: var(--radius-control); background: var(--yw-surface); }
+.post-form .ui-field textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.95rem; }
+
+/* Mots-clés */
+.post-form__tags { border: 0; padding: 0; }
+.post-form__tags legend { font-weight: 500; margin-bottom: 0.4rem; padding: 0; }
+.post-form__taglist ul { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin: 0; padding: 0; }
+.post-form__taglist label { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 400; margin: 0; }
+.post-form__taglist input { accent-color: var(--yw-accent); }
